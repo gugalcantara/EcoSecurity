@@ -62,7 +62,7 @@ def test_escolhe_o_sinal_que_separa_a_piscada():
     linha = next(s for s in r["sinais"] if s["sinal"] == "escuro")
     assert linha["piscadas_percebidas"] == 5 and linha["separacao"] > 3
     assert r["melhor_sinal"] == "escuro"
-    assert "melhor sinal nesta rodada: escuro" in relatorio(r)
+    assert "melhor sinal nesta medição: escuro" in relatorio(r)
 
 
 def test_sinal_que_sobe_na_piscada_tambem_e_reconhecido():
@@ -74,3 +74,39 @@ def test_nao_sugere_aumentar_o_deslocamento():
     """Mover mais não dá segurança (deslizar uma foto custa o mesmo): só sugere reduzir."""
     r = analisar(_sessao(deslize=1.0), 30.0, ATUAL)
     assert "deslocamento_minimo" not in r["sugerido"]
+
+
+# ------------------------------------------------------------------ detector padrão (região dos olhos)
+def _serie_regiao(parado, piscar, deslizar):
+    regs = [Registro("PARADO", i, True, regiao=v) for i, v in enumerate(parado)]
+    regs += [Registro("PISCAR", 100 + i, True, regiao=v) for i, v in enumerate(piscar)]
+    regs += [Registro("ESQUERDA", 200 + i, True, regiao=v) for i, v in enumerate(deslizar)]
+    return regs
+
+
+def test_picos_separam_cada_piscada():
+    from ferramentas.calibrar_vivacidade import picos
+    serie = [0.1, 0.2, 0.9, 1.1, 0.8, 0.1, None, 0.1, 0.05, 0.7, 0.75, 0.2, 0.1, 0.1, 0.1, 0.25]
+    assert picos(serie) == [1.1, 0.75]
+
+
+def test_sugere_limiar_entre_o_pior_sem_piscar_e_a_piscada_mais_fraca():
+    from ferramentas.calibrar_vivacidade import analisar_regiao
+    piscar = []
+    for pico in (1.2, 0.95, 0.7, 0.66, 0.62):
+        piscar += [0.1, 0.1, 0.1, pico, pico - 0.1, 0.1, 0.1, 0.1]
+    r = analisar_regiao(_serie_regiao([0.1, 0.15, 0.2], piscar, [0.3, 0.4, 0.1]), 0.85)
+    assert r["pior_sem_piscar"] == 0.4 and r["picos_piscando"] == [1.2, 0.95, 0.7, 0.66, 0.62]
+    assert r["limiar_sugerido"] == 0.51 and not r["avisos"]
+    resultado = analisar(_serie_regiao([0.1, 0.15, 0.2], piscar, [0.3, 0.4, 0.1]), 27.0,
+                         {"vizinhos_olhos": 3, "queda_ear_minima": 0.4, "deslocamento_minimo": 0.15,
+                          "limiar_regiao": 0.85})
+    assert resultado["sugerido"]["limiar_regiao"] == 0.51
+    assert "picos das piscadas: 1.20, 0.95" in relatorio(resultado)
+
+
+def test_sem_separacao_nao_sugere_limiar():
+    from ferramentas.calibrar_vivacidade import analisar_regiao
+    piscar = [0.1, 0.5, 0.1, 0.1, 0.1, 0.55, 0.1, 0.1, 0.1, 0.5, 0.1]
+    r = analisar_regiao(_serie_regiao([0.1], piscar, [0.5]), 0.85)
+    assert "limiar_sugerido" not in r and r["avisos"]

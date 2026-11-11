@@ -118,20 +118,22 @@ def app(tmp_path):
     return app
 
 
-def test_ferramenta_ancora_no_arquivo_e_confere_depois(app, tmp_path, capsys):
-    arquivo = tmp_path / "ancoras.txt"
-    assert verificar_trilha.main(["--ancorar", "--arquivo", str(arquivo)], app=app) == 0
-    saida = capsys.readouterr().out
-    linha = arquivo.read_text(encoding="utf-8").strip()
-    assert linha.startswith("ECOSEC-TRILHA") and linha in saida and "FORA do banco" in saida
+def test_ferramenta_confere_a_linha_e_o_arquivo_de_ancoras(app, tmp_path, capsys):
+    linha = app.administracao.ancora_trilha().texto()        # no uso real, a linha vem do painel administrativo
     assert verificar_trilha.main(["--conferir", linha], app=app) == 0
+    arquivo = tmp_path / "ancoras.txt"
     arquivo.write_text("anotação: âncora do dia 11\n" + linha + "\n", encoding="utf-8")
     assert verificar_trilha.main(["--conferir-arquivo", str(arquivo)], app=app) == 0
+    assert "[ OK ] registro 4" in capsys.readouterr().out
 
 
-def test_ferramenta_acusa_a_cauda_apagada(app, tmp_path, capsys):
-    verificar_trilha.main(["--ancorar"], app=app)
-    linha = [l for l in capsys.readouterr().out.splitlines() if l.startswith("ECOSEC-TRILHA")][0]
+def test_ferramenta_nao_gera_ancora_que_fica_so_no_painel(app):
+    with pytest.raises(SystemExit):
+        verificar_trilha.main(["--ancorar"], app=app)
+
+
+def test_ferramenta_acusa_a_cauda_apagada(app, capsys):
+    linha = app.administracao.ancora_trilha().texto()
     repo = app.administracao.trilha.repo
     del repo._registros[-2:]                              # o que o root faria direto no banco
     assert verificar_trilha.main([], app=app) == 0       # a corrente continua "íntegra"

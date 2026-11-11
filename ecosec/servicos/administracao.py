@@ -50,6 +50,18 @@ Dentro dela só se conserta o acesso, por 30 minutos, e tudo vai para a trilha
 como EMERGENCIA. Erros contam numa contenção própria e global (#EMERGENCIA), e a
 mensagem de erro nunca diz qual código falhou.
 
+Âncora da trilha: dentro do painel, quem já passou pelo login, pelo rosto e pelo
+celular confirma só com o código atual do próprio celular (a mesma contenção da
+abertura). A geração é gravada na trilha antes do cálculo, e a linha que vai para
+fora do banco aponta para esse registro: quem gerou fica provado pela própria
+âncora. Trilha adulterada não é ancorada. Conferir uma linha só lê, então
+dispensa o código, mas também fica na trilha.
+
+Ferramentas de terminal que leem o modelo facial (o experimento da curva DET):
+no terminal não há administrador logado, então elas pedem a matrícula, a senha e
+o código do celular de um administrador, com contenção própria (#FER), e gravam
+na trilha o início e o fim, sem nenhuma distância.
+
 Regras de gestão (de antes, mantidas):
 - Desativar não apaga nada: amostras e histórico continuam íntegros.
 - Revogar o consentimento: 1º desativa, 2º revoga, 3º ELIMINA o rosto do
@@ -74,6 +86,7 @@ from ecosec.dominio.perfis import CRITICOS, Perfil
 from ecosec.seguranca.acesso import s1_contencao, s2_conhecimento, totp
 from ecosec.seguranca.acesso.s1_contencao import ParametrosContencao
 from ecosec.seguranca.acesso.s2_conhecimento import PoliticaSenha
+from ecosec.seguranca.evidencia.s10_trilha import Ancora
 
 log = logging.getLogger(__name__)
 
@@ -81,6 +94,7 @@ log = logging.getLogger(__name__)
 MATRICULA_ADMIN = "#ADMIN"                      # senha de instalação
 CHAVE_EMERGENCIA = "#EMERGENCIA"                # contenção global do acesso de emergência
 SUFIXO_CODIGO, SUFIXO_APROVACAO = "#COD", "#APR"
+SUFIXO_FERRAMENTA = "#FER"                      # contenção própria das ferramentas de terminal
 
 
 class AcaoCritica(str, Enum):
@@ -219,6 +233,100 @@ class ServicoAdministracao:
 
     def conferir_ancora_trilha(self, ancorada):
         return self.trilha.conferir_ancora(ancorada)
+
+    def gerar_ancora(self, usuario_id: int | None, codigo: str) -> tuple[object | None, str | None]:
+        """A âncora pelo painel: o administrador logado confirma com o código do próprio celular. A geração é
+        registrada na trilha antes de calcular a âncora, de modo que a linha guardada fora do banco aponta para o
+        registro que diz quem a gerou. Trilha adulterada não é ancorada. Devolve (âncora, None) ou (None, recusa)."""
+        try:
+            recusa = self._conferir_proprio_codigo(usuario_id, codigo, "ANCORA_TRILHA")
+            if recusa:
+                return None, recusa
+            verificacao = self.trilha.verificar()
+            if not verificacao.integra:
+                self._registrar("NEGADO", "ANCORA_TRILHA", usuario_id=usuario_id, detalhe=str(verificacao))
+                return None, f"A trilha não está íntegra, então a âncora não foi gerada. {verificacao}"
+            self._registrar_obrigatorio("REGISTRADO", "ANCORA_TRILHA", usuario_id=usuario_id,
+                                        detalhe=f"âncora gerada pelo painel ({verificacao.registros_verificados} registros conferidos)")
+            return self.trilha.ancora(), None
+        except Exception:  # noqa: BLE001, banco ou trilha fora do ar: sem registro, sem âncora
+            log.exception("Falha ao gerar a âncora da trilha")
+            return None, "Falha interna: a âncora não foi gerada. Procure o registro de erros."
+
+    def conferir_ancora_painel(self, usuario_id: int | None, linha: str) -> tuple[object | None, str | None]:
+        """Confere uma linha de âncora guardada fora do banco. Só lê a trilha, por isso dispensa o código do
+        celular, mas o resultado fica registrado. Devolve (conferência, None) ou (None, recusa)."""
+        if not self.eh_administrador(usuario_id) or self._usuario_ativo(usuario_id) is None:
+            return None, "Só um administrador pode fazer isso."
+        try:
+            ancorada = Ancora.de_texto(linha)
+        except ValueError as erro:
+            return None, str(erro)
+        try:
+            conferencia = self.trilha.conferir_ancora(ancorada)
+        except Exception:  # noqa: BLE001
+            log.exception("Falha ao conferir a âncora da trilha")
+            return None, "Falha interna: a âncora não foi conferida. Procure o registro de erros."
+        self._registrar("REGISTRADO" if conferencia.valida else "NEGADO", "CONFERENCIA_ANCORA",
+                        usuario_id=usuario_id, detalhe=f"registro {ancorada.id}: " + (
+                        "confere" if conferencia.valida else conferencia.problema))
+        return conferencia, None
+
+    def autorizar_ferramenta(self, matricula: str, senha: str, codigo: str, ferramenta: str) -> tuple[int | None,
+                                                                                                    str | None]:
+        """Ferramenta de terminal que lê o modelo facial e os consentimentos (o experimento da curva DET). No
+        terminal não há administrador logado, então ela pede a matrícula, a senha e o código do celular de um
+        administrador ativo. A contenção é própria (#FER), e o início fica na trilha: sem o registro, a ferramenta
+        não roda. Devolve (id do administrador, None) ou (None, recusa)."""
+        try:
+            informada = (matricula or "").strip().upper()[:20]
+            chave = (informada or "?") + SUFIXO_FERRAMENTA
+            bloqueio = self._bloqueado_ate(chave)
+            if bloqueio is not None:
+                return None, f"Bloqueado por erros seguidos até as {bloqueio:%H:%M}."
+            usuario = self.usuarios.por_matricula(informada) if informada else None
+            confere = s2_conhecimento.conferir(senha or "", usuario.senha_hash if usuario else None, self.custo)
+            if not confere or usuario is None or self._admin_ativo(usuario.id) is None \
+                    or self._usuario_ativo(usuario.id) is None:
+                bloqueio = self._contar_falha(chave)
+                self._registrar("NEGADO", "FERRAMENTA_RECUSADA", matricula_informada=informada or None,
+                                detalhe=ferramenta)
+                return None, ("Matrícula ou senha incorretas, ou o cadastro não é de um administrador ativo."
+                              + (f" Bloqueado por erros seguidos até as {bloqueio:%H:%M}." if bloqueio else ""))
+            recusa = self._conferir_proprio_codigo(usuario.id, codigo, ferramenta)
+            if recusa:
+                return None, recusa
+            self._zerar(chave)
+            self._registrar_obrigatorio("REGISTRADO", "FERRAMENTA_INICIO", usuario_id=usuario.id,
+                                        matricula_informada=usuario.matricula, detalhe=ferramenta)
+            return usuario.id, None
+        except Exception:  # noqa: BLE001, banco ou trilha fora do ar: a ferramenta não roda
+            log.exception("Falha ao autorizar a ferramenta %s", ferramenta)
+            return None, "Falha interna: a ferramenta não foi liberada. Procure o registro de erros."
+
+    def registrar_fim_ferramenta(self, usuario_id: int, ferramenta: str, resumo: str) -> None:
+        """O fim da ferramenta, com um resumo sem dado biométrico (por exemplo, quantas tentativas foram gravadas)."""
+        self._registrar("REGISTRADO", "FERRAMENTA_FIM", usuario_id=usuario_id, detalhe=f"{ferramenta}: {resumo}")
+
+    def _conferir_proprio_codigo(self, usuario_id: int | None, codigo: str, acao: str) -> str | None:
+        """Ação sensível de quem JÁ está no painel: basta o código do próprio celular (ou um de recuperação).
+        Usa a mesma contenção da abertura do painel. Devolve a recusa, ou None se o código confere."""
+        adm, usuario = self._admin_ativo(usuario_id), self._usuario_ativo(usuario_id)
+        if adm is None or usuario is None:
+            return "Só um administrador pode fazer isso."
+        chave = usuario.matricula + SUFIXO_CODIGO
+        bloqueio = self._bloqueado_ate(chave)
+        if bloqueio is not None:
+            return f"Código do celular bloqueado por erros seguidos até as {bloqueio:%H:%M}."
+        achados = self._quem_tem_o_codigo(codigo or "", [adm])
+        if achados and self._consumir(achados[0]):
+            self._zerar(chave)
+            return None
+        bloqueio = self._contar_falha(chave)
+        self._registrar("NEGADO", Motivo.CODIGO_INCORRETO.value, usuario_id=usuario_id,
+                        matricula_informada=usuario.matricula, detalhe=acao)
+        return (f"Código não aceito. Código do celular bloqueado até as {bloqueio:%H:%M}." if bloqueio
+                else "Código não aceito. Digite o código ATUAL do seu celular.")
 
     def trilha_recente(self, limite: int = 300):
         return self.trilha.recentes(limite)

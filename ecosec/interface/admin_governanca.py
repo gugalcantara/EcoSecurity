@@ -4,6 +4,8 @@
 - PainelCadastroCelular   o primeiro acesso de um admin: QR para o aplicativo, primeiro código e os
                           códigos de recuperação, mostrados uma vez
 - DialogoAprovacao        ação crítica: o código ATUAL do celular de OUTRO administrador
+- pedir_codigo_proprio    ação sensível de quem já está no painel: o código do PRÓPRIO celular
+- mostrar_ancora / pedir_linha_ancora   a âncora da trilha, para guardar e conferir fora do banco
 - PaginaEmergencia        no login: os códigos do quórum, em qualquer ordem, sem instruções na tela
 - PainelEmergencia        a Administração restrita do acesso de emergência: só consertar o acesso
 """
@@ -282,6 +284,70 @@ def pedir_aprovacao(parent, servico, acao: str, alvo: str | None) -> str | None:
         caixa.yesButton.setText("Continuar")
         return "" if caixa.exec() else None
     dialogo = DialogoAprovacao(acao, alvo, parent)
+    return dialogo.campo.text() if dialogo.exec() else None
+
+
+# ============================================================ código do próprio celular e âncora da trilha
+class DialogoCodigoProprio(MessageBoxBase):
+    def __init__(self, acao: str, explicacao: str, parent=None):
+        super().__init__(parent)
+        self.viewLayout.addWidget(SubtitleLabel(acao))
+        self.viewLayout.addWidget(_corpo(explicacao))
+        self.campo = campo_codigo("Código atual do SEU celular")
+        self.viewLayout.addWidget(self.campo)
+        self.yesButton.setText("Confirmar")
+        self.cancelButton.setText("Cancelar")
+        self.widget.setMinimumWidth(500)
+
+
+def pedir_codigo_proprio(parent, acao: str, explicacao: str) -> str | None:
+    """O código digitado, ou None se desistiu."""
+    dialogo = DialogoCodigoProprio(acao, explicacao, parent)
+    return dialogo.campo.text() if dialogo.exec() else None
+
+
+class DialogoAncora(MessageBoxBase):
+    def __init__(self, linha: str, parent=None):
+        super().__init__(parent)
+        self.viewLayout.addWidget(SubtitleLabel("Âncora da trilha"))
+        self.viewLayout.addWidget(_corpo(
+            "Guarde esta linha FORA deste computador: no celular, num e-mail ou impressa. Ela prova como a trilha "
+            "estava agora. Se alguém apagar ou recalcular os últimos registros direto no banco, a conferência "
+            "desta linha mostra a diferença."))
+        self.campo = LineEdit()
+        self.campo.setText(linha)
+        self.campo.setReadOnly(True)
+        self.viewLayout.addWidget(self.campo)
+        copiar = PushButton("Copiar")
+        copiar.setIcon(FIF.COPY)
+        copiar.clicked.connect(lambda: QGuiApplication.clipboard().setText(linha))
+        self.viewLayout.addWidget(copiar, 0, Qt.AlignmentFlag.AlignLeft)
+        self.yesButton.setText("Fechar")
+        self.cancelButton.hide()
+        self.widget.setMinimumWidth(640)
+
+
+def mostrar_ancora(parent, linha: str) -> None:
+    DialogoAncora(linha, parent).exec()
+
+
+class DialogoConferirAncora(MessageBoxBase):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.viewLayout.addWidget(SubtitleLabel("Conferir uma âncora"))
+        self.viewLayout.addWidget(_corpo(
+            "Cole a linha guardada fora do computador (começa com ECOSEC-TRILHA). O sistema confere se a trilha "
+            "continua íntegra e se ainda contém o registro ancorado com o mesmo hash."))
+        self.campo = LineEdit()
+        self.campo.setPlaceholderText("ECOSEC-TRILHA ...")
+        self.viewLayout.addWidget(self.campo)
+        self.yesButton.setText("Conferir")
+        self.cancelButton.setText("Cancelar")
+        self.widget.setMinimumWidth(640)
+
+
+def pedir_linha_ancora(parent) -> str | None:
+    dialogo = DialogoConferirAncora(parent)
     return dialogo.campo.text() if dialogo.exec() else None
 
 

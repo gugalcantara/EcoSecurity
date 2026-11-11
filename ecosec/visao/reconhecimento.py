@@ -110,6 +110,20 @@ class ReconhecedorLBPH:
         distancias = [d for r, d in resultados if r == rotulo_alegado]
         return float(min(distancias)) if distancias else None
 
+    def distancias(self, face: np.ndarray) -> dict[int, float]:
+        """A verificação 1:1 contra todos os rótulos de uma vez: {rótulo: menor distância às amostras dele}. O mesmo
+        que chamar verificar() para cada rótulo, com uma comparação só (usado no experimento da curva DET)."""
+        with self._lock:
+            if not self._treinado:
+                return {}
+            coletor = cv2.face.StandardCollector_create()
+            self._modelo.predict_collect(face, coletor)
+            resultados = coletor.getResults(False)
+        saida: dict[int, float] = {}
+        for rotulo, distancia in resultados:
+            saida[int(rotulo)] = min(float(distancia), saida.get(int(rotulo), float("inf")))
+        return saida
+
     # ------------------------------------------------------------ persistência cifrada
     def salvar_cifrado(self, caminho: Path, chave: bytes) -> None:
         """O modelo contém os histogramas das faces: é dado biométrico. Vai para

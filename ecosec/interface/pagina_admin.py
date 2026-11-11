@@ -32,7 +32,8 @@ from ecosec.dominio.motivos import Motivo
 from ecosec.dominio.niveis import Nivel
 from ecosec.dominio.perfis import CRITICOS, Perfil
 from ecosec.interface.admin_governanca import (PainelCadastroCelular, PainelCodigoCelular, PainelEmergencia,
-                                               pedir_aprovacao)
+                                               mostrar_ancora, pedir_aprovacao, pedir_codigo_proprio,
+                                               pedir_linha_ancora)
 from ecosec.interface.assistente_cadastro import AssistenteCadastro
 from ecosec.interface.atividade import PrazoInatividade
 from ecosec.interface.componentes import ChecklistSenha, ColunasResponsivas, linha_rotulada
@@ -451,8 +452,18 @@ class PaginaAdministracao(QWidget):
         atualizar = PushButton("Atualizar")
         atualizar.setIcon(FIF.SYNC)
         atualizar.clicked.connect(self._abrir_trilha)
+        ancorar = PushButton("Gerar âncora")
+        ancorar.setIcon(FIF.PIN)
+        ancorar.setToolTip("Gera a linha com o último registro da trilha, para guardar fora do computador. "
+                           "Pede o código do seu celular e fica registrado na trilha.")
+        ancorar.clicked.connect(self._gerar_ancora)
+        conferir = PushButton("Conferir âncora")
+        conferir.setIcon(FIF.SEARCH)
+        conferir.clicked.connect(self._conferir_ancora)
         topo.addWidget(explicacao, 1)
         topo.addWidget(atualizar)
+        topo.addWidget(conferir)
+        topo.addWidget(ancorar)
         topo.addWidget(verificar)
         v.addLayout(topo)
         self.resultado_trilha = StrongBodyLabel()
@@ -516,6 +527,42 @@ class PaginaAdministracao(QWidget):
                 if self.tabela_trilha.item(linha, 0).text() == str(resultado.id_rompido):
                     self.tabela_trilha.selectRow(linha)
                     self.tabela_trilha.scrollToItem(self.tabela_trilha.item(linha, 0))
+
+    def pedir_codigo_proprio(self, acao: str, explicacao: str) -> str | None:
+        """Separado para os testes trocarem (o diálogo é modal)."""
+        return pedir_codigo_proprio(self.window(), acao, explicacao)
+
+    def mostrar_ancora(self, linha: str) -> None:
+        mostrar_ancora(self.window(), linha)
+
+    def pedir_linha_ancora(self) -> str | None:
+        return pedir_linha_ancora(self.window())
+
+    def _gerar_ancora(self):
+        codigo = self.pedir_codigo_proprio(
+            "Gerar a âncora da trilha",
+            "A âncora é a linha com o último registro da trilha, para guardar fora deste computador. Para "
+            "gerá-la, digite o código que o SEU celular mostra agora. A geração fica registrada na trilha.")
+        if codigo is None:
+            return
+        ancorada, recusa = self.servico.gerar_ancora(self._eu(), codigo)
+        if recusa:
+            InfoBar.warning("Âncora não gerada", recusa, duration=7000, position=InfoBarPosition.TOP, parent=self)
+        else:
+            self.mostrar_ancora(ancorada.texto())
+        self._abrir_trilha()
+
+    def _conferir_ancora(self):
+        linha = self.pedir_linha_ancora()
+        if linha is None:
+            return
+        conferencia, recusa = self.servico.conferir_ancora_painel(self._eu(), linha)
+        if recusa:
+            InfoBar.warning("Âncora não conferida", recusa, duration=7000, position=InfoBarPosition.TOP, parent=self)
+            return
+        self._abrir_trilha()
+        self.resultado_trilha.setText(str(conferencia))
+        self.resultado_trilha.setStyleSheet(f"color:{VERDE if conferencia.valida else VERMELHO};")
 
     # ============================================================ relatórios do sistema
     def _aba_relatorios(self):

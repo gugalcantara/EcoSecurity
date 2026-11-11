@@ -16,7 +16,7 @@ PISCAR: abertura do olho por landmarks. O FacemarkLBF do OpenCV (Local Binary
   Quadros com o rosto em deslocamento não contam (o ajuste dos pontos piora).
 
   REGIÃO DOS OLHOS (alternativa ao EAR, escolhida em `sinal_piscada` conforme a
-  câmera; ver config/ecosec.toml e). Com webcam de baixa
+  câmera; ver config/ecosec.toml). Com webcam de baixa
   qualidade, o FacemarkLBF quase não fecha o contorno do olho: numa gravação
   com gabarito (10 piscadas em instantes conhecidos, 20 quadros/s) o EAR caiu
   só 12% a 27% na piscada, do tamanho do ruído, e nunca chegou aos 40% pedidos.

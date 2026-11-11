@@ -715,6 +715,30 @@ def test_relatorio_s10_e_o_botao_de_registrar_a_revisao(janela):
     assert any(r.evento.motivo == "REVISAO_ACESSOS" for r in janela.app.administracao.trilha_recente())
 
 
+def test_ancora_da_trilha_pelo_painel_com_o_codigo_do_proprio_celular(janela):
+    import datetime as _dt
+    from ecosec.seguranca.acesso import totp
+    admin = vincular_admin(janela)
+    fazer_login(janela, admin, SENHA_ADMIN_USUARIO, 700)
+    segredo = cadastrar_celular_pela_tela(janela)
+    pa = janela.pagina_admin
+    pa._abrir_trilha()
+    mostradas = []
+    pa.mostrar_ancora = mostradas.append
+    pa.pedir_codigo_proprio = lambda acao, explicacao: None                 # desistiu: nada acontece
+    pa._gerar_ancora()
+    assert mostradas == []
+    proximo = _dt.datetime.now() + _dt.timedelta(seconds=30)               # o código do cadastro já foi usado
+    pa.pedir_codigo_proprio = lambda acao, explicacao: totp.codigo(segredo, proximo)
+    pa._gerar_ancora()
+    assert len(mostradas) == 1 and mostradas[0].startswith("ECOSEC-TRILHA ")
+    registros = janela.app.administracao.trilha_recente()
+    assert any(r.evento.motivo == "ANCORA_TRILHA" and r.evento.usuario_id == admin.id for r in registros)
+    pa.pedir_linha_ancora = lambda: mostradas[0]
+    pa._conferir_ancora()
+    assert "confere" in pa.resultado_trilha.text()
+
+
 # ---------------------------------------------------------------- acesso de emergência
 def trio_de_admins(janela):
     """Rafael (configuração inicial), Bruno e Caio: os três administradores, com celular. Devolve os segredos."""

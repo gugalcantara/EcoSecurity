@@ -1,6 +1,7 @@
 """Experimento da curva DET: o cálculo (ecosec/visao/desempenho.py) e a ferramenta (ferramentas/experimento_det.py),
 com distâncias fabricadas, sem câmera, banco nem modelo."""
 from contextlib import contextmanager
+from pathlib import Path
 from types import SimpleNamespace
 
 import numpy as np
@@ -254,3 +255,136 @@ def test_arquivo_de_dados_e_gravado_e_lido_de_volta(tmp_path):
     dados["tentativas"].append({"participante": "P1", "sessao": 1, "quadros": []})
     ex.gravar_dados(caminho, dados)
     assert ex.ler_dados(caminho) == dados
+
+
+# ------------------------------------------------------------------ cadastros da mesma pessoa
+def test_ignorar_tira_do_experimento_o_cadastro_da_mesma_pessoa():
+    usuarios = _Usuarios([_u(1), _u(2), _u(3)])
+    consentimentos = _Consentimentos({1: _c(), 2: _c(), 3: _c()})
+    assert [u.id for u in ex.elegiveis(usuarios, consentimentos, {1, 2, 3}, ignorar=["mat0002 "])] == [1, 3]
+
+
+def test_coleta_sozinho_mede_so_as_genuinas_e_ignora_a_identificacao_do_mesmo_rosto(sem_janela):
+    app = _app_falso(dono=1)
+    app.reconhecedor.identificar = lambda face: (2, 38.0)        # o mais parecido é o outro cadastro dele
+    dados = {"sal": "s", "tentativas": []}
+    ex.coletar(app, dados, "MAT0001", 1, 1, 5, 3, preparo=0, ignorar={"MAT0002", "MAT0003"})
+    q = dados["tentativas"][0]["quadros"][0]
+    assert q["genuina"] == 40.0 and q["impostoras"] == {} and "identificacao" not in q
+
+
+# ------------------------------------------------------------------ base pública
+@pytest.mark.parametrize("nome, esperado", [
+    ("yaleB11_P00A+000E+00.pgm", 1), ("yaleB11_P00A+010E-20.pgm", 2), ("yaleB11_P00A+035E+15.pgm", 3),
+    ("yaleB11_P00A+060E-20.pgm", 4), ("yaleB11_P00A+130E+20.pgm", 5), ("yaleB11_P00_Ambient.pgm", None),
+    ("yaleB11_P00A+000E+00.pgm.bad", None)])
+def test_subconjunto_de_iluminacao_pelo_nome_do_arquivo(nome, esperado):
+    assert ex.subconjunto_yale(nome) == esperado
+
+
+def _base_sintetica(pessoas=4, por_subconjunto=3):
+    """Uma textura própria por pessoa, com ruído leve por imagem; a imagem marcada com "escura" é recusada."""
+    import cv2
+    rng = np.random.default_rng(3)
+    padroes = {f"yaleB{10 + p}": rng.integers(0, 256, (25, 25)).astype(np.uint8) for p in range(pessoas)}
+    imagens, base = {}, {}
+    for nome, padrao in padroes.items():
+        lista = []
+        for s in range(1, 6):
+            for i in range(por_subconjunto):
+                arq = Path(f"{nome}/{nome}_s{s}_{i}{'_escura' if s == 5 and i == 0 else ''}.pgm")
+                img = cv2.resize(padrao, (200, 200), interpolation=cv2.INTER_NEAREST).astype(np.int16)
+                imagens[arq] = np.clip(img + rng.normal(0, 6, img.shape), 0, 255).astype(np.uint8)
+                lista.append((s, arq))
+        base[nome] = lista
+    return base, imagens
+
+
+def _novo_reconhecedor():
+    from ecosec.configuracao import carregar
+    from ecosec.visao.reconhecimento import ParametrosLBPH, ReconhecedorLBPH
+    return ReconhecedorLBPH(ParametrosLBPH.de_configuracao(carregar()))
+
+
+def test_base_cadastra_o_subconjunto_1_e_mede_os_outros_num_modelo_proprio():
+    pessoas, imagens = _base_sintetica()
+    alvo = []
+    medida = ex.medir_base(pessoas, lambda img: img, _novo_reconhecedor,
+                           ler=lambda arq: None if "_escura" in arq.name else imagens[arq],
+                           alvo=lambda face: alvo.append(1) or 99.0)
+    assert medida["pessoas"] == 4 and medida["cadastro"] == {"imagens": 12, "aprovadas": 12}
+    s5 = medida["por_subconjunto"]["5"]
+    assert (s5["imagens"], s5["rejeitadas_qualidade"], len(s5["genuinas"])) == (12, 4, 8)
+    assert len(s5["impostoras"]) == len(s5["genuinas"]) * 3              # contra cada uma das outras três
+    s2 = medida["por_subconjunto"]["2"]
+    assert np.mean(s2["genuinas"]) < np.mean(s2["impostoras"])
+    assert len(medida["alvo_impostoras"]) == len(alvo) == 4 * 15 - 4      # toda imagem aprovada, cadastro incluído
+    resumo = ex.analisar_base(medida)                                     # a curva: subconjuntos 2 e 3
+    assert resumo["subconjuntos_curva"] == ["2", "3"] and resumo["falha_aquisicao"] == 0
+    assert resumo["tentativas_genuinas"] == 24 and resumo["tentativas_impostor"] == 72 and "eer" in resumo
+    assert "eer" in resumo["subconjuntos"]["5"]
+    assert "subconjunto 5: 12 imagens, 4 recusadas" in ex.texto_base(resumo)
+    com_extremos = ex.analisar_base(medida, subconjuntos=("2", "3", "4", "5"))
+    assert com_extremos["falha_aquisicao"] == 4 / 48
+
+
+def test_reconhecedor_devolve_a_menor_distancia_de_cada_rotulo_como_o_verificar():
+    pessoas, imagens = _base_sintetica(pessoas=3, por_subconjunto=2)
+    r = _novo_reconhecedor()
+    for rotulo, (_, lista) in enumerate(sorted(pessoas.items()), start=1):
+        r.adicionar([imagens[a] for s, a in lista if s == 1], rotulo)
+    face = imagens[pessoas["yaleB10"][4][1]]
+    todas = r.distancias(face)
+    assert set(todas) == {1, 2, 3} and all(todas[k] == r.verificar(face, k) for k in todas)
+    assert min(todas, key=todas.get) == r.identificar(face)[0]
+
+
+def test_sistema_junta_as_genuinas_da_camera_com_os_rostos_da_base_contra_o_alvo():
+    dados = _dados_sinteticos()
+    alvo = dados["tentativas"][0]["participante"]
+    base = {"alvo": {"sal": "x", "codigo": alvo, "impostoras": [80.0 + i % 20 for i in range(300)]}}
+    resumo = ex.analisar_sistema(dados, base, quadros=5)
+    assert resumo["tentativas_genuinas"] == 8 and resumo["impostores_da_base"] == 300
+    assert resumo["tentativas_impostor"] == 300 + 8 * 2 and "eer" in resumo
+    assert ex.analisar_sistema(dados, {"alvo": {**base["alvo"], "sal": "outro"}}, quadros=5) is None
+
+
+def test_figura_com_mais_de_uma_curva(tmp_path):
+    resumo = ex.analisar(_dados_sinteticos(), quadros=5)
+    caminho = ex.desenhar_curva(resumo, tmp_path / "curva.png", rotulo="Base",
+                                extras=(("Câmera", resumo["curva"]),))
+    assert caminho.exists()
+
+
+# ------------------------------------------------------------------ administrador
+def test_coleta_e_base_pedem_um_administrador():
+    pedidos = []
+
+    def autorizar_ferramenta(matricula, senha, codigo, ferramenta):
+        pedidos.append((matricula, senha, codigo, ferramenta))
+        return (None, "Matrícula ou senha incorretas.") if senha != "certa" else (7, None)
+    app = SimpleNamespace(administracao=SimpleNamespace(autorizar_ferramenta=autorizar_ferramenta))
+    respostas = iter(["ADM0001", "123456"])
+    assert ex.autorizar(app, "EXPERIMENTO DET COLETAR", entrada=lambda _: next(respostas),
+                        ler_senha=lambda _: "certa") == 7
+    assert pedidos[0] == ("ADM0001", "certa", "123456", "EXPERIMENTO DET COLETAR")
+    respostas = iter(["ADM0001", "123456"])
+    with pytest.raises(SystemExit, match="incorretas"):
+        ex.autorizar(app, "X", entrada=lambda _: next(respostas), ler_senha=lambda _: "errada")
+
+
+def test_analise_mostra_far_e_frr_nos_limiares_do_config():
+    resumo = ex.analisar(_dados_sinteticos(), quadros=5, atuais={"1": 70.0, "2": 60.0, "3": 50.0})
+    atuais = resumo["limiares_atuais"]
+    assert [atuais[n]["limiar"] for n in "123"] == [70.0, 60.0, 50.0]
+    assert atuais["1"]["far"] >= atuais["2"]["far"] >= atuais["3"]["far"]
+    assert atuais["1"]["frr"] <= atuais["2"]["frr"] <= atuais["3"]["frr"]
+    assert "Nos limiares do config:" in ex.texto_resumo(resumo)
+
+
+def test_sistema_avisa_quando_os_rostos_da_base_ficam_todos_longe_do_cadastro():
+    dados = _dados_sinteticos()
+    alvo = dados["tentativas"][0]["participante"]
+    base = {"alvo": {"sal": "x", "codigo": alvo, "impostoras": [500.0] * 50}}
+    resumo = ex.analisar_sistema(dados, base, quadros=5)
+    assert any("outra câmera" in a for a in resumo["avisos"])

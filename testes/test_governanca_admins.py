@@ -1,4 +1,5 @@
 """Governança dos administradores: papéis, celular (TOTP), aprovação dupla e acesso de emergência."""
+from dataclasses import replace
 from datetime import datetime, timedelta
 
 import pytest
@@ -343,3 +344,103 @@ def test_emergencia_e_codigos_recusados_viram_alerta_no_monitor(g):
     regras = {(al.gravidade, al.regra) for al in monitor.detectar(g.trilha.recentes(500))}
     assert ("ALTO", "ACESSO_DE_EMERGENCIA") in regras
     assert ("MEDIO", "APROVACAO_RECUSADA") in regras and ("MEDIO", "EMERGENCIA_RECUSADA") in regras
+
+
+# ---------------------------------------------------------------- âncora da trilha pelo painel
+def ultimo(g):
+    return g.trilha.repo.todos()[-1]
+
+
+def test_ancora_pelo_painel_pede_o_codigo_do_proprio_celular_e_aponta_para_o_registro(g):
+    a, b, _ = trio(g)
+    ancora, recusa = g.gerar_ancora(a.id, "000000")
+    assert ancora is None and "Código não aceito" in recusa
+    assert ultimo(g).evento.motivo == "CODIGO_INCORRETO" and ultimo(g).evento.usuario_id == a.id
+    ancora, recusa = g.gerar_ancora(a.id, codigo(g, b))          # o código de outro administrador não serve
+    assert ancora is None and recusa
+    g.relogio_mut.andar()
+    proprio = codigo(g, a)
+    ancora, recusa = g.gerar_ancora(a.id, proprio)
+    assert recusa is None
+    registro = ultimo(g)
+    assert (ancora.id, ancora.hash) == (registro.id, registro.hash_registro)   # a âncora cobre a própria geração
+    assert (registro.evento.motivo, registro.evento.resultado, registro.evento.usuario_id) == (
+        "ANCORA_TRILHA", "REGISTRADO", a.id)
+    assert g.conferir_ancora_trilha(ancora).valida
+    assert g.gerar_ancora(a.id, proprio)[0] is None               # o mesmo código não vale duas vezes
+
+
+def test_quem_nao_e_administrador_nao_gera_nem_confere_ancora(g):
+    trio(g)
+    servidor = pessoa(g, "Davi Sousa", Nivel.N1)
+    assert g.gerar_ancora(servidor.id, "123456") == (None, "Só um administrador pode fazer isso.")
+    assert g.conferir_ancora_painel(servidor.id, "ECOSEC-TRILHA 1 " + "a" * 64)[1] == (
+        "Só um administrador pode fazer isso.")
+
+
+def test_tres_codigos_errados_na_ancora_trancam_o_codigo_do_celular(g):
+    a, _, _ = trio(g)
+    for _ in range(3):
+        _, recusa = g.gerar_ancora(a.id, "000000")
+    assert "bloqueado" in recusa
+    g.relogio_mut.andar()
+    _, recusa = g.gerar_ancora(a.id, codigo(g, a))                # nem confere enquanto está bloqueado
+    assert "bloqueado" in recusa
+
+
+def test_trilha_adulterada_nao_e_ancorada(g):
+    a, _, _ = trio(g)
+    repo = g.trilha.repo
+    r = repo._registros[1]
+    repo._registros[1] = type(r)(replace(r.evento, resultado="CONCEDIDO"), r.hash_anterior, r.hash_registro, r.id)
+    g.relogio_mut.andar()
+    ancora, recusa = g.gerar_ancora(a.id, codigo(g, a))
+    assert ancora is None and "não está íntegra" in recusa
+    assert ultimo(g).evento.motivo == "ANCORA_TRILHA" and ultimo(g).evento.resultado == "NEGADO"
+
+
+def test_conferir_ancora_pelo_painel_registra_e_pega_a_cauda_apagada(g):
+    a, _, _ = trio(g)
+    g.relogio_mut.andar()
+    ancora, _ = g.gerar_ancora(a.id, codigo(g, a))
+    conferencia, recusa = g.conferir_ancora_painel(a.id, ancora.texto())
+    assert recusa is None and conferencia.valida
+    assert (ultimo(g).evento.motivo, ultimo(g).evento.resultado) == ("CONFERENCIA_ANCORA", "REGISTRADO")
+    assert g.conferir_ancora_painel(a.id, "qualquer coisa")[0] is None
+    del g.trilha.repo._registros[ancora.id - 1:]                  # o que o root faria direto no banco
+    conferencia, _ = g.conferir_ancora_painel(a.id, ancora.texto())
+    assert not conferencia.valida and conferencia.problema == "ANCORA_AUSENTE"
+
+
+# ---------------------------------------------------------------- ferramentas de terminal (experimento)
+def com_senha(g, u, senha="Admin#2026abc"):
+    from ecosec.seguranca.acesso import s2_conhecimento
+    g.usuarios.atualizar(replace(g.usuarios.por_id(u.id), senha_hash=s2_conhecimento.gerar_hash(senha, 4)))
+    return senha
+
+
+def test_ferramenta_pede_matricula_senha_e_codigo_de_um_administrador(g):
+    a, _, _ = trio(g)
+    senha = com_senha(g, a)
+    assert g.autorizar_ferramenta(a.matricula, "errada", codigo(g, a), "EXPERIMENTO")[0] is None
+    assert ultimo(g).evento.motivo == "FERRAMENTA_RECUSADA"
+    _, recusa = g.autorizar_ferramenta(a.matricula, senha, "000000", "EXPERIMENTO")
+    assert "Código não aceito" in recusa
+    g.relogio_mut.andar()
+    uid, recusa = g.autorizar_ferramenta(a.matricula.lower(), senha, codigo(g, a), "EXPERIMENTO")
+    assert (uid, recusa) == (a.id, None)
+    assert (ultimo(g).evento.motivo, ultimo(g).evento.usuario_id) == ("FERRAMENTA_INICIO", a.id)
+    g.registrar_fim_ferramenta(a.id, "EXPERIMENTO", "5 tentativas gravadas")
+    assert ultimo(g).evento.motivo == "FERRAMENTA_FIM" and "5 TENTATIVAS" in ultimo(g).evento.detalhe
+
+
+def test_ferramenta_recusa_quem_nao_e_administrador_e_tranca_apos_tres_erros(g):
+    trio(g)
+    servidor = pessoa(g, "Davi Sousa", Nivel.N1)
+    senha = com_senha(g, servidor)
+    assert g.autorizar_ferramenta(servidor.matricula, senha, "123456", "EXPERIMENTO")[0] is None
+    for _ in range(2):
+        _, recusa = g.autorizar_ferramenta("ZZZ9999", "x", "123456", "EXPERIMENTO")
+    assert "incorretas" in recusa
+    _, recusa = g.autorizar_ferramenta("ZZZ9999", "x", "123456", "EXPERIMENTO")
+    assert "Bloqueado" in recusa

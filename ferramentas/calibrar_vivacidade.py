@@ -53,6 +53,7 @@ class Registro:
     escuro: float | None = None
     brilho: float | None = None
     ear: float | None = None
+    regiao: float | None = None   # pontuação do detector padrão (região dos olhos) neste quadro, se ele pontuou
 
 
 # sinal candidato -> sentido na piscada (+1: cai ao fechar o olho; -1: sobe)
@@ -90,6 +91,51 @@ def reproduzir_detector(registros: list[Registro], pg) -> dict[str, int]:
                 gesto = None                                           # rearma, como um gesto novo
         contagem[nome] = n
     return contagem
+
+
+def picos(valores: list[float | None], minimo: float = 0.3, distancia: int = 4) -> list[float]:
+    """Os picos de uma série de pontuações: máximos locais a partir de `minimo`, com pelo menos `distancia` quadros
+    entre um e outro (uma piscada dura alguns quadros e daria vários máximos seguidos)."""
+    achados: list[tuple[int, float]] = []
+    for i, v in enumerate(valores):
+        if v is None or v < minimo:
+            continue
+        vizinhos = [x for x in valores[max(0, i - 2):i + 3] if x is not None]
+        if v < max(vizinhos):
+            continue
+        if achados and i - achados[-1][0] < distancia:
+            if v > achados[-1][1]:
+                achados[-1] = (i, v)
+            continue
+        achados.append((i, v))
+    return [v for _, v in achados]
+
+
+def analisar_regiao(registros: list[Registro], limiar_atual: float) -> dict | None:
+    """O detector padrão da piscada (região dos olhos): o pior valor sem piscar (parado e deslizando), os picos das
+    piscadas e o limiar sugerido, no meio do caminho entre o pior valor sem piscar e a piscada mais fraca das cinco
+    mais fortes. Função pura; None se o detector não pontuou nenhum quadro."""
+    por = {nome: [r.regiao for r in registros if r.etapa == nome and r.face] for nome, _, _ in ETAPAS}
+    sem_piscar = [v for nome in ("PARADO", "ESQUERDA", "DIREITA") for v in por[nome] if v is not None]
+    das_piscadas = picos(por["PISCAR"])
+    if not sem_piscar and not das_piscadas:
+        return None
+    pior = max(sem_piscar, default=0.0)
+    fortes = sorted(das_piscadas, reverse=True)[:5]
+    saida = {"pior_sem_piscar": round(pior, 2), "pior_parado": round(max(
+        [v for v in por["PARADO"] if v is not None], default=0.0), 2),
+        "picos_piscando": [round(v, 2) for v in fortes], "limiar_atual": limiar_atual, "avisos": []}
+    if len(fortes) < 3:
+        saida["avisos"].append("Menos de 3 picos na etapa de piscar: repita piscando de forma firme, com uma pausa "
+                               "de olhos abertos entre uma piscada e outra.")
+        return saida
+    mais_fraca = fortes[-1]
+    if mais_fraca <= pior + 0.1:
+        saida["avisos"].append("As piscadas quase não se separam do rosto parado ou deslizando: melhore a luz de "
+                               "frente e repita antes de mudar o limiar.")
+        return saida
+    saida["limiar_sugerido"] = round((pior + mais_fraca) / 2, 2)
+    return saida
 
 
 def _variacao(valor: float, referencia: float, sentido: int) -> float:
@@ -164,7 +210,8 @@ def analisar(registros: list[Registro], fps: float, atual: dict, pg=None) -> dic
         out["detector"] = reproduzir_detector(registros, pg)
         d = out["detector"]
         if d.get("PISCAR", 0) < 3:
-            out["avisos"].append(f"O detector reconheceu só {d.get('PISCAR', 0)} piscadas na etapa 2. Veja a "
+            out["avisos"].append(f"O detector pelo contorno (EAR, a reserva) reconheceu só {d.get('PISCAR', 0)} "
+                                 "piscadas na etapa 2. Se for usá-lo, veja a "
                                  "linha \"ear\" da tabela: se a variação típica for pequena, reduza "
                                  "queda_ear_minima.")
         if d.get("ESQUERDA", 0) + d.get("DIREITA", 0):
@@ -177,6 +224,13 @@ def analisar(registros: list[Registro], fps: float, atual: dict, pg=None) -> dic
     if medidos:
         melhor = max(medidos, key=lambda s: (min(s["piscadas_percebidas"], 6), s["separacao"] or 0))
         out["melhor_sinal"] = melhor["sinal"]
+    if "limiar_regiao" in atual:
+        regiao = analisar_regiao(registros, atual["limiar_regiao"])
+        if regiao is not None:
+            out["regiao"] = regiao
+            out["avisos"] += regiao["avisos"]
+            if "limiar_sugerido" in regiao and abs(regiao["limiar_sugerido"] - atual["limiar_regiao"]) >= 0.05:
+                out["sugerido"]["limiar_regiao"] = regiao["limiar_sugerido"]
     if fps and fps < 8:
         out["avisos"].append(f"Só {fps:.1f} quadros/s: piscadas rápidas podem cair entre dois quadros.")
     return out
@@ -201,13 +255,20 @@ def relatorio(resultado: dict) -> str:
             linhas.append(f"  {s['sinal']:<14} {s['piscadas_percebidas']:>8}  {s['variacao_tipica']:>15.0%}  "
                           f"{s['pior_oscilacao_parado']:>11.0%}  {s['separacao'] or '-':>9}")
         if resultado.get("melhor_sinal"):
-            linhas.append(f"  melhor sinal nesta rodada: {resultado['melhor_sinal']}")
+            linhas.append(f"  melhor sinal nesta medição: {resultado['melhor_sinal']}")
     if "detector_regiao" in resultado:
         d = resultado["detector_regiao"]
         linhas += ["", "DETECTOR DA PISCADA PADRÃO (região dos olhos, o mesmo do N3), contado ao vivo",
                    f"  parado: {d.get('PARADO', 0)}   piscando: {d.get('PISCAR', 0)}   "
                    f"deslizando: {d.get('ESQUERDA', 0) + d.get('DIREITA', 0)}",
                    "  (esperado: 0 ou 1 parado, ~5 piscando, 0 deslizando; ajuste limiar_regiao se precisar)"]
+    if resultado.get("regiao"):
+        g = resultado["regiao"]
+        picos_texto = ", ".join(f"{v:.2f}" for v in g["picos_piscando"]) or "nenhum"
+        linhas += [f"  pontuação: pior parado {g['pior_parado']:.2f}, pior sem piscar (parado ou deslizando) "
+                   f"{g['pior_sem_piscar']:.2f}; picos das piscadas: {picos_texto}",
+                   f"  limiar_regiao atual {g['limiar_atual']}" + (f", sugerido {g['limiar_sugerido']}"
+                                                                     if "limiar_sugerido" in g else "")]
     if resultado.get("detector"):
         d = resultado["detector"]
         linhas += ["", "DETECTOR DA PISCADA PELO CONTORNO (modo \"ear\", reserva) sobre esta gravação",
@@ -277,14 +338,19 @@ class JanelaCalibracao(QMainWindow):
             return Registro(self.etapa or "", time.monotonic(), False)
         m = self.olhos.medir(r.recorte_cinza)
         self._medida_atual.valor = m
-        if self.etapa and self._gesto_regiao.alimentar(r):
-            self.piscadas_regiao[self.etapa] = self.piscadas_regiao.get(self.etapa, 0) + 1
-            self._gesto_regiao = self._novo_gesto()                 # rearma, como um gesto novo
+        pontuacao = None
+        if self.etapa:
+            gesto = self._gesto_regiao
+            gesto.ultima_pontuacao = None                          # só vale o que ele pontuar neste quadro
+            if gesto.alimentar(r):
+                self.piscadas_regiao[self.etapa] = self.piscadas_regiao.get(self.etapa, 0) + 1
+                self._gesto_regiao = self._novo_gesto()             # rearma, como um gesto novo
+            pontuacao = gesto.ultima_pontuacao
         x, _, w, _ = face
         if m is None:
-            return Registro(self.etapa or "", time.monotonic(), True, centro=(x + w / 2) / w)
+            return Registro(self.etapa or "", time.monotonic(), True, centro=(x + w / 2) / w, regiao=pontuacao)
         return Registro(self.etapa or "", time.monotonic(), True, m.olhos, m.energia, (x + w / 2) / w,
-                        m.energia_crua, m.escuro, m.brilho, m.ear)
+                        m.energia_crua, m.escuro, m.brilho, m.ear, pontuacao)
 
     def _quadro(self, imagem, resultado, registro):        # thread da interface
         self.visor.mostrar(imagem, resultado)
@@ -330,7 +396,7 @@ class JanelaCalibracao(QMainWindow):
 
     def _concluir(self):
         atual = {"vizinhos_olhos": self.pg.vizinhos_olhos, "queda_ear_minima": self.pg.queda_ear_minima,
-                 "deslocamento_minimo": self.pg.deslocamento_minimo}
+                 "deslocamento_minimo": self.pg.deslocamento_minimo, "limiar_regiao": self.pg.limiar_regiao}
         resultado = analisar(self.registros, self._fps(), atual, self.pg)
         resultado["detector_regiao"] = dict(self.piscadas_regiao)
         texto = relatorio(resultado)
