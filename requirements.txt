@@ -1,0 +1,53 @@
+# EcoSecurity: dependências com versões EXATAS (reprodutibilidade, RNF-05).
+# Instalar:  .venv\Scripts\python.exe -m pip install -r requirements.txt
+# Python 3.11 (ver pyproject.toml). Depois, baixe o modelo de landmarks:
+#            .venv\Scripts\python.exe -m ferramentas.baixar_modelo_landmarks
+#
+# Cada pacote entra quando a camada que o usa é construída: o ambiente só
+# carrega o que o sistema realmente usa.
+
+# --- Visão computacional ------------------------------------------------------
+# ATENÇÃO: opencv-contrib-python, NUNCA opencv-python. O módulo cv2.face (LBPH e
+# os landmarks FacemarkLBF da piscada) só existe no contrib, e os dois pacotes
+# no mesmo ambiente conflitam em silêncio. Mantido na série 4.10 (já validada
+# com LBPH, KCF e FacemarkLBF) mesmo com a 5.0 disponível: trocar a versão
+# principal perto da entrega é risco sem ganho.
+opencv-contrib-python==4.10.0.84
+# abaixo de 2.0 por compatibilidade binária com o OpenCV 4.10
+numpy==1.26.4
+
+# --- Interface ----------------------------------------------------------------
+# Qt 6: escala de DPI automática, QThread para a captura, tabelas e o PDF da via
+# do termo (QPdfWriter). Traz o shiboken6.
+PySide6==6.11.2
+# Componentes no visual do Windows 11 (navegação, cartões, notificações, ícones).
+# GPLv3, adequada a trabalho acadêmico. Traz junto PySideSix-Frameless-Window e
+# darkdetect.
+PySide6-Fluent-Widgets==1.11.3
+# Atalho do Windows com ícone e identidade de aplicativo (ferramentas.criar_atalho).
+# Também chega pelo Fluent, mas é usado DIRETAMENTE: fica declarado. Só no Windows.
+pywin32==312; sys_platform == "win32"
+
+# --- Acervo -------------------------------------------------------------------
+# Desenho dos relatórios do acervo. O cv2.putText não escreve acentos; o Pillow
+# escreve, com as fontes do Windows (Segoe UI).
+Pillow==12.3.0
+# Planilha analítica (XLSX) do painel: exportação do nível 2, com aba de rastreio.
+openpyxl==3.1.5
+
+# --- Segurança ----------------------------------------------------------------
+# bcrypt 5 RECUSA senha acima de 72 bytes em vez de truncar em silêncio
+bcrypt==5.0.0
+# Fernet: cifragem do modelo facial
+cryptography==50.0.2
+# credenciais fora do código (.env)
+python-dotenv==1.2.4
+
+# --- Banco de dados -----------------------------------------------------------
+# driver OFICIAL da Oracle. Sem ORM de propósito: o SQL é conteúdo avaliado e
+# fica visível (sql/ e ecosec/repositorios/mysql/). A numeração passou a ser por
+# data (26.7 = 2026, julho); compatível com o MySQL 8.4 LTS.
+mysql-connector-python==26.7.0
+
+# --- Testes -------------------------------------------------------------------
+pytest==9.1.1

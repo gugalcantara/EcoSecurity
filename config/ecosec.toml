@@ -1,0 +1,598 @@
+# =============================================================================
+# EcoSecurity: parâmetros do sistema
+#
+# Regra do projeto: NENHUM parâmetro fixo no código. Tudo o que pode ser
+# calibrado (câmera, limiares, filtros) mora aqui.
+#
+# Credenciais não ficam aqui: ficam no .env, fora do controle de versão.
+#
+# Seções:
+#   [aplicacao]                         identificação e aparência
+#   [captura] ... [reconhecimento]      visão computacional (as 5 fases do PDI)
+#   [s1_contencao] ... [s7_custodia]    Anel 1 de segurança (acesso)
+#   [cadastro], [lgpd]                  cadastro de usuários e termo
+#   [caminhos]                          onde ficam os arquivos gerados
+# =============================================================================
+
+[aplicacao]
+nome = "EcoSecurity"
+subtitulo = "Controle de acesso multinível por reconhecimento facial"
+# claro | escuro
+tema = "escuro"
+
+[interface]
+# true mostra, no login, a distância LBPH ao lado do limiar: ótimo para explicar
+# o método na banca, mas é um "termômetro" para quem tenta enganar o sistema
+# (ajustar a foto até o número cair). Em uso real: false.
+modo_demonstracao = false
+# zoom e painéis animados (250 a 400 ms). false desliga todas as animações (acessibilidade, máquina lenta)
+animacoes = true
+
+# =============================================================================
+# Visão computacional: as cinco fases do processamento de imagens
+# =============================================================================
+
+[captura]
+# Fase 1: Aquisição
+# índice da webcam no sistema (0 = a primeira)
+indice_camera = 0
+largura = 640
+altura = 480
+# segundos sem frame novo até considerar a câmera parada (falha segura)
+timeout_leitura = 2.0
+# frames iniciais descartados: o sensor ajusta exposição e balanço de branco
+frames_aquecimento = 5
+# dshow | msmf | auto. No Windows o padrão (MSMF) levou ~22 s para entregar o
+# 1º quadro em 640x480; o DirectShow, ~1,5 s. Se o escolhido não abrir, usa o padrão.
+backend = "dshow"
+
+[preprocessamento]
+# Fase 2: Pré-processamento (sobre o recorte da face)
+# CLAHE: equalização de histograma LOCAL, por blocos, com limite de contraste.
+# A equalização global estouraria o fundo claro; o limite evita amplificar ruído.
+clahe_clip_limit = 2.0
+clahe_grade = [8, 8]
+# núcleo do filtro gaussiano de redução de ruído (ímpar; 0 desliga)
+ruido_kernel = 3
+# toda face vira 200x200: o LBPH compara histogramas por célula da grade,
+# e células só são comparáveis se a face tiver sempre o mesmo tamanho
+dimensao_face = [200, 200]
+
+[segmentacao]
+# Fase 3, Segmentação: Haar Cascade (Viola-Jones) + rastreamento KCF
+haar_face = "haarcascade_frontalface_default.xml"
+# cada passada reduz a imagem em 10%: menor = mais lento e mais sensível
+scale_factor = 1.1
+# quantas detecções vizinhas confirmam uma face: maior = menos falso positivo
+min_neighbors = 5
+# face menor que isso está longe demais para reconhecer bem
+min_size = [80, 80]
+# Haar a cada N quadros; nos intermediários o KCF acompanha a face
+detectar_a_cada = 5
+# O Haar varre uma cópia reduzida a esta fração (0,5: 16 ms -> 6 ms por varredura
+# em 640x480, medido). O rosto mínimo continua 80 px na imagem cheia, e o recorte
+# para o reconhecimento sai da resolução original: o LBPH não perde qualidade.
+escala_deteccao = 0.5
+# fração mínima do retângulo da face dentro do quadro para o recorte valer
+fracao_minima_visivel = 0.9
+
+[qualidade]
+# Medido no recorte cru, antes do CLAHE: o realce mascararia justamente a
+# imagem escura e sem contraste que este portão existe para barrar.
+# Valores iniciais: calibrar com a câmera real.
+# variância do Laplaciano: baixa = borrada
+nitidez_minima = 60.0
+# média dos tons de cinza (0-255)
+brilho_minimo = 50.0
+brilho_maximo = 205.0
+# desvio-padrão dos tons: baixo = imagem "lavada"
+contraste_minimo = 25.0
+# ruído estimado pelo método de Immerkær (sigma)
+ruido_maximo = 12.0
+
+[lbph]
+# Fase 4, Extração: Local Binary Patterns Histograms
+# raio e vizinhos do operador LBP; grade de células com um histograma cada
+radius = 1
+neighbors = 8
+grid = [8, 8]
+
+[reconhecimento]
+# Fase 5: Classificação e pós-processamento
+# quadros seguidos com a mesma identidade dentro do limiar antes de decidir:
+# um quadro isolado pode acertar por acaso; cinco seguidos, dificilmente
+frames_confirmacao = 5
+# tempo máximo diante da câmera antes de negar
+timeout_face_segundos = 15
+
+[identificacao]
+# Página "Identificação facial" (só o administrador, dentro do painel): o sistema diz QUEM é,
+# comparando com TODOS os cadastros (1:N), sem conceder acesso.
+# Mais rígido que o N1 (70): no 1:N cada cadastro a mais é mais uma chance de falso positivo.
+# Provisório: conferir com os rostos reais do grupo e de 1 ou 2 pessoas de fora antes da apresentação:
+# cadastrado acima do limiar = subir (60 a 70); não cadastrado abaixo = descer (40). Mudança só com registro em ata.
+limiar = 50.0
+# quadros seguidos acima do limiar para dizer "não reconhecido" (cerca de 1 s a 15 quadros por segundo).
+# O prazo [reconhecimento] timeout_face_segundos só decide quando o rosto não se firma ou não aparece.
+quadros_nao_reconhecido = 15
+
+# =============================================================================
+# ANEL 1: ACESSO
+# =============================================================================
+
+[s1_contencao]
+# falhas de identidade seguidas (senha ou rosto) até bloquear a matrícula
+tentativas_maximas = 3
+bloqueio_minutos = 15
+
+[s2_conhecimento]
+# custo do bcrypt: cada +1 dobra o tempo do hash. 12 ≈ 0,25 s, imperceptível
+# para quem entra, proibitivo para quem testa milhões de senhas
+custo_bcrypt = 12
+
+# Política de senha conforme o nível do CADASTRO. Exigências possíveis:
+# "letra", "maiuscula", "minuscula", "digito", "simbolo"
+[s2_conhecimento.nivel_1]
+minimo_caracteres = 8
+exigir = ["letra", "digito"]
+
+[s2_conhecimento.nivel_2]
+minimo_caracteres = 8
+exigir = ["letra", "digito"]
+
+[s2_conhecimento.nivel_3]
+# "senha forte" do nível 3: também exigida da senha de instalação
+minimo_caracteres = 12
+exigir = ["maiuscula", "minuscula", "digito", "simbolo"]
+
+[s4_inerencia]
+# LBPH devolve distância, não similaridade: menor = mais parecido.
+# Aceita quando distancia <= limiar. Inverter isso inverte a segurança inteira.
+# Provisórios, até serem substituídos pelos valores da curva DET (experimentos):
+#   nível 1 = EER · nível 2 = FAR ≈ 1% · nível 3 = menor FAR alcançável
+limiar_nivel_1 = 70.0
+limiar_nivel_2 = 60.0
+limiar_nivel_3 = 50.0
+
+[s6_vivacidade]
+# desafios sorteados (imprevisíveis) no nível 3
+# Piscada religada (01/11/2026): só com os deslizes, uma
+# foto impressa deslizada para o lado passava na prova de vida. Os nomes são conferidos
+# na abertura (um nome errado impede o sistema de abrir). Para voltar a só deslizar
+# (a foto volta a passar):
+#   desafios = ["MOVER_ESQUERDA", "MOVER_DIREITA"]
+#   gesto_obrigatorio = ""
+desafios = ["PISCAR", "MOVER_ESQUERDA", "MOVER_DIREITA"]
+# gestos por sequência: com 3 gestos, 2 por sequência e a piscada garantida, o
+# melhor chute de um vídeo pré-gravado acerta 2 vezes em 9 (só com os 2 deslizes,
+# 1 em 4). Mais gestos = mais seguro, mas mais falsa rejeição.
+quantidade_desafios = 2
+# Gesto presente em TODA sequência (em posição sorteada). A piscada é o único
+# que uma foto não faz: deslizar uma foto impressa para o lado cumpre "mover".
+# Vazio ("") desliga a exigência.
+gesto_obrigatorio = "PISCAR"
+timeout_desafio_segundos = 10
+# Haar de olhos: não decide a piscada (com a câmera real ele via "olho" até com o
+# olho fechado). Só localiza os olhos para os sinais comparados na calibração.
+haar_olhos = "haarcascade_eye_tree_eyeglasses.xml"
+vizinhos_olhos = 3
+# Landmarks (FacemarkLBF, 68 pontos): localizam os olhos para a PISCADA (os dois modos,
+# abaixo) e o nariz para o giro do MOVER.
+# Modelo baixado por ferramentas.baixar_modelo_landmarks; o SHA-256 é conferido
+# na carga (arquivo trocado = vivacidade recusada, nunca aprovada).
+modelo_landmarks = "modelo/lbfmodel.yaml"
+modelo_landmarks_sha256 = "70dd8b1657c42d1595d6bd13d97d932877b3bed54a95d3c4733a0f740d1fd66b"
+# Sinal da piscada: "ear" mede o contorno do olho (abertura pelos landmarks); "regiao" mede
+# os pixels da região dos olhos, localizada pelos landmarks. A escolha depende da câmera:
+#   - webcam de baixa qualidade, 20 quadros/s (02/11/2026, gravação com gabarito): o EAR
+#     caiu só 12% a 27%; a região separou as 10 piscadas. Lá, use "regiao".
+#   - câmera de um integrante, 30 quadros/s (02/11/2026, 19:25, calibrar_vivacidade): EAR pegou
+#     10 piscadas, 0 falsas; a região pegou 3 e "piscou" 1 vez ao deslizar.
+#   - câmera usada em 10/11/2026, 20 quadros/s (calibrar_vivacidade): a região pegou
+#     5 de 5 piscadas, nenhuma falsa; o EAR não pegou nenhuma. Lá, use "regiao".
+# "ear" -> "regiao" em 10/11/2026. Para escolher
+# numa câmera nova, rode python -m ferramentas.calibrar_vivacidade e compare as duas
+# contagens. Detalhes em ecosec/visao/gestos.py. Mudança só com registro em ata.
+sinal_piscada = "regiao"
+# pontuação = o menor entre (subida da "mudança" / escala_mudanca) e (queda do "escuro" /
+# escala_escuro); olho fechado quando >= limiar_regiao, reaberto abaixo da metade
+limiar_regiao = 0.85
+escala_mudanca = 0.40
+escala_escuro = 0.30
+# quadros abertos para formar a referência do EAR (no modo "regiao", o dobro, mínimo 10)
+frames_olho_aberto = 5
+# fechado: EAR <= referência x (1 - queda), por M quadros seguidos
+# Calibrado com a câmera real em 01/11/2026: a ferramenta
+# sugeriu 0,47, o máximo sem margem; 0,40 deixa folga. Provisório: calibrar
+# de novo se a câmera, a luz ou a pessoa mudarem (python -m ferramentas.calibrar_vivacidade).
+# Mudança só com registro em ata; abaixo de 0,21 o teste test_calibracao.py
+# ("fechar 20% não é piscada") precisa ser revisto; acima de 0,50, test_visao.py.
+queda_ear_minima = 0.40
+frames_olho_fechado = 2
+# reaberto: o EAR recuperou esta fração da queda, a partir do mínimo
+recuperacao_ear = 0.5
+# rosto que se desloca mais que isto (em larguras de face) entre quadros: inconclusivo
+movimento_maximo_piscada = 0.08
+# MOVER: vale DESLIZAR o rosto esta fração da largura da face ou virar a cabeça
+# (giro_minimo, nariz x meio dos olhos, em distâncias entre os olhos). Medido em
+# 02/11/2026 com a câmera real: parado, o giro oscilou até 0,06; virando, 0,10 a
+# 0,34; o detector frontal perdia o rosto virado em 20% a 45% dos quadros, e
+# com 0,25 de deslocamento só 4 de 8 gestos passavam. 0 em giro_minimo desliga
+# o giro. Mudança só com registro em ata.
+deslocamento_minimo = 0.15
+giro_minimo = 0.15
+# true: a instrução diz um lado só para orientar; qualquer lado vale. O mover não
+# é a defesa contra a foto (quem barra a foto é a piscada, obrigatória).
+direcao_livre = true
+# Durante o gesto, a identidade é conferida com esta tolerância (a do N1): o
+# rosto em movimento ou piscando se afasta do modelo. Uma TROCA de rosto fica
+# muito além disso. Depois de cada gesto, a conferência volta ao limiar do N3.
+limiar_durante_gesto = 70
+# Durante o gesto o rosto continua sendo conferido: sem isso, bastaria mostrar
+# a foto da vítima para a S4 e depois fazer o gesto com o próprio rosto.
+# Quadros seguidos que não conferem com a identidade (além da tolerância acima),
+# tolerados antes de negar. Seguidos: um quadro borrado isolado não derruba.
+# 3 -> 8 em 02/11/2026: virando o rosto, a distância passa da tolerância por um
+# instante (medido: até 3 quadros seguidos a 10 quadros/s, ~6 a 20 quadros/s). 8
+# quadros = ~0,4 s; uma TROCA de rosto diverge o gesto inteiro e continua negada.
+quadros_divergentes_maximos = 8
+# Depois de cada gesto, a identidade precisa ser conferida de novo em N quadros
+# seguidos (qualidade aprovada e dentro do limiar). Conferir só durante o gesto
+# não basta: dois quadros da foto da vítima antes de trocá-la pelo próprio rosto
+# já cumpririam a conta.
+quadros_conferidos_minimos = 2
+
+[s7_custodia]
+# Regra dos dois: o nível 3 só concede depois que uma SEGUNDA pessoa de nível 3
+# também se autentica. Com false, o fator sai da lista do nível: não vira um
+# fator "cumprido" que não foi.
+# Desligada a pedido do grupo (07/10/2026): o N3 exige rosto, senha forte e vivacidade.
+# A camada continua implementada e testada; para religar, troque para true.
+exigir_segunda_pessoa = false
+# segundos para a segunda pessoa se autenticar após a primeira
+janela_segundos = 120
+
+[sessao]
+# Princípio: nada fecha no meio de uma atividade, só depois de um tempo sem uso
+# (mover o mouse, rolar, teclar; câmera ligada também conta como uso).
+# Nível 3 (exportação bloqueada, só visualização): fecha após estes minutos sem
+# uso, e reabrir pede o rosto e o gesto de novo.
+inatividade_n3_minutos = 5
+# Sessão inteira: após estes minutos sem uso, a tela é BLOQUEADA (pede a senha e
+# devolve a pessoa para onde estava). Uma sessão esquecida aberta é uma porta
+# destrancada para quem sentar depois.
+inatividade_minutos = 10
+
+[administracao]
+# minutos sem clique ou tecla até o painel administrativo se trancar sozinho
+bloqueio_inatividade_minutos = 5
+# Governança dos administradores (ecosec/servicos/administracao.py). Cada admin tem a
+# própria matrícula e o próprio celular (TOTP); não há senha de admin compartilhada.
+# Com pelo menos este número de admins ativos, toda ação crítica exige um segundo
+# admin (o código do celular dele). Abaixo dele é a fase de implantação: o admin
+# age sozinho e a trilha marca IMPLANTACAO. O sistema nunca deixa, por ação
+# voluntária, o número cair abaixo deste mínimo depois de alcançado.
+minimo_administradores = 2
+# códigos de recuperação de uso único entregues a cada admin ao cadastrar o celular
+codigos_recuperacao = 8
+# Acesso de emergência ("quebrar o vidro"): aparece no login só para um admin que
+# acertou matrícula e senha mas teve o rosto ou a câmera falhando. Abre com os
+# códigos de `quorum_emergencia` admins DIFERENTES, em qualquer ordem, dentro de
+# `janela_emergencia_minutos`. Lá dentro, só se conserta o acesso (recadastrar
+# rosto, refazer celular, designar admin) por `duracao_emergencia_minutos`.
+quorum_emergencia = 2
+janela_emergencia_minutos = 5
+duracao_emergencia_minutos = 30
+
+# =============================================================================
+# CADASTRO E LGPD
+# =============================================================================
+
+[cadastro]
+# sessões de captura com iluminações diferentes: a divisão treino/teste dos
+# experimentos é por sessão, então cada pessoa precisa de mais de uma
+sessoes = 2
+frames_por_sessao = 30
+# diferença média mínima (0-255) entre amostras aceitas: abaixo disso é
+# praticamente o mesmo quadro e não acrescenta informação ao modelo
+diferenca_minima_duplicata = 3.0
+# matrícula gerada pelo sistema (sem I, O, 0 e 1, que se confundem ao ler)
+tamanho_matricula = 7
+
+[lgpd]
+# precisa coincidir com ecosec/dominio/termo.py: se divergirem, o cadastro recusa
+versao_termo = "3.4"
+# Contato do controlador, exigido pelo art. 9º. Aparece no termo e entra no hash do texto aceito.
+# Endereço simulado, sem caixa postal real (emulação acadêmica); o termo 3.1 diz isso no
+# rodapé e manda os pedidos do titular ao administrador. Mudou? Suba a versão do termo e arquive a anterior.
+contato = "controlador@ecosecurity.sim.br"
+# Segundos com o termo aberto antes de liberar "Li e compreendi" e o aceite.
+# Não prova leitura, mas impede o aceite automático, sem nem olhar o texto.
+leitura_minima_segundos = 5
+
+# =============================================================================
+# ANEL 2: CONTEÚDO
+# =============================================================================
+
+[s8_tarja]
+# gaussiano | pixelizacao | solido: para regiões de TEXTO
+metodo = "gaussiano"
+# núcleo grande e várias passadas: o texto vira mancha, sem como reconstituir
+kernel_gaussiano = 61
+passadas_gaussiano = 3
+bloco_pixelizacao = 16
+# Rótulos cuja informação é a posição, não o texto. O gaussiano preserva o
+# centroide de uma mancha: no mapa borrado, o resíduo de cor ainda aponta o
+# ponto. Estes recebem supressão sólida (variância zero, nenhuma estrutura).
+rotulos_supressao_total = ["COORDENADA", "DISTRIBUICAO_GEOGRAFICA", "CUSTODIA"]
+
+[acervo]
+# fontes dos relatórios (procuradas na pasta de fontes do Windows; se faltarem, usa a padrão)
+fonte_regular = "segoeui.ttf"
+fonte_negrito = "segoeuib.ttf"
+# data de referência para prazos e atrasos: vazio = hoje
+data_referencia = ""
+
+[s9_rastreio]
+# dct (resiste a JPEG) | lsb (frágil; mantido para a comparação experimental)
+metodo = "dct"
+# diferença imposta entre os dois coeficientes: maior = mais robusta e mais visível
+forca_dct = 30.0
+# coeficientes de média frequência do bloco 8x8 (o JPEG corta as altas)
+coef_a = [2, 3]
+coef_b = [3, 2]
+
+# =============================================================================
+# PERSISTÊNCIA
+# =============================================================================
+
+[persistencia]
+# mysql: usuários no banco e modelo facial cifrado em disco (uso normal)
+# memoria: tudo some ao fechar (desenvolvimento sem banco, testes)
+modo = "mysql"
+
+[banco]
+# Usuários e senhas das contas não ficam aqui: ficam no .env, criados por
+#   python -m ferramentas.preparar_banco
+# 127.0.0.1 e não "localhost": no Windows "localhost" pode resolver para o
+# IPv6 ::1, e as contas são criadas só para conexões locais.
+host = "127.0.0.1"
+porta = 3306
+seguranca = "ecosec_seguranca"
+acervo = "ecosec_acervo"
+# prefixo dos bancos descartáveis criados pelos testes de integração
+prefixo_teste = "ecosec_teste_"
+
+[caminhos]
+# relativos à raiz do projeto
+modelo = "modelo"
+resultados = "resultados"
+logs = "logs"
+
+# =============================================================================
+# Regras de negócio: o que transforma o cadastro em decisão (ecosec/acervo/regras.py)
+# Valores de referência para a demonstração: ajuste com a área técnica.
+# =============================================================================
+
+[regras_negocio]
+# Prazo-limite (SLA): dias, desde a identificação, que a norma tolera até a coleta.
+# Rejeito radioativo é o mais urgente (CNEN); área contaminada admite remediação longa.
+sla_rejeito_radioativo_dias = 180
+sla_classe_i_dias = 365
+sla_area_contaminada_dias = 730
+# Custo da remediação: por componente e rota de tratamento, na seção [custos] abaixo.
+# Pendência crítica, cobrável, com atraso acima disto (dias): a cobrança administrativa
+# se esgotou e o caso vai ao Ministério Público (ação civil pública, Lei 7.347/85).
+escalonamento_mp_dias = 730
+# Orçamento público anual de referência (R$) para a fila de priorização do N3.
+orcamento_publico = 4000000.0
+
+# =============================================================================
+# Custos de remediação por componente (ecosec/acervo/custos.py)
+# =============================================================================
+# custo = Σ fixos + quantidade × Σ variáveis + monitoramento_anual × anos_monitoramento, pela ROTA de
+# tratamento. Todo valor é PARAMETRO (parâmetro de simulação, sem fonte primária). A memória de
+# cálculo da ficha mostra a fonte de cada componente. Transição: as variáveis da rota PADRÃO de cada classe
+# somam o custo unitário antigo (2.800/t; 180.000/m³; e, para a área, os 1.200/t de solo convertidos para m³
+# pela densidade abaixo). Área contaminada é cobrada por m³ de solo.
+# Mudou algo? Os custos são calculados na hora: não é preciso recriar o acervo.
+[custos]
+data_base_valores = "2026-10"          # valores declarados como R$ de outubro de 2026 (sem correção ainda)
+# Fator documentado só para converter a referência antiga da área (R$ por t de solo) em R$ por m³ de solo:
+# densidade aparente típica de solo, 1,8 t/m³ (PARAMETRO). Nenhum total soma t com m³ (acervo/quantidades.py).
+densidade_solo_t_por_m3 = 1.8
+
+[custos.rota_padrao]
+"AREA CONTAMINADA" = "REMEDIACAO EX SITU"
+"CLASSE I NBR 10004" = "COPROCESSAMENTO"
+"REJEITO RADIOATIVO CNEN" = "DEPOSITO DA CNEN"
+
+[custos.rota_por_substancia]
+# PCBs e POPs: incineração (a resolução CONAMA de coprocessamento tem vedações: conferir)
+"ASCAREL PCBS EM TRANSFORMADORES" = "INCINERACAO"
+"CARCACAS CONTAMINADAS COM PCBS" = "INCINERACAO"
+"ORGANOCLORADOS HCH DDT EM SOLO" = "INCINERACAO"
+"PESTICIDAS OBSOLETOS EM TAMBORES" = "INCINERACAO"
+# inorgânicos (metais): estabilização e aterro Classe I
+"LODO GALVANICO COM CROMO VI" = "ESTABILIZACAO E ATERRO CLASSE I"
+"ESCORIA COM CHUMBO E CADMIO" = "ESTABILIZACAO E ATERRO CLASSE I"
+"LODO DE CURTIMENTO COM CROMO" = "ESTABILIZACAO E ATERRO CLASSE I"
+"REJEITO DE AMALGAMACAO COM MERCURIO" = "ESTABILIZACAO E ATERRO CLASSE I"
+"RESIDUOS EM CELULA SEM MANTA" = "ESTABILIZACAO E ATERRO CLASSE I"
+"BALSA DE GARIMPO ABANDONADA" = "ESTABILIZACAO E ATERRO CLASSE I"
+# líquidos: tratamento físico-químico
+"BANHO DE CIANETO EXAURIDO" = "TRATAMENTO FISICO QUIMICO"
+"BANHO DE CALEIRO COM SULFETO" = "TRATAMENTO FISICO QUIMICO"
+"CHORUME CLASSE I EM LAGOA" = "TRATAMENTO FISICO QUIMICO"
+# água subterrânea e fase livre: bombeamento e tratamento antes do solo
+"HIDROCARBONETOS EM FASE LIVRE" = "REMEDIACAO COM BOMBEAMENTO"
+"BTEX EM AGUA SUBTERRANEA" = "REMEDIACAO COM BOMBEAMENTO"
+"PERCLOROETILENO PCE NO AQUIFERO" = "REMEDIACAO COM BOMBEAMENTO"
+"SOLVENTES CLORADOS PCE TCE" = "REMEDIACAO COM BOMBEAMENTO"
+# NORM de mineração não vai ao depósito de fontes: armazenamento próprio
+"REJEITO COM URANIO E TORIO NORM" = "ARMAZENAMENTO DE NORM"
+
+[custos.categoria_componente]
+# Categoria padrão EEA de cada componente das rotas (painel de custo do N1 e memória de cálculo).
+# Regra: diagnóstico = INVESTIGACAO; obra ou contenção no local = REMEDIACAO; transporte, tratamento e destino
+# fora do local = DISPOSICAO; acompanhamento depois da intervenção = MONITORAMENTO. Todo componente de toda rota
+# precisa estar aqui: sem categoria, a carga recusa (acervo/custos.py). É classificação, não valor: os valores
+# continuam com a fonte da rota (PARAMETRO).
+"CARACTERIZACAO E PLANO DE GERENCIAMENTO" = "INVESTIGACAO"       # caracterização do resíduo: diagnóstico
+"INVESTIGACAO DETALHADA E AVALIACAO DE RISCO" = "INVESTIGACAO"
+"INSPECAO E PLANO DE TRANSPORTE" = "INVESTIGACAO"                # inspeção da fonte antes da retirada
+"PLANO DE PROTECAO RADIOLOGICA" = "INVESTIGACAO"                 # levantamento radiométrico e plano
+"PLANO DE INTERVENCAO" = "REMEDIACAO"                            # projeto da obra no local
+"ESCAVACAO E TRANSPORTE DO SOLO" = "REMEDIACAO"                  # a escavação é a obra no local
+"SISTEMA DE BOMBEAMENTO E TRATAMENTO" = "REMEDIACAO"             # sistema instalado no local
+"ACONDICIONAMENTO" = "REMEDIACAO"                                # contenção no local antes da retirada
+"ARMAZENAMENTO LOCAL" = "REMEDIACAO"                             # contenção no local (NORM)
+"TRANSPORTE DE PRODUTO PERIGOSO" = "DISPOSICAO"
+"TRANSPORTE AUTORIZADO" = "DISPOSICAO"
+"COPROCESSAMENTO EM FORNO DE CLINQUER" = "DISPOSICAO"
+"INCINERACAO" = "DISPOSICAO"
+"ESTABILIZACAO" = "DISPOSICAO"                                   # tratamento na unidade de destino
+"ATERRO CLASSE I" = "DISPOSICAO"
+"TRATAMENTO FISICO QUIMICO" = "DISPOSICAO"
+"DESTINACAO DO SOLO" = "DISPOSICAO"
+"RECEBIMENTO E GUARDA" = "DISPOSICAO"                            # depósito da CNEN
+"MONITORAMENTO" = "MONITORAMENTO"
+
+[custos.rotas."COPROCESSAMENTO"]
+fixos = [["CARACTERIZACAO E PLANO DE GERENCIAMENTO", 8000.0]]
+variaveis = [["TRANSPORTE DE PRODUTO PERIGOSO", 350.0], ["COPROCESSAMENTO EM FORNO DE CLINQUER", 2450.0]]
+fonte = "PARAMETRO"
+
+[custos.rotas."INCINERACAO"]
+fixos = [["CARACTERIZACAO E PLANO DE GERENCIAMENTO", 8000.0]]
+variaveis = [["TRANSPORTE DE PRODUTO PERIGOSO", 350.0], ["INCINERACAO", 5650.0]]
+fonte = "PARAMETRO"
+
+[custos.rotas."ESTABILIZACAO E ATERRO CLASSE I"]
+fixos = [["CARACTERIZACAO E PLANO DE GERENCIAMENTO", 8000.0]]
+variaveis = [["TRANSPORTE DE PRODUTO PERIGOSO", 350.0], ["ESTABILIZACAO", 600.0], ["ATERRO CLASSE I", 1300.0]]
+fonte = "PARAMETRO"
+
+[custos.rotas."TRATAMENTO FISICO QUIMICO"]
+fixos = [["CARACTERIZACAO E PLANO DE GERENCIAMENTO", 8000.0]]
+variaveis = [["TRANSPORTE DE PRODUTO PERIGOSO", 350.0], ["TRATAMENTO FISICO QUIMICO", 1450.0]]
+fonte = "PARAMETRO"
+
+[custos.rotas."REMEDIACAO EX SITU"]
+fixos = [["INVESTIGACAO DETALHADA E AVALIACAO DE RISCO", 120000.0], ["PLANO DE INTERVENCAO", 30000.0]]
+variaveis = [["ESCAVACAO E TRANSPORTE DO SOLO", 810.0], ["DESTINACAO DO SOLO", 1350.0]]   # R$/m³ (= 450 e 750 R$/t × 1,8)
+monitoramento_anual = 40000.0
+anos_monitoramento = 2.0               # = mediana da etapa MONITORAMENTO no ciclo AREA (geracao/ciclo.py)
+fonte = "PARAMETRO"
+
+[custos.rotas."REMEDIACAO COM BOMBEAMENTO"]
+fixos = [["INVESTIGACAO DETALHADA E AVALIACAO DE RISCO", 120000.0], ["PLANO DE INTERVENCAO", 30000.0],
+         ["SISTEMA DE BOMBEAMENTO E TRATAMENTO", 250000.0]]
+variaveis = [["ESCAVACAO E TRANSPORTE DO SOLO", 810.0], ["DESTINACAO DO SOLO", 1350.0]]   # R$/m³ (= 450 e 750 R$/t × 1,8)
+monitoramento_anual = 60000.0
+anos_monitoramento = 4.0
+fonte = "PARAMETRO"
+
+[custos.rotas."DEPOSITO DA CNEN"]
+fixos = [["INSPECAO E PLANO DE TRANSPORTE", 5000.0]]
+variaveis = [["ACONDICIONAMENTO", 20000.0], ["TRANSPORTE AUTORIZADO", 30000.0], ["RECEBIMENTO E GUARDA", 130000.0]]
+fonte = "PARAMETRO"
+
+[custos.rotas."ARMAZENAMENTO DE NORM"]
+fixos = [["PLANO DE PROTECAO RADIOLOGICA", 40000.0]]
+variaveis = [["ACONDICIONAMENTO", 2000.0], ["ARMAZENAMENTO LOCAL", 6000.0]]
+monitoramento_anual = 15000.0
+anos_monitoramento = 5.0
+fonte = "PARAMETRO"
+
+# =============================================================================
+# Contexto do acesso: MFA adaptativo e step-up (ecosec/seguranca/acesso/contexto.py)
+# =============================================================================
+
+[contexto]
+# Sinais do login: estação (computador + conta do Windows) nova e erros recentes. 1 sinal =
+# risco MEDIO (prova de vida já no login); os 2 = ALTO (prova de vida, e a sessão vale só para
+# consulta: sem N3 nem exportação). Horário não é sinal: não há expediente no sistema, e o
+# dia e a hora do acesso nunca restringem nenhum nível.
+ativo = true
+# Step-up: exportar dados nominais (N2) exige o rosto conferido há no máximo N minutos;
+# depois disso, a câmera confere de novo antes de o arquivo sair.
+verificacao_minutos = 5
+
+# =============================================================================
+# Geração do acervo: séries temporais com entradas e saídas
+# =============================================================================
+# O estoque de pendências ativas é o acumulado de entradas menos saídas. Cada linha de
+# geração tem um risco de saída por pendência ativa (1/ano). Duas calibrações:
+#   metas  = razões entre fluxos de saída de anos diferentes: [ano, relativo a, razão];
+#   ancora = fixa o NÍVEL do risco: ["FRACAO", de, até, fração encerrada] ou
+#            ["NIVEL", ano, saídas/entradas]. Sem âncora, vale risco_base.
+# Valores marcados "A CONFIRMAR" não foram conferidos na fonte primária: são parâmetros de simulação.
+# latencia = anos de casa antes de a pendência poder sair: sem ela, o risco constante
+#            desde a entrada encerrava áreas contaminadas em semanas. Muda QUEM sai, não quantos.
+# Mudou algo aqui? O acervo precisa ser recriado: python -m ferramentas.preparar_banco --recriar-acervo
+[geracao]
+quantidade = 2400
+# estratificado: contagens anuais = esperado com arredondamento sistemático (padrão);
+# poisson: contagens sorteadas (para volumes grandes)
+modo = "estratificado"
+
+[geracao.saidas.postos]
+# Borges (USP): 28% dos postos do banco da CETESB reabilitados entre 2002 e 2019
+ancora = ["FRACAO", 2006, 2019, 0.28]
+metas = [[2020, 2019, 0.95], [2021, 2019, 0.90], [2022, 2021, 1.19]]
+verificacao = "CONFIRMADO"
+latencia = 2.0
+
+[geracao.saidas.area]
+ancora = ["NIVEL", 2019, 1.00]        # hipótese: em 2019 as áreas contaminadas saem no mesmo ritmo em que entram
+metas = [[2020, 2019, 0.95], [2021, 2019, 0.90], [2022, 2021, 1.19]]
+verificacao = "A CONFIRMAR"
+latencia = 2.0
+
+[geracao.saidas.classe_i]
+ancora = ["NIVEL", 2019, 0.90]        # hipótese: saídas/entradas de resíduo Classe I em 2019
+metas = [[2021, 2020, 1.30]]          # MTR obrigatório (Portaria MMA 280/2020) força baixas
+verificacao = "PARAMETRO"
+latencia = 0.25
+
+[geracao.saidas.aterros]
+risco_base = 0.08
+verificacao = "A CONFIRMAR"
+latencia = 1.5
+
+[geracao.saidas.mtr_sem_baixa]
+risco_base = 0.50                     # baixa tardia ou autuação (permanência média de ~2 anos)
+verificacao = "PARAMETRO"
+latencia = 0.05
+
+[geracao.saidas.fontes_seladas]
+risco_base = 0.08
+metas = [[2023, 2022, 3.52], [2024, 2023, 0.54]]   # 377/107; 202/377 (ver plano 1.2)
+anualizar_parcial = false             # true: 2024 = (202 x 12/5) / 377 = 1,29
+verificacao = "A CONFIRMAR"
+latencia = 0.25
+
+[geracao.saidas.norm]
+risco_base = 0.0                      # legado minerário e Goiânia: estoque herdado, sem saída
+verificacao = "PARAMETRO"
+latencia = 0.0  # NORM não sai (risco 0): a latência não se aplica
+
+[geracao.saidas.garimpo]
+risco_base = 0.01                     # remoção de balsas em operações
+verificacao = "PARAMETRO"
+latencia = 2.0
+
+[indice_pressao]
+# Índice de Pressão por UF (N1): soma ponderada dos postos percentis entre as 27 UFs (pesos somam 1)
+peso_volume = 0.30
+peso_severidade = 0.30
+peso_custo = 0.20
+peso_atraso = 0.20
+# menos que isto de pendências ativas numa UF: a dica mostra "MENOS DE N" (supressão de célula pequena)
+supressao_minima = 3
+
+[documentos]
+# true: a janela do documento sai preta em capturas e compartilhamentos de tela (Windows 10 2004+).
+# Desligado por padrão: ligado, também esconde o documento numa apresentação com tela compartilhada.
+bloquear_captura = false

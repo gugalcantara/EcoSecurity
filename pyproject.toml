@@ -1,0 +1,11 @@
+[project]
+name = "ecosec"
+version = "0.1.0"
+description = "EcoSecurity: controle de acesso multinível por reconhecimento facial (APS PIVC 2026/2)"
+requires-python = ">=3.11,<3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["testes"]
+# permite `import ecosec` nos testes sem instalar o pacote
+pythonpath = ["."]
+addopts = "-ra"
