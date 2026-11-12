@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
+from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import (QFrame, QGridLayout, QHBoxLayout, QHeaderView, QStackedWidget, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
@@ -743,7 +743,7 @@ class PainelN1(QWidget):
             total = sum(serie.get(p.ano) or 0 for serie in p.serie.get("ativas", {}).values())
         texto = f"{formatos.inteiro(sum(visiveis))} casos ativos no recorte (de {formatos.inteiro(total)})"
         if len(visiveis) < len(p.totais_classe):
-            texto += f" · classe com menos de {p.supressao_minima}: suprimida"
+            texto += " · classe com poucos casos: suprimida"
         self.barra.definir_texto_contagem(texto)
 
     # ------------------------------------------------------------ comum
@@ -875,8 +875,7 @@ class PainelN1(QWidget):
         self.legenda.setToolTip(dica)
         cartao = self.secoes["onde"].cartoes["mapa"]
         cartao.definir(f"{titulo} · {self._recorte()} · quintis entre as UFs visíveis", dica,
-                       "Passe o mouse numa UF para os números dela; clique para fixar. Na legenda, passe o mouse "
-                       "para realçar um quintil e clique para selecioná-lo."
+                       "Passe o mouse numa UF para ver os números; clique para fixar."
                        + (" Cinza: oculto (poucos casos) ou sem casos ativos." if self.k else ""),
                        titulo=f"{indicador} por UF")
         self.combo_indicador.setToolTip(dica)
@@ -914,7 +913,7 @@ class PainelN1(QWidget):
         self.secoes["onde"].cartoes["ranking"].definir(
             f"{UNIDADE_INDICADOR[indicador][0].upper()}{UNIDADE_INDICADOR[indicador][1:]} · {self._recorte()} · "
             "da maior para a menor", dica,
-            "UFs suprimidas ficam no fim, em ordem alfabética (a posição entre elas revelaria o número).",
+            "UFs suprimidas ficam no fim, em ordem alfabética.",
             titulo=f"Ranking das UFs: {indicador.lower()}")
 
     def _mostrar_regioes(self):
@@ -1037,7 +1036,7 @@ class PainelN1(QWidget):
                                    "% dos casos ativos da classe", maximo=None, formato=lambda v: g.fmt_pct(v, 0))
         self.secoes["motivos"].cartoes["motivo_classe"].definir(
             f"% dos casos ativos de cada classe · {self._recorte()} · cada coluna soma 100%", fonte,
-            "Lê-se na vertical: o peso de cada motivo dentro da classe.")
+            "Peso de cada motivo dentro da classe.")
 
     # ------------------------------------------------------------ 4. Estão sendo resolvidos?
     def _mostrar_resolucao(self):
@@ -1122,7 +1121,7 @@ class PainelN1(QWidget):
             f"% dos casos ainda ativos t anos depois da identificação · mediana: {medianas}",
             dica_fonte("analise.tempo_ate_encerramento" if enc.exata else "analise.tabua_de_vida", 1, enc.corte,
                        vocabulario.dica("KPI-01", "kpi") + nota_k),
-            "" if enc.exata else "Cada degrau junta anos até somar 3 encerramentos, para proteger poucos casos.")
+            "" if enc.exata else "Anos com poucos encerramentos aparecem agrupados.")
         # idade dos casos em aberto (100% por classe, mais o total do recorte)
         linhas = []
         for l in sorted(pc.linhas, key=lambda l: CLASSES.index(l.classe)):
@@ -1139,7 +1138,7 @@ class PainelN1(QWidget):
         self.secoes["resolucao"].cartoes["idade"].definir(
             f"Distribuição dos casos ativos por tempo desde a identificação · {self._recorte()}{mediana}",
             dica_fonte("analise.envelhecimento", 1, pc.corte, vocabulario.dica("KPI-04", "kpi") + nota_k),
-            "Faixas suprimidas de uma classe aparecem juntas, hachuradas: a soma delas é o total menos as visíveis.")
+            "Faixas com poucos casos aparecem juntas, hachuradas.")
 
     # ------------------------------------------------------------ 5. Quanto está fora do prazo?
     def _linha_prazo(self, chave, rotulo, ativas, alem, fora, clique=None, referencia=False) -> dict:
@@ -1166,7 +1165,7 @@ class PainelN1(QWidget):
         self.prazo_regiao.mostrar([*regioes, brasil])
         self.secoes["prazo"].cartoes["prazo_regiao"].definir(
             f"% dos casos ativos da região · {self._recorte()} · ordenado pelo prazo legal", fonte,
-            "Os dois pontos no mesmo eixo: a distância entre eles é a diferença entre as duas definições.")
+            "Cada ponto é uma das duas medidas de atraso.")
         ordem = {c: i for i, c in enumerate(CLASSES)}
         classes = [self._linha_prazo(c.chave, c.nome, c.ativas, c.alem_do_prazo, c.fora_da_previsao, c.chave)
                    for c in sorted(d.classes, key=lambda c: ordem[c.chave])]
@@ -1183,8 +1182,7 @@ class PainelN1(QWidget):
                               + sorted(parciais + suprimidas, key=lambda l: l["rotulo"]))
         self.secoes["prazo"].cartoes["prazo_uf"].definir(
             f"% dos casos ativos da UF · {self._recorte()} · ordenado pelo prazo legal", fonte,
-            "UFs com a medida suprimida ficam no fim, em ordem alfabética. Muitas UFs saem suprimidas no prazo "
-            "previsto porque o complemento (casos dentro do prazo) é pequeno: a regra do k vale para os dois lados.")
+            "UFs com a medida suprimida ficam no fim, em ordem alfabética.")
         classes_r = self._classes()
         colunas = [(ROTULO_CLASSE[c], c) for c in classes_r] + ([("Todas", None)] if len(classes_r) > 1 else [])
         rotulos, celulas = [], []
@@ -1208,4 +1206,4 @@ class PainelN1(QWidget):
                                  formato=lambda v: g.fmt_pct(v, 0))
         self.secoes["prazo"].cartoes["prazo_calor"].definir(
             f"% dos casos ativos da célula · {self.panorama.ano} · cor mais escura = maior atraso", fonte,
-            "Células suprimidas: a parte ou o complemento (casos dentro do prazo) tem menos de 3.")
+            "Células com poucos casos ficam ocultas.")

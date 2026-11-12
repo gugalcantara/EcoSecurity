@@ -36,7 +36,7 @@ def janela(qt, tmp_path):
     from ecosec.interface.estilo import aplicar_tema
     from ecosec.interface.janela import JanelaPrincipal
     app = montar(caminho_env=tmp_path / ".env", modo="memoria")
-    # o risco de contexto depende do relógio REAL (fim de semana, noite): os testes de tela não podem
+    # o risco de contexto depende do relógio real (fim de semana, noite): os testes de tela não podem
     # mudar de resultado conforme o dia. O MFA adaptativo tem testes próprios, com relógio controlado.
     app.autenticacao.contexto_parametros = None
     app.administracao.custo = app.cadastro.custo = app.autenticacao.p.custo_bcrypt = 4
@@ -409,7 +409,7 @@ def test_o_erro_que_bloqueia_ja_avisa_ate_quando(janela):
         tela.campo_matricula.setText(bia.matricula)
         tela.campo_senha.setText("errada0000")
         tela._enviar_credenciais()
-    assert "ficou bloqueada até as" in tela.res_texto.text()
+    assert "bloqueada até as" in tela.res_texto.text()
 
 
 def test_servidor_ve_so_a_aba_e_o_cartao_do_nivel_1(janela):
@@ -456,7 +456,7 @@ def test_segunda_pessoa_nao_perde_o_que_digita_a_cada_quadro(janela):
     """Regressão: o vídeo manda um Andamento por quadro; o campo não pode ser limpo a cada um."""
     import dataclasses
     p = janela.app.autenticacao.p
-    p.acesso = dataclasses.replace(p.acesso, exigir_segunda_pessoa=True)     # desligada no config do grupo
+    p.acesso = dataclasses.replace(p.acesso, exigir_segunda_pessoa=True)     # desligada no config do projeto
     vincular_admin(janela)
     caio = cadastrar_ministro(janela)
     fazer_login(janela, caio, SENHA_MINISTRO, 900)

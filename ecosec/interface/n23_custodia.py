@@ -74,7 +74,7 @@ class FaixaPassivo(QWidget):
         cabeca.setSpacing(10)
         self.titulo = QLabel("Passivo cobrável por categoria de custo")
         self.titulo.setStyleSheet(f"color:{cor_texto()}; font-size:14px; font-weight:600;")
-        self.pergunta = QLabel("Em que parte da solução está o dinheiro a cobrar?")
+        self.pergunta = QLabel("Passivo cobrável por etapa da solução.")
         self.pergunta.setStyleSheet(f"color:{cor_texto_secundario()}; font-size:12px;")
         cabeca.addWidget(self.titulo)
         cabeca.addWidget(self.pergunta)
@@ -388,8 +388,7 @@ class PriorizacaoOrcamento(QWidget):
         self.curva = CurvaAcumulada("Custo acumulado e risco eliminado, por critério", 250)
         self.cartao_curva = CartaoGrafico(
             "Quanto risco cada real tira: custo acumulado × risco eliminado",
-            "Com o mesmo dinheiro, qual fila tira mais risco? Cada linha percorre a fila inteira de um critério; o "
-            "ponto marca onde o orçamento acaba.", self.curva, expandir=True)
+            "Cada linha é um critério de fila; o ponto marca onde o orçamento acaba.", self.curva, expandir=True)
         corpo.addWidget(self.cartao_curva, 2)
         self.modelo = ModeloTabela(self.TITULOS)
         self.tabela = _tabela(self.modelo)
@@ -407,9 +406,7 @@ class PriorizacaoOrcamento(QWidget):
         corpo.addWidget(self.cartao_fila, 3)
         v.addLayout(corpo, 1)
         v.addWidget(_explicacao(
-            "Concorrem só os casos ativos que o poder público paga (material órfão ou contaminação descoberta depois: "
-            "não há a quem cobrar). A fila percorre os casos na ordem do critério e leva tudo o que ainda cabe no "
-            "orçamento."))
+            "Casos ativos pagos pelo poder público, na ordem do critério, até o limite do orçamento."))
         self.mostrar_visao(self.VISOES[0][0])             # "Por urgência" abre primeiro
 
     @property
@@ -494,10 +491,6 @@ class PriorizacaoOrcamento(QWidget):
         self.curva.definir(curvas, orcamento, marcas, dominio)
 
 
-def regras_criterios():
-    return regras.CRITERIOS
-
-
 # ================================================================ custo por responsável (N3)
 class CustoPorResponsavel(QWidget):
     """Custo do passivo ativo e cobrável por responsável nomeado, com a memória de cálculo de cada um. Só no N3:
@@ -513,10 +506,10 @@ class CustoPorResponsavel(QWidget):
                      "solidária), então passa do passivo.",
              "concentracao": "Parte do passivo cobrável nos casos dos 10 maiores responsáveis, cada caso uma vez só."}
     # a regra da aba: na dica da linha de topo (para a tabela não perder linhas)
-    EXPLICACAO = ("Soma do custo estimado dos casos ATIVOS e COBRÁVEIS em que o responsável aparece como gerador "
+    EXPLICACAO = ("Soma do custo estimado dos casos ativos e cobráveis em que o responsável aparece como gerador "
                   "original, sucessor ou proprietário atual. A responsabilidade é solidária: o mesmo caso entra na "
-                  "soma de cada corresponsável, então a soma das linhas é maior que o passivo. Só no Nível 3, sem "
-                  "exportação; cada consulta fica na trilha. Selecione uma linha para ver a memória de cálculo.")
+                  "soma de cada corresponsável, então a soma das linhas é maior que o passivo. Selecione uma "
+                  "linha para ver a memória de cálculo.")
 
     def __init__(self, tela, parent=None):
         super().__init__(parent)
@@ -566,10 +559,10 @@ class CustoPorResponsavel(QWidget):
         bv = QVBoxLayout(caixa_barras)
         bv.setContentsMargins(0, 0, 0, 0)
         bv.setSpacing(6)
-        bv.addWidget(linha_legenda(rotulos_categorias()))  # 4 cores: a legenda sempre presente (dataviz)
+        bv.addWidget(linha_legenda(rotulos_categorias()))  # 4 cores: a legenda sempre presente
         bv.addWidget(self.barras)
         self.cartao_barras = CartaoGrafico("Os 10 maiores responsáveis por custo cobrável",
-                                           "Em quem a cobrança rende mais, e em que parte da solução?", caixa_barras)
+                                           "Custo cobrável por responsável e por etapa.", caixa_barras)
         dv.addWidget(self.cartao_barras)
         self.memoria = TextBrowser()
         self.memoria.setMinimumWidth(460)

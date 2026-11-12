@@ -177,7 +177,7 @@ def test_imagem_pequena_demais_para_dct():
 
 
 def test_regiao_dentro_de_regiao_solida_nao_cria_contraste(documento):
-    """Vazamento real encontrado no mapa: a supressão de uma região pequena DENTRO de uma
+    """Vazamento real encontrado no mapa: a supressão de uma região pequena dentro de uma
     grande, já suprimida, desenhava um retângulo de outro tom exatamente onde ela estava."""
     grande = Regiao(100, 100, 400, 300, "DISTRIBUICAO_GEOGRAFICA", 2)
     pequena = Regiao(450, 200, 120, 20, "CUSTODIA", 3)          # sai parcialmente da grande, pela direita

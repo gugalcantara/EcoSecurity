@@ -1,15 +1,13 @@
 """Painel analítico do acervo: uma seção por necessidade, conforme o nível.
 
 Sobre os dados que o ServicoAcervo já liberou e registrou na trilha:
-  - Painéis temáticos (só o N1): faixa de indicadores e três painéis (passivo por classe,
-    passivo por UF com o coroplético e evolução do encerramento), painel_n1.py e paineis_tematicos.py. Só totais,
-    já protegidos pelo serviço, e nenhum valor em reais:
-    as abas "Painéis temáticos" e "Evolução" SAÍRAM do N3;
+  - Painéis temáticos (só o N1, n1_painel.py): seções por pergunta sobre os totais por UF, já protegidos
+    pelo serviço e sem nenhum valor em reais;
   - Painéis da UF (N2, n23_paineis_uf.py): o painel de decisão da UF (o que priorizar, evolução,
     UF × país, custo), sem k;
   - Mapa interativo (N2 da própria UF, N3 nacional): camadas com opacidade, densidade, municípios,
     custódias por tipo, legenda por escala, ficha num painel lateral deslizante (dados técnicos,
-    responsáveis e documentos) e, no N3, a lista do ano com os marcos e a árvore custódia → pendência → documento;
+    responsáveis e documentos) e, no N3, a lista do ano com os marcos e a árvore custódia -> pendência -> documento;
   - Glossário (todos): a regra de negócio de cada termo, só do vocabulário
     (acervo/vocabulario.py), sem nenhum dado do acervo;
   - Planilha analítica (N2 e N3): registros individuais, ordenável e paginada,
@@ -27,11 +25,10 @@ o panorama tem a sua própria barra, só com classe e ano (painel_n1.py), e o re
 from datetime import date, datetime
 from pathlib import Path
 
-from PySide6.QtCharts import QBarCategoryAxis, QBarSet, QChart, QChartView, QStackedBarSeries, QValueAxis
 from PySide6.QtCore import QAbstractTableModel, QModelIndex, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QCursor, QFont, QImage, QPainter, QPixmap
-from PySide6.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QHeaderView, QLabel, QSizePolicy, QStackedWidget,
-                               QToolTip, QVBoxLayout, QWidget)
+from PySide6.QtGui import QColor, QFont, QPainter, QPixmap
+from PySide6.QtWidgets import (QFileDialog, QHBoxLayout, QHeaderView, QLabel, QSizePolicy, QStackedWidget, QVBoxLayout,
+                               QWidget)
 
 from ecosec.acervo import analise, formatos, vocabulario
 from ecosec.acervo.filtro import CONJUNTOS, SITUACAO_PADRAO, SITUACOES
@@ -42,10 +39,8 @@ from ecosec.interface.estado_filtro import EstadoFiltro
 from ecosec.interface.estilo import cor_borda, cor_texto_secundario
 from ecosec.interface.fluent import (FIF, BodyLabel, CaptionLabel, CheckBox, ComboBox, FlowLayout, InfoBar,
                                      InfoBarPosition, ListWidget, PushButton, ScrollArea, SearchLineEdit,
-                                     SegmentedWidget, SimpleCardWidget, SpinBox, StrongBodyLabel, TableView,
-                                     isDarkTheme)
-from ecosec.interface.n23_custodia import (CustoPorResponsavel, PriorizacaoOrcamento,  # noqa: F401
-                                           memoria_html, regras_criterios)
+                                     SegmentedWidget, SimpleCardWidget, StrongBodyLabel, TableView, isDarkTheme)
+from ecosec.interface.n23_custodia import CustoPorResponsavel, PriorizacaoOrcamento
 
 COR_RISCO = COR_IDENTIDADE          # fonte única das cores de risco (componentes.simbologia)
 # Os combos mostram o rótulo do vocabulário e filtram pelo código interno (rótulo != valor)
@@ -58,7 +53,6 @@ CLASSES = (AREA, CLASSE_I, RADIOATIVO)
 
 # Ativos / Encerrados / Todos (na ordem de SITUACOES), padrão Todos
 SITUACOES_PLANILHA = tuple(vocabulario.ROTULO_SITUACAO[s] for s in SITUACOES)
-ROTULO_SITUACAO_MAPA = vocabulario.FRASE_SITUACAO
 DICA_SITUACAO = (f"{vocabulario.CAMPO_SITUACAO}: qual parte do cadastro o mapa e a planilha mostram.\n"
                  + "\n".join(f"{vocabulario.rotulo(s, 'situacao')}: {vocabulario.definicao(s, 'situacao')}"
                              for s in SITUACOES))
@@ -124,12 +118,6 @@ def _janela_verificacao() -> float:
 def _bloquear_captura() -> bool:
     from ecosec.configuracao import carregar
     return bool(carregar()["documentos.bloquear_captura"])
-
-
-def _para_pixmap(bgr) -> QPixmap:
-    rgb = bgr[:, :, ::-1].copy()
-    alt, larg, _ = rgb.shape
-    return QPixmap.fromImage(QImage(rgb.data, larg, alt, 3 * larg, QImage.Format.Format_RGB888).copy())
 
 
 def _combo(itens, largura=180) -> ComboBox:
@@ -294,7 +282,7 @@ class MapaInterativo(QWidget):
 
     N2: a própria UF; painel de camadas numa faixa (símbolo, liga/desliga e ordem); ficha com Exportar (cadeado).
     N3: nacional; painel de camadas com opacidade e ordem, filtro por tipo de custódia, legenda por
-    escala, a lista do ano com os marcos regulatórios do ano e a árvore Custódia → Pendência → Documento.
+    escala, a lista do ano com os marcos regulatórios do ano e a árvore Custódia -> Pendência -> Documento.
     O N3 não exporta."""
 
     def __init__(self, tela, estado: EstadoFiltro | None = None, parent=None):
@@ -375,14 +363,12 @@ class MapaInterativo(QWidget):
         self.zoom = CaptionLabel()
         self.zoom.setStyleSheet(f"color:{cor_texto_secundario()};")
         self.caixa_atenuar = CheckBox("Mostrar fora do filtro (atenuado)")
-        self.caixa_atenuar.setToolTip("Os pontos fora do filtro ficam visíveis a 15%, por baixo, sem clique e sem "
-                                      "entrar nas contagens.")
+        self.caixa_atenuar.setToolTip("Mostra, esmaecidos, os pontos fora do filtro.")
         self.caixa_atenuar.stateChanged.connect(lambda *_: self._aplicar_recorte())
         # Agregação por zoom e temática dos pontos
         self.caixa_agrupar = CheckBox("Agrupar pontos")
         self.caixa_agrupar.setChecked(True)
-        self.caixa_agrupar.setToolTip("Abaixo da escala de UF, pontos próximos na tela viram um agregado com a "
-                                      "contagem; clique nele (ou Enter) para aproximar.")
+        self.caixa_agrupar.setToolTip("Agrupa pontos próximos; clique no grupo para aproximar.")
         self.caixa_agrupar.setAccessibleName("Agrupar pontos próximos")
         self.caixa_agrupar.stateChanged.connect(
             lambda *_: self.mapa.definir_agregacao(self.caixa_agrupar.isChecked()))
@@ -580,9 +566,6 @@ class MapaInterativo(QWidget):
 
     def _tipos_custodia(self) -> set:
         return {t for t, caixa in self.caixas_custodia.items() if caixa.isChecked()}
-
-    def _alternar_camada(self, chave: str, ligada: bool):
-        self.mapa.definir_camada_visivel(chave, ligada)
 
     def _filtrar_custodias(self):
         self.mapa.filtrar_custodias(self._tipos_custodia())
@@ -830,7 +813,7 @@ class MapaInterativo(QWidget):
             return
         self.botao_exportar_ficha.atualizar()
         if resumo:
-            InfoBar.success("Ficha exportada", f"{destino.name}: SHA-256 {resumo[:12]}… registrado na trilha.",
+            InfoBar.success("Ficha exportada", f"{destino.name} salvo.",
                             duration=6000, position=InfoBarPosition.TOP, parent=self.tela)
 
 
@@ -900,7 +883,6 @@ class ModeloPlanilhaVista(ModeloTabela):
         self.todas.sort(key=lambda l: l.CRITICIDADE, reverse=ordem == Qt.SortOrder.DescendingOrder)
         self.pagina = 0
         self.endResetModel()
-
 
 
 def ModeloPlanilha(parent=None):  # noqa: N802
@@ -1179,8 +1161,7 @@ class PlanilhaAnalitica(QWidget):
         for botao in (self.botao_csv, self.botao_xlsx):
             botao.setVisible(painel.exporta)
         self.aviso.setText(
-            "Exportação: CSV ou XLSX dos casos filtrados (todas as páginas), com as colunas completas. O SHA-256 do "
-            "arquivo fica na trilha." if painel.exporta else
+            "Exportação em CSV ou XLSX dos casos filtrados, com todas as colunas." if painel.exporta else
             "Só visualização: este acesso não exporta.")
         self.aviso.setStyleSheet(f"color:{cor_texto_secundario() if painel.exporta else '#D2384F'};")
         self._uf_dos_municipios = None
@@ -1207,19 +1188,6 @@ class PlanilhaAnalitica(QWidget):
         uf = self._vistas[0].valor()
         self.estado.definir(ufs=uf, municipios=frozenset(m for m in self.estado.filtro.municipios
                                                          if uf and m[0] in uf))
-
-    def limpar_filtros(self, *_):
-        self.estado.limpar()
-
-    def filtrar_por(self, risco: str | None = None, atividade: str | None = None):
-        """Atalho do gráfico: ACRESCENTA a faixa (e a atividade) ao filtro único, sem apagar os outros filtros."""
-        mudancas = {}
-        if risco:
-            mudancas["riscos"] = {risco}
-        if atividade:
-            mudancas["atividades"] = {atividade}
-        if mudancas:
-            self.estado.definir(**mudancas)
 
     def _descricao_filtros(self) -> str:
         painel = self.painel
@@ -1326,10 +1294,10 @@ class PlanilhaAnalitica(QWidget):
                           parent=self.tela)
             return
         if resumo is None:
-            InfoBar.warning("Exportação cancelada", "Sem a conferência do rosto, o arquivo não sai.", duration=5000,
+            InfoBar.warning("Exportação cancelada", "Verificação facial não concluída.", duration=5000,
                             position=InfoBarPosition.TOP, parent=self.tela)
             return
-        InfoBar.success("Planilha exportada", f"{destino.name}: SHA-256 {resumo[:12]}… registrado na trilha.",
+        InfoBar.success("Planilha exportada", f"{destino.name} salvo.",
                         duration=6000, position=InfoBarPosition.TOP, parent=self.tela)
         for botao in (self.botao_csv, self.botao_xlsx):
             botao.atualizar()
@@ -1413,8 +1381,7 @@ class ModeloResumo(ModeloTabela):
         if papel == Qt.ItemDataRole.TextAlignmentRole and isinstance(linha[j], (int, float)):
             return int(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         if papel == Qt.ItemDataRole.ToolTipRole:
-            return ("Total do recorte: soma das linhas; percentuais refeitos das somas; atraso médio ponderado pelos "
-                    "vencidos de cada grupo (cada média de grupo vem arredondada ao dia).")
+            return "Total do recorte filtrado."
         return None
 
     def texto(self, linha, j: int) -> str:
@@ -1479,8 +1446,7 @@ class ResumoAgregado(QWidget):
             self.aviso_filtro.setText("Resumo dos casos encerrados do recorte filtrado: os totais seguem os filtros "
                                       "acima.")
         elif filtro is not None and not filtro.vazio():
-            self.aviso_filtro.setText("Resumo dos casos ativos do recorte filtrado: os totais seguem os filtros "
-                                      "acima (com a situação Todos, o resumo conta os ativos, como os indicadores).")
+            self.aviso_filtro.setText("Resumo dos casos ativos do recorte filtrado.")
         else:
             self.aviso_filtro.setText("Resumo dos casos ativos (como os indicadores).")
         self.aviso_filtro.setVisible(bool(self.aviso_filtro.text()))
@@ -1488,8 +1454,8 @@ class ResumoAgregado(QWidget):
             botao.setVisible(resumo.exporta)
         self.aviso.setText(
             ("Totais por grupo, sem nenhum registro individual nem localização. " +
-             ("Exportação livre (nível 1); o SHA-256 do arquivo fica na trilha." if resumo.nivel is Nivel.N1 else
-              "Exportação com rastreio: quem, quando e o SHA-256 do arquivo ficam na trilha." if resumo.exporta else
+             ("Exportação livre." if resumo.nivel is Nivel.N1 else
+              "Exportações são registradas." if resumo.exporta else
               "Só visualização: este acesso não exporta.")))
         self.aviso.setStyleSheet(f"color:{cor_texto_secundario() if resumo.exporta else '#D2384F'};")
         self._preencher_agrupamentos(resumo)
@@ -1534,7 +1500,6 @@ class ResumoAgregado(QWidget):
         self.total.setText(f"{len(linhas)} grupos · {formatos.inteiro(n)} casos nos grupos visíveis · escopo "
                            f"{self.resumo.escopo}{aviso}")
 
-
     def exportar(self, extensao: str):
         if self.resumo is None:
             return
@@ -1554,7 +1519,7 @@ class ResumoAgregado(QWidget):
             return
         if resumo is None:
             return
-        InfoBar.success("Resumo exportado", f"{destino.name}: SHA-256 {resumo[:12]}… registrado na trilha.",
+        InfoBar.success("Resumo exportado", f"{destino.name} salvo.",
                         duration=6000, position=InfoBarPosition.TOP, parent=self.tela)
 
 
@@ -1564,7 +1529,7 @@ class PainelAnalitico(QWidget):
     resumo e glossário; N3 = mapa, priorização, custo por responsável, planilha, resumo e glossário. No N2 e no
     N3, um filtro único (EstadoFiltro) e a barra de chips acima das abas que o seguem (mapa, planilha e resumo).
     "Painéis temáticos" e "Evolução" saíram do N3; o Glossário entrou em todos os
-    níveis (17.4); o panorama do N1 não tem custo (17.5)."""
+    níveis; o panorama do N1 não tem custo."""
 
     SECOES = (("panorama", "Painéis temáticos"), ("mapa", "Mapa interativo"), ("paineis_uf", "Painéis da UF"),
               ("orcamento", "Priorização"), ("responsaveis", "Custo por responsável"),

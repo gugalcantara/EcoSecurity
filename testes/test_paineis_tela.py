@@ -7,13 +7,12 @@ navegar não perde o filtro nem as escolhas locais; nenhuma dica com fonte, nív
 que fecha com o total; encerramento em degraus de 0 a 100% e o ano corrente parcial.
 """
 import math
-import re
 from dataclasses import replace
 from datetime import date, timedelta
 
 import pytest
 
-from ecosec.acervo import formatos, sinteticos, vocabulario
+from ecosec.acervo import sinteticos
 from ecosec.dominio.entidades import Usuario
 from ecosec.dominio.niveis import Nivel
 

@@ -31,7 +31,7 @@ class ServicoTrilha:
         self.relogio = relogio
 
     def registrar(self, evento: str, resultado: str, motivo: str, **campos) -> RegistroTrilha:
-        # padrão de texto do banco ANTES do hash: o encadeado é exatamente o que fica gravado
+        # padrão de texto do banco antes do hash: o encadeado é exatamente o que fica gravado
         if campos.get("detalhe") is not None:
             campos["detalhe"] = texto.referencia(campos["detalhe"])
         fato = EventoTrilha(momento=self.relogio(), evento=evento, resultado=resultado, motivo=motivo, **campos)

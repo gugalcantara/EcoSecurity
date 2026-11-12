@@ -272,7 +272,7 @@ class RepositorioTrilhaMySQL:
     """Trava com GET_LOCK: não exige UPDATE (que a conta da aplicação não tem
     na trilha) e serializa as gravações entre processos e threads.
 
-    O commit acontece ANTES de soltar a trava. Na ordem inversa, outra gravação
+    O commit acontece antes de soltar a trava. Na ordem inversa, outra gravação
     poderia ler o último hash ainda antigo e a corrente se bifurcaria.
     """
     _CAMPOS = ("id, momento, evento, nivel_solicitado, usuario_id, usuario2_id, matricula_informada, "
@@ -299,7 +299,7 @@ class RepositorioTrilhaMySQL:
                            ev.matricula_informada, ev.resultado, ev.motivo, ev.camadas, ev.distancia, ev.detalhe,
                            r.hash_anterior, r.hash_registro))
                 novo_id = c.lastrowid
-                c.execute("COMMIT")                              # grava ANTES de soltar a trava
+                c.execute("COMMIT")                              # grava antes de soltar a trava
             finally:
                 c.execute("SELECT RELEASE_LOCK(%s)", (self._trava,))
                 c.fetchall()
@@ -317,7 +317,7 @@ class RepositorioTrilhaMySQL:
 
 
 class RepositorioAcervoMySQL:
-    """Lê o banco do acervo com a conta ecosec_cofre, que SÓ tem SELECT."""
+    """Lê o banco do acervo com a conta ecosec_cofre, que só tem SELECT."""
 
     def __init__(self, banco: BancoMySQL):
         self.banco = banco

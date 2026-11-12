@@ -7,13 +7,13 @@ porta dos fundos de todo o resto.
 Ordem obrigatória:
 1. TERMO primeiro: o consentimento precisa existir antes da câmera abrir
    (LGPD art. 11, I). O próprio serviço recusa abrir a coleta sem aceite.
-   O aceite fica em memória e só é GRAVADO junto com o usuário, ao concluir:
+   O aceite fica em memória e só é gravado junto com o usuário, ao concluir:
    quem desiste no meio não deixa nome nem aceite no banco (minimização,
    art. 6º, III). O momento gravado é o do aceite: a prova de que ele veio
    antes da captura continua lá.
 2. As faces ficam só em memória (ColetaFacial). Treinam o modelo e são
    apagadas: inclusive se o cadastro falhar no meio (bloco finally).
-3. Se algo falhar DEPOIS de o usuário existir, ele é desativado: um usuário
+3. Se algo falhar depois de o usuário existir, ele é desativado: um usuário
    ativo sem rosto no modelo só seria descoberto na primeira tentativa dele.
 """
 import secrets
@@ -196,7 +196,7 @@ class ServicoCadastro:
 
         `autoriza_pesquisa` é a finalidade (b), opcional. A escolha entra no
         texto cujo hash é gravado: o hash prova o que foi lido e o que foi escolhido."""
-        # padronizado ANTES do hash: o termo assinado traz o nome como ele fica gravado
+        # padronizado antes do hash: o termo assinado traz o nome como ele fica gravado
         nome = texto.nome(nome) or ""
         if len(nome) < 3:
             raise ErroCadastro("Digite o nome completo como assinatura.")
@@ -316,4 +316,4 @@ class ServicoCadastro:
                     pass
             raise
         finally:
-            coleta.descartar()                # em QUALQUER saída
+            coleta.descartar()                # em qualquer saída

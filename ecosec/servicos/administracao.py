@@ -1,75 +1,23 @@
-"""Administração: quem administra, como prova que é ele, e quem aprova o quê.
+"""Administração do sistema: os administradores, o celular de cada um e as ações que precisam de aprovação.
 
-UMA PESSOA, UM CADASTRO, UM PERFIL. Ser administrador é um
-PAPEL dado a um cadastro de perfil EXTERNO (quem não é do quadro do governo),
-guardado na tabela `administrador` (quem designou, quem aprovou, o celular). O
-Externo não tem camada: o administrador gere pessoas, perfis, consentimentos, a
-trilha e a governança, e não lê dado do acervo em nenhuma circunstância. Só um
-Externo vira administrador, e o administrador não recebe camada (tira-se o papel
-antes). Cada admin entra pelo login de todos (matrícula, senha e rosto) com a SUA
-matrícula; não existe senha de administrador compartilhada. Assim a trilha
-sempre diz qual admin fez cada coisa (não repúdio).
+Ser administrador é um papel dado a um cadastro com o perfil Externo, que não tem acesso ao acervo. Cada
+administrador entra pelo mesmo login dos outros usuários, com a própria matrícula, e o painel só abre depois
+de conferir o rosto de novo e o código do celular (TOTP). Assim a trilha sempre mostra quem fez cada ação.
 
-PERFIS: atribuir ou trocar o perfil é ação crítica quando dá a camada 3
-(ministro); servidor, diretor e Externo o admin faz sozinho. Ninguém altera o
-próprio perfil.
+As ações críticas (tornar ou tirar um administrador, refazer o celular de alguém, atribuir o perfil de
+ministro, revogar um consentimento, excluir um cadastro e registrar a revisão de acessos) precisam do código
+do celular de outro administrador, e ninguém aprova o próprio pedido. Com menos de dois administradores
+ativos não há quem aprove: o administrador age sozinho e a trilha marca a ação como implantação. Depois de
+ter dois, nenhuma ação voluntária reduz esse número.
 
-EXCLUIR é lógico e irreversível: desativa, marca excluído, revoga o
-consentimento e elimina o rosto. Nada é apagado: a aplicação não tem DELETE, e a
-trilha e os consentimentos são a prova (art. 8º, §2º, e art. 37 da LGPD). A
-exclusão física fica para o fim do trabalho, pelo root, com registro em ata.
-
-Abrir o painel pede três provas: o login (sabe a senha), o rosto conferido de
-novo na hora (é quem diz ser) e o código do celular (tem o aparelho, TOTP; ver
-seguranca/acesso/totp.py). No primeiro acesso, o admin cadastra o celular e
-recebe códigos de recuperação, mostrados uma única vez.
-
-Ações críticas exigem um segundo administrador (princípio dos quatro olhos):
-tornar admin, tirar o papel (inclusive desativando o cadastro de um admin),
-refazer o celular de alguém, revogar consentimento (elimina o rosto) e
-registrar a revisão de acessos. Quem pede faz a ação; o outro admin, de onde
-estiver, dita o código ATUAL do celular dele. O sistema confere o código contra
-todos os outros admins e grava na trilha quem pediu e quem aprovou. Ninguém
-aprova o próprio pedido. O limite é conhecido: quem aprova confia no que ouviu;
-a trilha com os dois nomes e a revisão de acessos pegam o abuso.
-
-Fase de implantação: com menos de 2 admins ativos não há quem aprove, então o
-admin age sozinho, e a trilha marca IMPLANTACAO. Para não virar atalho, o
-sistema nunca deixa, por ação voluntária, ficar com menos de 2 admins depois
-de ter 2.
-
-PRIMEIRO ADMINISTRADOR: a senha de INSTALAÇÃO (definida na primeira
-execução, hash no .env) abre a configuração inicial enquanto não há
-administrador; o primeiro cadastro feito ali, Externo, vira o primeiro admin.
-Com um admin vinculado, ela não abre mais nada.
-
-ACESSO DE EMERGÊNCIA ("quebrar o vidro"): se um admin acertou matrícula e senha
-mas o rosto ou a câmera falhou, o login oferece uma porta discreta que abre com
-os códigos de 2 dos 3 admins (quórum), em qualquer ordem, em até 5 minutos.
-Dentro dela só se conserta o acesso, por 30 minutos, e tudo vai para a trilha
-como EMERGENCIA. Erros contam numa contenção própria e global (#EMERGENCIA), e a
-mensagem de erro nunca diz qual código falhou.
-
-Âncora da trilha: dentro do painel, quem já passou pelo login, pelo rosto e pelo
-celular confirma só com o código atual do próprio celular (a mesma contenção da
-abertura). A geração é gravada na trilha antes do cálculo, e a linha que vai para
-fora do banco aponta para esse registro: quem gerou fica provado pela própria
-âncora. Trilha adulterada não é ancorada. Conferir uma linha só lê, então
-dispensa o código, mas também fica na trilha.
-
-Ferramentas de terminal que leem o modelo facial (o experimento da curva DET):
-no terminal não há administrador logado, então elas pedem a matrícula, a senha e
-o código do celular de um administrador, com contenção própria (#FER), e gravam
-na trilha o início e o fim, sem nenhuma distância.
-
-Regras de gestão (de antes, mantidas):
-- Desativar não apaga nada: amostras e histórico continuam íntegros.
-- Revogar o consentimento: 1º desativa, 2º revoga, 3º ELIMINA o rosto do
-  modelo (LGPD art. 16 e 18, VI). Na ordem inversa, uma falha no meio deixaria
-  um cadastro ativo sem base legal.
-- Relatório do titular (art. 18, I e II): tudo o que o sistema guarda sobre a
-  pessoa, em linguagem clara.
-- Reativar quem revogou é recusado: sem novo termo, não há base legal.
+Outras regras:
+- a senha de instalação só abre a configuração inicial, enquanto não existe administrador;
+- o acesso de emergência abre com os códigos de recuperação de dois administradores, dura no máximo
+  30 minutos e só serve para restaurar o acesso;
+- a âncora da trilha é gerada pelo painel, com o código do próprio celular, e a geração fica registrada;
+- as ferramentas de terminal que leem o modelo facial pedem matrícula, senha e código de um administrador;
+- excluir e revogar não apagam nada: desativam o cadastro, marcam a revogação e eliminam o rosto do modelo,
+  nessa ordem, e quem revogou não volta a ser ativado sem um novo termo.
 """
 import hmac
 import logging
@@ -153,7 +101,7 @@ class LinhaUsuario:
 
 @dataclass(frozen=True)
 class NovoCelular:
-    """Segredo ainda NÃO gravado: só vale depois que a pessoa digita o primeiro código."""
+    """Segredo ainda não gravado: só vale depois que a pessoa digita o primeiro código."""
     segredo: str = field(repr=False)
     uri: str = field(repr=False)
 
@@ -309,7 +257,7 @@ class ServicoAdministracao:
         self._registrar("REGISTRADO", "FERRAMENTA_FIM", usuario_id=usuario_id, detalhe=f"{ferramenta}: {resumo}")
 
     def _conferir_proprio_codigo(self, usuario_id: int | None, codigo: str, acao: str) -> str | None:
-        """Ação sensível de quem JÁ está no painel: basta o código do próprio celular (ou um de recuperação).
+        """Ação sensível de quem já está no painel: basta o código do próprio celular (ou um de recuperação).
         Usa a mesma contenção da abertura do painel. Devolve a recusa, ou None se o código confere."""
         adm, usuario = self._admin_ativo(usuario_id), self._usuario_ativo(usuario_id)
         if adm is None or usuario is None:
@@ -326,7 +274,7 @@ class ServicoAdministracao:
         self._registrar("NEGADO", Motivo.CODIGO_INCORRETO.value, usuario_id=usuario_id,
                         matricula_informada=usuario.matricula, detalhe=acao)
         return (f"Código não aceito. Código do celular bloqueado até as {bloqueio:%H:%M}." if bloqueio
-                else "Código não aceito. Digite o código ATUAL do seu celular.")
+                else "Código não aceito. Digite o código atual do aplicativo.")
 
     def trilha_recente(self, limite: int = 300):
         return self.trilha.recentes(limite)
@@ -441,7 +389,7 @@ class ServicoAdministracao:
 
     def vincular_primeiro_administrador(self, usuario_id: int) -> str | None:
         """Configuração inicial: o primeiro cadastro, Externo, feito depois da senha de instalação, vira o
-        PRIMEIRO administrador. Uma única vez; sem pergunta no login."""
+        primeiro administrador. Uma única vez; sem pergunta no login."""
         if self.administrador_vinculado:
             return "O sistema já tem administrador; novos administradores são designados no painel."
         if not self._instalacao_aberta:
@@ -577,15 +525,14 @@ class ServicoAdministracao:
                       if a.usuario_id != solicitante_id and (a.celular_cadastrado
                                                              or self.administradores.codigos_validos(a.usuario_id))]
         if not candidatos:
-            return None, ("Nenhum outro administrador pode aprovar agora: o outro precisa entrar no painel e "
-                          "cadastrar o celular primeiro."), ""
+            return None, "Nenhum outro administrador está apto a aprovar no momento.", ""
         chave = solicitante.matricula + SUFIXO_APROVACAO
         bloqueio = self._bloqueado_ate(chave)
         if bloqueio is not None:
             return None, f"Aprovações bloqueadas por erros seguidos até as {bloqueio:%H:%M}.", ""
         achados = self._quem_tem_o_codigo(codigo or "", candidatos)
         if len(achados) > 1:      # dois admins com o mesmo código neste instante (1 em 1 milhão): pede outro
-            return None, "Código ambíguo. Aguarde o próximo código (30 segundos) e tente de novo.", ""
+            return None, "Código não aceito. Aguarde o próximo código e tente de novo.", ""
         if achados and self._consumir(achados[0]):
             self._zerar(chave)
             return achados[0][0].usuario_id, None, "APROVADA"
@@ -593,7 +540,7 @@ class ServicoAdministracao:
         self._registrar("NEGADO", "APROVACAO_RECUSADA", usuario_id=solicitante_id,
                         matricula_informada=alvo.matricula if alvo else None, detalhe=acao.descricao)
         return None, (f"Código não aceito. Aprovações bloqueadas até as {bloqueio:%H:%M}." if bloqueio
-                      else "Código não aceito. Peça ao outro administrador o código ATUAL do celular dele."), ""
+                      else "Código não aceito. Peça ao outro administrador o código atual."), ""
 
     def _registrar_acao(self, acao: AcaoCritica, solicitante_id: int, aprovador: int | None, como: str,
                         alvo: Usuario | None, obrigatorio: bool, extra: str = "") -> None:
@@ -731,7 +678,7 @@ class ServicoAdministracao:
         return None
 
     def registrar_revisao(self, solicitante_id: int, codigo: str | None = None) -> str | None:
-        """A revisão de acessos foi feita (relatório S-10, conferido pelo grupo): fica na trilha, com os dois."""
+        """A revisão de acessos foi feita (relatório S-10, conferido pelos administradores): fica na trilha, com os dois."""
         aprovador, recusa, como = self._autorizar(AcaoCritica.REVISAO_ACESSOS, solicitante_id, codigo)
         if recusa:
             return recusa
@@ -745,7 +692,7 @@ class ServicoAdministracao:
         if not self.eh_administrador(emergencia.usuario_id) or not self.eh_administrador(alvo_id):
             return "Só o rosto de um administrador é recadastrado pelo acesso de emergência."
         alvo = self.usuarios.por_id(alvo_id)
-        # autorizado AGORA; o fato (rosto trocado) é gravado pelo cadastro quando a captura terminar
+        # autorizado agora; o fato (rosto trocado) é gravado pelo cadastro quando a captura terminar
         self._registrar_obrigatorio("REGISTRADO", "RECADASTRO_AUTORIZADO", usuario_id=emergencia.usuario_id,
                                     matricula_informada=alvo.matricula, detalhe="ACESSO DE EMERGÊNCIA")
         return None
@@ -811,10 +758,6 @@ class ServicoAdministracao:
         self.usuarios.atualizar(replace(usuario, ativo=ativo))
         self._registrar("REGISTRADO", "USUARIO_REATIVADO" if ativo else "USUARIO_DESATIVADO", usuario_id=usuario_id)
         return None
-
-    def eh_administrador_alvo(self, usuario_id: int) -> bool:
-        """A tela usa para saber se desativar este cadastro vai pedir o segundo administrador."""
-        return self._admin_ativo(usuario_id) is not None and self.exige_aprovacao
 
     def revogar_consentimento(self, usuario_id: int, solicitante_id: int | None = None,
                               codigo: str | None = None) -> str | None:

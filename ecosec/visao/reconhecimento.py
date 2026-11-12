@@ -1,35 +1,16 @@
-"""Fases 4 e 5: Extração (LBPH) e Classificação (distância + confirmação).
+"""Fases 4 e 5 do processamento: extração de características (LBPH) e classificação (distância e confirmação).
 
-Extração, Local Binary Patterns Histograms:
-  1. Para cada pixel, compara os 8 vizinhos com o centro: vizinho >= centro
-     vira 1, menor vira 0. Os 8 bits formam um código (0-255) que descreve a
-     textura local: borda, canto, mancha, região lisa.
-  2. A face é dividida numa grade 8×8; cada célula vira um histograma dos
-     códigos. Os 64 histogramas concatenados são a "assinatura" da face.
-  Por comparar vizinhos entre si, o LBP é pouco sensível a mudanças uniformes
-  de iluminação: clarear a imagem toda não muda quem é maior que quem.
+O LBP compara cada pixel com os 8 vizinhos e forma um código que descreve a textura local. A face é dividida
+numa grade 8x8, e os histogramas desses códigos, juntos, formam a assinatura da face. Como compara vizinhos
+entre si, o LBP é pouco sensível a mudanças uniformes de iluminação.
 
-Classificação: distância qui-quadrado entre assinaturas. Menor = mais
-parecido. O limiar é decidido pela camada de segurança (S4), não aqui.
+A classificação usa a distância qui-quadrado entre assinaturas (menor = mais parecido); o limiar é decidido
+pela camada S4. Na identificação 1:N vale o vizinho mais próximo da galeria; na verificação 1:1, a menor
+distância às amostras da identidade alegada, para que um vizinho de outra pessoa não negue o dono legítimo.
 
-Dois modos:
-- identificar (1:N): o vizinho mais próximo de toda a galeria.
-- verificar (1:1): a menor distância às amostras da identidade alegada. Um
-  predict() comum devolveria o vizinho de toda a galeria; se ele fosse outra
-  pessoa, o dono legítimo seria negado sem motivo.
-
-Atualização incremental: `update()` acrescenta uma pessoa nova sem
-retreinar as outras.
-
-Persistência sem arquivo temporário: o modelo é serializado em memória
-(cv2.FileStorage em modo memory), comprimido e cifrado antes de tocar o disco.
-A versão anterior gravava o YAML em texto puro numa pasta temporária por um
-instante: dado biométrico em claro no disco, que sobraria se o programa
-travasse naquele momento.
-
-Remoção de uma pessoa (LGPD art. 18, VI): o LBPH não tem "remover". O modelo é
-reescrito sem os histogramas daquele rótulo; as demais pessoas continuam com
-exatamente as mesmas distâncias.
+Um cadastro novo usa a atualização incremental (`update()`), sem retreinar as outras pessoas. O modelo é
+serializado em memória, comprimido e cifrado antes de ir para o disco, sem arquivo temporário em claro. Como o
+LBPH não remove uma pessoa, a revogação reescreve o modelo sem os histogramas daquele rótulo.
 """
 import os
 import threading

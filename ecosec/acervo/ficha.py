@@ -53,7 +53,6 @@ FONTE, REJEITO = "FONTE SELADA", "REJEITO SOLIDO"
 MEIOS_DA_CLASSE = {AREA: (SOLO, AGUA, SOLO_E_AGUA, SEDIMENTO),
                    CLASSE_I: (SOLIDO, PASTOSO, LIQUIDO, EQUIPAMENTO),
                    RADIOATIVO: (FONTE, REJEITO)}
-COM_AGUA_SUBTERRANEA = (AGUA, SOLO_E_AGUA)
 
 # substância (exatamente como em sinteticos.PERFIS) -> (grupo do contaminante, meio afetado)
 CONTAMINANTE = {

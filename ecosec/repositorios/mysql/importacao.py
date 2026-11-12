@@ -1,6 +1,6 @@
 """Importa o acervo gerado para o banco do acervo (ecosec_acervo).
 
-Roda com uma conta que PODE escrever (root, na ferramenta de preparação; a
+Roda com uma conta que pode escrever (root, na ferramenta de preparação; a
 conta de testes, nos testes): nunca com a da aplicação, que só lê o cofre.
 
 Só importa se o acervo estiver VAZIO: rodar de novo não duplica nada. O
@@ -23,7 +23,7 @@ def sql_referencia() -> str:
     linhas = ["-- GERADO por ferramentas/gerar_referencia.py a partir de ecosec/acervo/sinteticos.py: NÃO EDITE À MÃO.",
               "-- Catálogo da camada causal e eventos regulatórios, no padrão de",
               "-- texto do banco. Idempotente: linhas existentes são ATUALIZADAS.",
-              "-- Subclasses CNAE: só 8640-2/11 (AG-08) conferida; as demais A CONFERIR (integrante 3).", "",
+              "-- Subclasses CNAE: só a 8640-2/11 (AG-08) foi conferida; as demais são indicativas.", "",
               "INSERT INTO atividade_geradora (codigo, nome, descricao_operacional, cnae_subclasse, exemplos, "
               "observacao) VALUES"]
     linhas.append(",\n".join(

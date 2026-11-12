@@ -1,6 +1,6 @@
 """Vídeo na interface: a thread que alimenta a tela e o visor que desenha.
 
-TrabalhadorVideo (QThread): roda a câmera e o pipeline FORA da thread da
+TrabalhadorVideo (QThread): roda a câmera e o pipeline fora da thread da
 interface, e entrega cada quadro por sinal. A tela nunca chama camera.read():
 se chamasse, congelaria 30-50 ms a cada quadro. Também chama, na mesma thread,
 o processamento de quem consome (autenticação ou coleta do cadastro).

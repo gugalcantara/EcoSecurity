@@ -2,7 +2,7 @@
 
 Thread dedicada + fila de tamanho 1. Por quê:
 
-    câmera  ──30 fps──▶  [fila]  ──?? fps──▶  reconhecimento
+    câmera  ──30 fps -> [fila]  ──?? fps -> reconhecimento
 
 Se o reconhecimento for mais lento que a câmera, uma fila comum acumula
 quadros: depois de 10 s a tela mostraria o que aconteceu há 3 s, e a decisão

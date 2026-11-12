@@ -523,7 +523,6 @@ def test_n3_ano_em_lista_com_todos_e_marcos_do_ano(tela, qt):
     acervo. A semântica não muda: o ano é a data de corte. No N2 a linha não aparece."""
     from PySide6.QtCore import QPoint
 
-    from ecosec.interface.componentes.slider_eventos import SliderEventos
     pa = _abrir(tela, qt, Nivel.N3, "mapa")
     m, hoje = pa.mapa, pa.painel.hoje
     c, marcos = m.combo_ano, m.marcos_do_ano
@@ -554,7 +553,7 @@ def test_n3_ano_em_lista_com_todos_e_marcos_do_ano(tela, qt):
     c.setCurrentText("Todos")
     qt.processEvents()
     assert pa.estado.filtro.ano is None and marcos.isHidden()
-    assert not m.findChildren(SliderEventos) and not hasattr(m, "slider") and not hasattr(m, "rotulo_ano")
+    assert not hasattr(m, "slider") and not hasattr(m, "rotulo_ano")
     tela.encerrar()
     pa = _abrir(tela, qt, Nivel.N2, "mapa")
     assert pa.mapa.linha_tempo.isHidden()

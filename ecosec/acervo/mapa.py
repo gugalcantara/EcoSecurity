@@ -71,9 +71,6 @@ class Mapa:
         return (self.x0 + folga <= x <= self.x0 + self.largura - folga
                 and self.y0 + folga <= y <= self.y0 + self.altura - folga)
 
-    def desenhar_contorno(self, tela: Tela, preenchimento=(238, 243, 238), contorno=(120, 140, 120)):
-        tela.poligono([self.px(lon, lat) for lon, lat in CONTORNO_BRASIL], preenchimento, contorno)
-
     def _local(self, anel) -> list[tuple[float, float]]:
         return [(x - self.x0, y - self.y0) for x, y in (self.px(float(p[0]), float(p[1])) for p in anel)]
 

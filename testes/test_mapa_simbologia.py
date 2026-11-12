@@ -8,7 +8,7 @@ Critérios de aceite:
 - a legenda conta só a vista e mostra dentro × fora coerente com `contagens`;
 - barra de escala com erro ≤ 1% contra a haversine em latitudes do RS, do centro e do AM;
   comprimento redondo; muda com o zoom;
-- + e − dão zoom; Tab foca um ponto (oeste → leste); Enter abre a ficha (o mesmo sinal do clique); Esc
+- + e − dão zoom; Tab foca um ponto (oeste -> leste); Enter abre a ficha (o mesmo sinal do clique); Esc
   solta; nomes acessíveis; caixas de quintil por teclado;
 - reordenar camadas muda o z-value; UFs com liga/desliga; dois nomes para os municípios;
 - rampa da densidade fora dos matizes de risco; 1º quintil começa no mínimo real.

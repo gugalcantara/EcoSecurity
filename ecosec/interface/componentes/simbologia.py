@@ -35,7 +35,6 @@ from ecosec.acervo import vocabulario as _vocabulario
 
 FAIXAS = ("BAIXO", "MEDIO", "ALTO", "CRITICO")
 FUNDO_MAPA = "#EEF3EE"                    # preenchimento do país, onde os pontos são desenhados
-CONTRASTE_MINIMO = 3.0                    # WCAG 2.1, 1.4.11 (objetos gráficos)
 CONTRASTE_ALVO = 3.3                      # folga sobre o mínimo (arredondamento de cor e antisserrilhado)
 COR_TEXTO = "#1A1A1A"                     # texto da legenda: 17:1 sobre o branco (antes, na cor da faixa: 2,44:1)
 COR_TEXTO_SECUNDARIO = "#4A4A4A"
@@ -112,7 +111,6 @@ COR_IDENTIDADE_CLASSE = {AREA: "#4e79a7", CLASSE_I: "#f28e2b", RADIOATIVO: "#e15
 COR_CLASSE = {c: escurecer_ate(cor) for c, cor in COR_IDENTIDADE_CLASSE.items()}
 MARCA_CLASSE = {AREA: "quadrado", CLASSE_I: "circulo", RADIOATIVO: "triangulo"}
 ROTULO_CLASSE = {c: _vocabulario.rotulo(c, "classe") for c in CLASSES}            # vocabulário
-GLIFO_CLASSE = {AREA: "■", CLASSE_I: "●", RADIOATIVO: "▲"}
 RAIO_CLASSE = 4.5                          # raio equivalente: as três formas têm a mesma área
 
 # FASE (acervo.fase): tons da paleta dos painéis, escurecidos até 3:1
@@ -122,7 +120,6 @@ COR_IDENTIDADE_FASE = {_fase.IDENTIFICACAO: "#9c755f", _fase.INVESTIGACAO: "#76b
 COR_FASE = {f: escurecer_ate(cor) for f, cor in COR_IDENTIDADE_FASE.items()}
 PREENCHIMENTO_FASE = {_fase.IDENTIFICACAO: 1 / 3, _fase.INVESTIGACAO: 2 / 3, _fase.REMEDIACAO: 1.0,
                       _fase.ENCERRADA: 0.0}
-GLIFO_FASE = {_fase.IDENTIFICACAO: "◔", _fase.INVESTIGACAO: "◑", _fase.REMEDIACAO: "●", _fase.ENCERRADA: "○"}
 RAIO_FASE = 5.0
 ESPESSURA_CONTORNO_FASE = 1.4
 
@@ -232,10 +229,6 @@ def cor_categoria(tematica: str, categoria: str) -> str:
     if categoria == ENCERRADO:
         return COR_ENCERRADO
     return {"faixa": COR_FAIXA, "classe": COR_CLASSE, "fase": COR_FASE}[tematica][categoria]
-
-
-def glifo_categoria(tematica: str, categoria: str) -> str:
-    return {"faixa": {}, "classe": GLIFO_CLASSE, "fase": GLIFO_FASE}[tematica].get(categoria, "●")
 
 
 def simbolo_categoria(tematica: str, categoria: str, vazado: bool = False, atenuado: bool = False) -> Simbolo:

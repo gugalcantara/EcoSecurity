@@ -29,10 +29,8 @@ from ecosec.interface.video import TrabalhadorVideo, VisorVideo
 from ecosec.servicos.autenticacao import Etapa
 
 
-ESQUECI_MATRICULA = ("A matrícula está na via do termo de consentimento (PDF) entregue no seu cadastro. "
-                     "Se não a tiver, procure o administrador: ele a consulta depois de conferir a sua "
-                     "identidade. Por segurança, esta tela nunca mostra a matrícula de ninguém, e o nome "
-                     "não a substitui: nomes se repetem e são públicos.")
+ESQUECI_MATRICULA = ("A matrícula consta no termo de consentimento entregue no cadastro. "
+                     "Se não o tiver, procure o administrador.")
 
 
 class TelaAutenticacao(QWidget):
@@ -48,7 +46,12 @@ class TelaAutenticacao(QWidget):
         self._pode_voltar = pode_voltar
         self.trabalhador: TrabalhadorVideo | None = None
         self._estado_anterior = None
+        # Distância, limiar e camadas avaliadas explicam o método, mas orientam quem tenta
+        # enganar o sistema. Só aparecem com [interface] modo_demonstracao = true.
+        self.modo_demonstracao = bool(self.app.cfg["interface.modo_demonstracao"])
         self._montar()
+        self.faixa.setVisible(self.modo_demonstracao)
+        self.res_detalhe.setVisible(self.modo_demonstracao)
 
     # ============================================================ layout
     def _montar(self):
@@ -111,14 +114,8 @@ class TelaAutenticacao(QWidget):
         self.botao_esqueci = TransparentPushButton("Esqueci minha matrícula")
         self.botao_esqueci.clicked.connect(lambda: MessageBox("Esqueci minha matrícula", ESQUECI_MATRICULA,
                                                               self.window()).exec())
-        explicacao = CaptionLabel("A senha vem antes do rosto: ela diz QUEM você alega ser, e o rosto "
-                                  "passa a ser comparado só com essa pessoa (1:1), o que reduz a chance "
-                                  "de aceitar alguém parecido.")
-        explicacao.setWordWrap(True)
-        explicacao.setStyleSheet(f"color:{cor_texto_secundario()};")
         for item in (self.cred_titulo, self.cred_texto, linha_rotulada("Matrícula", self.campo_matricula),
-                     linha_rotulada("Senha", self.campo_senha), self.botao_continuar, self.botao_esqueci,
-                     explicacao):
+                     linha_rotulada("Senha", self.campo_senha), self.botao_continuar, self.botao_esqueci):
             v.addWidget(item)
         v.addStretch(1)
         return w
@@ -132,12 +129,8 @@ class TelaAutenticacao(QWidget):
         self.prog_mensagem.setWordWrap(True)
         self.prog_barra = ProgressBar()
         self.prog_barra.setRange(0, 100)
-        # A distância é ótima para explicar o método, mas é um "termômetro" para
-        # quem tenta enganar o sistema (ajusta a foto até o número cair). Só
-        # aparece com [interface] modo_demonstracao = true.
-        self.modo_demonstracao = bool(self.app.cfg["interface.modo_demonstracao"])
         self.prog_distancia = StrongBodyLabel()
-        self.prog_ajuda = CaptionLabel("Distância LBPH: quanto MENOR, mais parecido. "
+        self.prog_ajuda = CaptionLabel("Distância LBPH: quanto menor, mais parecido. "
                                        "O acesso exige ficar abaixo do limiar do nível.")
         self.prog_ajuda.setWordWrap(True)
         self.prog_ajuda.setStyleSheet(f"color:{cor_texto_secundario()};")
@@ -254,8 +247,7 @@ class TelaAutenticacao(QWidget):
                 self.pilha.setCurrentIndex(0)
                 segunda = a.pessoa == 2
                 self.cred_titulo.setText("Segunda pessoa (regra dos dois)" if segunda else "Identificação")
-                self.cred_texto.setText(a.mensagem + (" A custódia do nível 3 exige que ninguém abra "
-                                                      "o cofre sozinho." if segunda else ""))
+                self.cred_texto.setText(a.mensagem)
                 self.campo_matricula.clear()
                 self.campo_matricula.setFocus()
         elif a.etapa in (Etapa.ROSTO, Etapa.DESAFIO):
@@ -269,9 +261,9 @@ class TelaAutenticacao(QWidget):
     def _exibir_progresso(self, a):
         pessoa = "Segunda pessoa · " if a.pessoa == 2 else ""
         if a.etapa is Etapa.DESAFIO:
-            self.prog_etapa.setText(f"{pessoa}Prova de vivacidade · gesto {a.desafio_indice} de {a.desafio_total}")
+            self.prog_etapa.setText(f"{pessoa}Gesto {a.desafio_indice} de {a.desafio_total}")
         else:
-            self.prog_etapa.setText(f"{pessoa}Reconhecimento facial ({self.sessao.nivel.modo.value})")
+            self.prog_etapa.setText(f"{pessoa}Reconhecimento facial")
         self.prog_mensagem.setText(a.mensagem)
         self.prog_barra.setValue(int(a.progresso * 100))
         if a.distancia is not None and a.limiar is not None:
@@ -294,13 +286,12 @@ class TelaAutenticacao(QWidget):
                                 ("Tentativa cancelada" if a.cancelada else "Acesso negado"))
         self.res_titulo.setStyleSheet(f"color:{VERDE if concedido else VERMELHO};")
         texto = (a.mensagem if not a.cancelada else
-                 "A tentativa foi encerrada. Desistir depois de informar a matrícula conta como tentativa "
-                 "malsucedida.")
+                 "Tentativa encerrada.")
         if a.bloqueado_ate is not None:
             if a.decisao and a.decisao.motivo is Motivo.BLOQUEADO:
                 texto += f" Liberado a partir das {a.bloqueado_ate:%H:%M}."
             else:                                     # foi esta tentativa que bloqueou
-                texto += f" Foram tentativas demais: a matrícula ficou bloqueada até as {a.bloqueado_ate:%H:%M}."
+                texto += f" Matrícula bloqueada até as {a.bloqueado_ate:%H:%M}."
         self.res_texto.setText(texto)
         if a.decisao:
             self.res_detalhe.setText(camadas_avaliadas(a.decisao.vereditos))

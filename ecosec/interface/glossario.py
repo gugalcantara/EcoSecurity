@@ -131,8 +131,7 @@ class PainelGlossario(QWidget):
         textos = QVBoxLayout()
         textos.setSpacing(2)
         textos.addWidget(TitleLabel("Glossário"))
-        textos.addWidget(_rotulo(CaptionLabel, "O que cada termo da tela significa e a regra de negócio por trás "
-                                               "dele. Só definições: nenhum dado do acervo.", secundario=True))
+        textos.addWidget(_rotulo(CaptionLabel, "Definições dos termos usados nos relatórios.", secundario=True))
         cabeca.addLayout(textos, 1)
         coluna_busca = QVBoxLayout()
         self.busca = SearchLineEdit()

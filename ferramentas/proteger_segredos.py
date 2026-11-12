@@ -12,7 +12,7 @@
 Por que o backup existe: com o DPAPI, o .env só abre nesta conta do Windows,
 neste computador. Reinstalar o Windows torna o arquivo ilegível também para
 nós, e sem a chave de cifragem o modelo facial não abre mais. O backup é o
-"envelope lacrado": guarde-o FORA do computador (pen drive num lugar seguro),
+"envelope lacrado": guarde-o fora do computador (pen drive num lugar seguro),
 com a frase-senha anotada em outro lugar. Fazer de novo a cada segredo novo
 (por exemplo, depois de rodar o preparar_banco pela primeira vez).
 """

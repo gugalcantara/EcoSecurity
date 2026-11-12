@@ -9,7 +9,6 @@ filtro de classe e ano propagado a todas as seções; mapa navegável (arrasto, 
 Ctrl + roda dá zoom e a roda sozinha rola a página, − + e Brasil). Gera as capturas "depois".
 """
 import re
-from datetime import date
 
 import pytest
 
@@ -449,7 +448,6 @@ def test_ano_em_lista_com_todos_por_padrao(tela):
     saíram."""
     from PySide6.QtCore import QPoint
 
-    from ecosec.interface.componentes.slider_eventos import SliderEventos
     pn = _abrir(tela)
     hoje, c = pn.panorama.hoje, pn.combo_ano
     primeiro = pn.panorama.serie["anos"][0]
@@ -473,7 +471,7 @@ def test_ano_em_lista_com_todos_por_padrao(tela):
     c.setCurrentText("Todos")
     _esperar()
     assert pn.estado.ano == hoje.year and pn.estado_filtro.filtro.ano is None
-    assert not pn.findChildren(SliderEventos) and not hasattr(pn, "slider") and not hasattr(pn, "rotulo_ano")
+    assert not hasattr(pn, "slider") and not hasattr(pn, "rotulo_ano")
 
 
 def test_filtro_de_classe_e_ano_propaga_para_todas_as_secoes(tela):
@@ -937,7 +935,7 @@ def test_pesos_do_indice_de_pressao_fixos_no_n1_e_completos_no_n3_em_todo_recort
 def test_capturas_do_n1(tela, tmp_path):
     """Capturas "depois" para a conferência visual: cada seção (tela e inteira), com o acervo do sistema e com o
     acervo pequeno que força supressão. Gravadas na pasta temporária do teste (antes, numa pasta fixa de uma
-    máquina do grupo, o que fazia o teste falhar em qualquer outra)."""
+    máquina de desenvolvimento, o que fazia o teste falhar em qualquer outra)."""
     CAPTURAS = tmp_path / "capturas_n1"
     CAPTURAS.mkdir()
     arquivos = []

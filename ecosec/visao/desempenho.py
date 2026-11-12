@@ -101,7 +101,7 @@ def sugerir_limiares(genuinas: list[float], impostoras: list[float], falhas_capt
 
 def limiar_identificacao(corretas: list[float], erradas: list[float], teto: float | None = None) -> Ponto | None:
     """Identificação 1:N. `corretas` são as distâncias dos quadros em que o mais parecido da galeria era a própria
-    pessoa; `erradas`, as dos quadros em que era OUTRA pessoa. O limiar sugerido é o maior que ainda recusa toda
+    pessoa; `erradas`, as dos quadros em que era outra pessoa. O limiar sugerido é o maior que ainda recusa toda
     identificação errada (abaixo da menor distância errada), limitado por `teto`: sem nenhuma identificação errada
     medida, os dados não mostram até onde é seguro afrouxar, e no 1:N cada cadastro a mais é mais uma chance de
     erro. Devolve o ponto com far = fração das erradas aceitas (0) e frr = fração das corretas recusadas, ou None

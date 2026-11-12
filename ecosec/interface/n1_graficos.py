@@ -1,7 +1,7 @@
 """Gráficos do painel do N1, desenhados à mão com QPainter.
 
 Por que não QtCharts aqui: o tema do QtCharts põe fundo cinza, borda e legenda em caixa, e a faixa de rótulos e
-marcas que o método de visualização pede (marcas finas, fim de barra arredondado, vão de 2 px entre segmentos,
+marcas que este desenho usa (marcas finas, fim de barra arredondado, vão de 2 px entre segmentos,
 grade em linha fina, rótulo direto e seletivo, texto sempre na cor de texto e nunca na cor da série) dá mais
 trabalho para desligar do que para desenhar. Cada gráfico aqui:
 
@@ -14,7 +14,7 @@ trabalho para desligar do que para desenhar. Cada gráfico aqui:
   - guarda os textos que desenhou (`textos()`) para os testes conferirem o que está visível.
 
 Cores: as três classes com os mesmos matizes de identidade do sistema (azul, laranja, vermelho), em passos
-validados pelo validador de paleta do método (separação para daltonismo e contraste, claro e escuro). As duas
+conferidos quanto à separação para daltonismo e ao contraste, no tema claro e no escuro. As duas
 medidas de prazo em violeta e água (validadas juntas). Escalas sequenciais de um matiz só. Status (bom e ruim)
 só nas setas da variação, sempre com o sinal e o texto.
 """
@@ -26,14 +26,14 @@ from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QToolTip, QWidget
 
-from ecosec.acervo import formatos, vocabulario
+from ecosec.acervo import formatos
 from ecosec.interface.fluent import isDarkTheme
 
 SUPRIMIDO = "Suprimido"
 AREA, CLASSE_I, RADIOATIVO = "AREA CONTAMINADA", "CLASSE I NBR 10004", "REJEITO RADIOATIVO CNEN"
 CLASSES = (AREA, CLASSE_I, RADIOATIVO)                      # ordem fixa das classes em toda tela do N1
 
-# ---------------------------------------------------------------- paleta (validada: scripts/validate_palette.js)
+# ---------------------------------------------------------------- paleta (separação para daltonismo e contraste conferidos)
 # classes: --pairs all, claro sobre #ffffff e escuro sobre #2b2b2b, todas as verificações aprovadas (o laranja do
 # claro fica abaixo de 3:1: por isso todo gráfico com classe tem rótulo visível e tabela)
 _CLASSE = {False: {AREA: "#2f6fbd", CLASSE_I: "#e8901a", RADIOATIVO: "#c42e4a"},
@@ -974,8 +974,7 @@ class Barras100N1(GraficoN1):
                 rect = QRectF(x, ym - 9, max(0.0, largura - (2 if j < len(segmentos) - 1 else 0)), 18)
                 if f is None:
                     self._hachura(p, rect)
-                    dica = (f"{l['rotulo']}: faixas suprimidas juntas, {formatos.inteiro(n)} casos "
-                            "(o total menos as faixas visíveis)")
+                    dica = f"{l['rotulo']}: faixas com poucos casos, {formatos.inteiro(n)} casos"
                 else:
                     k = self.faixas.index(f)
                     fundo = QColor(rampa[k % len(rampa)])

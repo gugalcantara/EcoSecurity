@@ -431,11 +431,10 @@ NIVEIS = (
 )
 SIGILO = (
     _t("sigilo", "SUPRESSAO", "Supressão de grupos pequenos",
-       "Nos totais agregados, todo total que junta menos de 3 casos aparece como SUPRIMIDO. Assim ninguém consegue "
-       "reconhecer um caso específico (por exemplo, \"o único rejeito radioativo do estado X\")."),
+       "Nos totais agregados, grupos com poucos casos aparecem como SUPRIMIDO, para que nenhum caso específico "
+       "possa ser reconhecido."),
     _t("sigilo", "COMPLEMENTAR", "Supressão complementar",
-       "Às vezes um segundo número também é escondido, mesmo sendo grande: sem isso, daria para descobrir o "
-       "número suprimido por subtração (o total menos as partes que aparecem)."),
+       "Às vezes um segundo número também é ocultado, para que o primeiro não possa ser deduzido."),
     _t("sigilo", "SUPRIMIDO", "SUPRIMIDO",
        "Número escondido pela supressão de grupos pequenos. Não quer dizer zero."),
     _t("sigilo", "TARJA", "Tarja",
@@ -454,7 +453,6 @@ ROTULO_KPI = {t.codigo: t.rotulo for t in KPIS}
 ROTULO_FAIXA = {t.codigo: t.rotulo for t in FAIXAS}
 ROTULO_FASE = {t.codigo: t.rotulo for t in FASES}
 ROTULO_ETAPA = {t.codigo: t.rotulo for t in ETAPAS}
-ROTULO_SITUACAO_CASO = {t.codigo: t.rotulo for t in SITUACOES_CASO}
 ROTULO_ACAO = {t.codigo: t.rotulo for t in ACOES}
 ROTULO_RESPONSABILIDADE = {t.codigo: t.rotulo for t in RESPONSABILIDADES}
 ROTULO_MOTIVO = {t.codigo: t.rotulo for t in MOTIVOS}

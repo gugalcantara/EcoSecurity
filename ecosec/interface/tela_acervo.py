@@ -4,7 +4,7 @@ A tela recebe do serviço a imagem já tratada (tarja e marca aplicadas antes)
 e explica, para cada relatório aberto:
   - o que foi ocultado e a partir de que nível ficaria visível;
   - se há marca d'água (e o que isso significa para quem exportar);
-  - a regra de exportação do nível: ANTES do clique, não depois do erro.
+  - a regra de exportação do nível: antes do clique, não depois do erro.
 """
 import logging
 from pathlib import Path
@@ -29,12 +29,12 @@ log = logging.getLogger(__name__)
 
 def _mensagem(erro: Exception) -> str:
     """Recusa prevista (ErroAcervo): o motivo vai para a tela. Falha interna (banco, trilha):
-    mensagem genérica na tela e o detalhe no log. A tela do acervo é vista por QUALQUER
+    mensagem genérica na tela e o detalhe no log. A tela do acervo é vista por qualquer
     logado, inclusive o N1; o texto cru do MySQL exporia nomes de tabelas e detalhes internos."""
     if isinstance(erro, ErroAcervo):
         return str(erro)
     log.error("Falha no acervo", exc_info=erro)
-    return "Falha interna: nada foi exibido. Procure o administrador e informe o horário."
+    return "Falha interna. Procure o administrador."
 
 
 def _para_qimage(bgr) -> QImage:
@@ -123,7 +123,7 @@ class TelaAcervo(QWidget):
         topo.addWidget(self.tempo, 0, Qt.AlignmentFlag.AlignVCenter)
         sair = PushButton("Fechar o nível")
         sair.setIcon(FIF.CLOSE)
-        sair.setToolTip("Fecha este nível e volta ao Início. Para sair do sistema, use «Encerrar sessão».")
+        sair.setToolTip("Fecha este nível e volta ao Início.")
         sair.clicked.connect(self.encerrar)
         topo.addWidget(sair, 0, Qt.AlignmentFlag.AlignVCenter)
         raiz.addLayout(topo)
@@ -152,8 +152,7 @@ class TelaAcervo(QWidget):
         ve.setContentsMargins(0, 0, 0, 0)
         ve.setSpacing(6)
         ve.addWidget(SubtitleLabel("Relatórios"))
-        dica = CaptionLabel("Só aparecem os que o seu nível alcança. Cada um é desenhado agora, a partir do "
-                            "banco, já tratado para o seu nível.")
+        dica = CaptionLabel("Relatórios disponíveis para o seu perfil.")
         dica.setWordWrap(True)
         dica.setStyleSheet(f"color:{cor_texto_secundario()};")
         ve.addWidget(dica)
@@ -238,10 +237,8 @@ class TelaAcervo(QWidget):
         self._limpar_visualizacao()
         risco = self.sessao.identidade.risco if self.sessao is not None else None
         if risco is not None and risco.nivel != "BAIXO":
-            consequencia = ("Sessão SÓ PARA CONSULTA: exportações e conteúdo sigiloso estão bloqueados." if risco.so_consulta
-                            else "A prova de vida foi exigida no login.")
-            sinais = ", ".join(s.replace("_", " ").lower() for s in risco.sinais)
-            self.aviso_risco.setText(f"Contexto de risco {risco.nivel} ({sinais}). {consequencia}")
+            self.aviso_risco.setText("Sessão só para consulta: exportações e conteúdo sigiloso estão bloqueados."
+                                     if risco.so_consulta else "Sessão iniciada com verificação adicional.")
             self.aviso_risco.setStyleSheet(f"color:{VERMELHO if risco.so_consulta else '#D99A1E'}; font-weight:600;")
             self.aviso_risco.show()
         else:
@@ -316,9 +313,8 @@ class TelaAcervo(QWidget):
             cartao.marcar(False)
         if self.nivel is not None:
             self.vazio_texto.setText(
-                f"Há {len(self.cartoes_relatorio)} relatórios disponíveis no Nível {self.nivel.value}. Cada um é "
-                "desenhado na hora a partir do banco e chega já tratado: o que o seu nível não pode ver é "
-                "suprimido ANTES de chegar à tela, e o painel à direita explica o que foi ocultado.")
+                f"{len(self.cartoes_relatorio)} relatórios disponíveis no Nível {self.nivel.value}. "
+                "Selecione um na lista.")
         self.info_supressao.setText("Nenhum relatório aberto.")
         self.botao_exportar.setEnabled(False)
         self.botao_exportar.setToolTip("Abra um relatório para poder exportá-lo.")
@@ -332,16 +328,15 @@ class TelaAcervo(QWidget):
             self.tempo.setText(f"Sem uso: fecha em {restante // 1000 + 1} s")
         else:
             self.tempo.setText(f"Custódia: fecha após {self._minutos_n3:g} min sem uso")
-        self.tempo.setToolTip("O Nível 3 fecha sozinho só depois de um tempo SEM USO. Mover o mouse, rolar ou "
-                              "teclar conta como uso.")
+        self.tempo.setToolTip("O Nível 3 fecha após um período sem uso.")
         # cor pela API do Fluent: limpar o estilo apagaria a cor do tema (texto preto no fundo escuro)
         self.tempo.setTextColor(QColor(VERMELHO if urgente else "#1A1A1A"), QColor(VERMELHO if urgente else "#FFFFFF"))
 
     def _fechar_por_inatividade(self):
         if self.usuario is None:
             return
-        InfoBar.info("Nível 3 fechado", f"Ficou {self._minutos_n3:g} minutos sem uso. Para voltar, abra o "
-                     "nível de novo.", duration=8000, position=InfoBarPosition.TOP, parent=self.window())
+        InfoBar.info("Nível 3 fechado", f"Fechado após {self._minutos_n3:g} minutos sem uso.", duration=8000,
+                     position=InfoBarPosition.TOP, parent=self.window())
         self.encerrar()
 
     # ============================================================ relatórios
@@ -366,7 +361,7 @@ class TelaAcervo(QWidget):
         self._mostrar_imagem()
         resumo = e.resumo_supressao()
         self.info_supressao.setText(("Ocultado para o seu nível:\n• " + "\n• ".join(resumo)) if resumo
-                                    else "Nada foi ocultado: o seu nível vê este relatório por inteiro.")
+                                    else "Nada foi ocultado para o seu nível.")
         self.botao_exportar.setEnabled(e.exportacao is not Exportacao.BLOQUEADA)
         self.botao_exportar.setToolTip("Salva exatamente o que está na tela, em PNG.")
 
@@ -399,10 +394,10 @@ class TelaAcervo(QWidget):
                           parent=self)
             return
         if destino is None:
-            InfoBar.warning("Exportação cancelada", "Sem a conferência do rosto, o arquivo não sai.", duration=5000,
+            InfoBar.warning("Exportação cancelada", "Verificação facial não concluída.", duration=5000,
                             position=InfoBarPosition.TOP, parent=self)
             return
-        InfoBar.success("Exportado", f"{destino.name}: a exportação ficou registrada na trilha.", duration=5000,
+        InfoBar.success("Exportado", f"{destino.name} salvo.", duration=5000,
                         position=InfoBarPosition.TOP, parent=self)
 
     @property

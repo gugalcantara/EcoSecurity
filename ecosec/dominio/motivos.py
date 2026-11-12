@@ -93,8 +93,8 @@ _DETALHES = {
     Motivo.NIVEL_INSUFICIENTE: (C.S5_HABILITACAO, "Este conteúdo não faz parte do seu perfil."),
     Motivo.SEM_ACESSO: (C.S5_HABILITACAO, "Este cadastro não tem acesso ao sistema. Procure o administrador."),
     Motivo.RISCO_CONTEXTUAL: (C.S1_CONTENCAO,
-                              "Esta sessão começou num contexto de risco (estação nova e erros recentes) e "
-                              "vale só para consulta. Entre de novo na sua estação habitual."),
+                              "Sessão só para consulta, por segurança. Para acesso completo, entre pela sua "
+                              "estação habitual."),
     Motivo.VIVACIDADE_NAO_CONFIRMADA: (C.S6_VIVACIDADE,
                                        "Desafio não confirmado. Refaça o gesto pedido olhando "
                                        "para a câmera, sem sair do enquadramento."),
@@ -106,9 +106,8 @@ _DETALHES = {
     Motivo.JANELA_EXPIRADA: (C.S7_CUSTODIA,
                              "O tempo para a segunda pessoa se autenticar terminou. Recomece."),
     Motivo.CODIGO_INCORRETO: (None,
-                              "Código não aceito. Confira o código atual do aplicativo no celular (ele muda a "
-                              "cada 30 segundos) ou use um código de recuperação."),
+                              "Código não aceito. Digite o código atual do aplicativo ou um código de "
+                              "recuperação."),
     Motivo.ERRO_INTERNO: (None,
-                          "Falha interna: acesso negado por segurança. Procure o administrador "
-                          "e informe o horário da tentativa."),
+                          "Não foi possível concluir a verificação. Procure o administrador."),
 }

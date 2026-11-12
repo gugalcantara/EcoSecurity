@@ -1,4 +1,4 @@
-"""Identificação facial: o sistema diz QUEM está diante da câmera, comparando o rosto com TODOS os
+"""Identificação facial: o sistema diz quem está diante da câmera, comparando o rosto com TODOS os
 cadastros (1:N). Não concede nada: identificar não é autenticar, e o login continua o mesmo.
 
 Quem vê: só o ADMINISTRADOR, numa seção do painel de Administração (: identidade de pessoas é gestão de
@@ -34,6 +34,8 @@ class VistaIdentificacao(QWidget):
         self.trabalhador: TrabalhadorVideo | None = None
         self._operador = None
         self._congelado = False               # decidido: o vídeo fica no quadro que gerou a decisão
+        # distâncias, limiar, candidatos e tempo só aparecem com [interface] modo_demonstracao = true
+        self.modo_demonstracao = bool(app.cfg["interface.modo_demonstracao"])
         self._montar()
 
     # ============================================================ layout
@@ -42,8 +44,7 @@ class VistaIdentificacao(QWidget):
         raiz.setContentsMargins(24, 16, 24, 16)
         raiz.setSpacing(12)
         raiz.addWidget(TitleLabel("Identificação facial"))
-        intro = CaptionLabel("O sistema compara o rosto com todos os cadastros (1:N) e diz quem é. Identificar "
-                             "não dá acesso a nada: o login continua com matrícula, senha e rosto.")
+        intro = CaptionLabel("Identifica a pessoa diante da câmera entre os cadastros. Não concede acesso.")
         intro.setWordWrap(True)
         intro.setStyleSheet(f"color:{cor_texto_secundario()};")
         raiz.addWidget(intro)
@@ -71,15 +72,16 @@ class VistaIdentificacao(QWidget):
         self.texto_decisao.setWordWrap(True)
         self.titulo_candidatos = StrongBodyLabel("Os 3 cadastros mais parecidos")
         self.linhas_candidatos = [BodyLabel() for _ in range(3)]
-        explicacao = CaptionLabel("Distância LBPH: quanto MENOR, mais parecido. Só é identificado quem fica abaixo "
+        explicacao = CaptionLabel("Distância LBPH: quanto menor, mais parecido. Só é identificado quem fica abaixo "
                                   "do limiar em vários quadros seguidos.")
+        explicacao.setVisible(self.modo_demonstracao)
         explicacao.setWordWrap(True)
         explicacao.setStyleSheet(f"color:{cor_texto_secundario()};")
         self.tempo = CaptionLabel()
         self.botao_repetir = PrimaryPushButton("Identificar de novo")
         self.botao_repetir.setIcon(FIF.SYNC)
         self.botao_repetir.clicked.connect(self._nova_sessao)
-        aviso = CaptionLabel("Cada identificação fica na trilha de auditoria, com quem a pediu.")
+        aviso = CaptionLabel("As identificações são registradas na trilha de auditoria.")
         aviso.setWordWrap(True)
         aviso.setStyleSheet(f"color:{cor_texto_secundario()};")
         for item in (self.mensagem, self.barra, self.titulo_decisao, self.texto_decisao, self.titulo_candidatos,
@@ -134,25 +136,31 @@ class VistaIdentificacao(QWidget):
         limiar = _numero(a.limiar, 0)
         if a.identificado:
             titulo, cor = "Identificado", VERDE
-            texto = f"{a.nome} · distância {_numero(a.distancia)} (limiar {limiar})"
+            texto = (f"{a.nome} · distância {_numero(a.distancia)} (limiar {limiar})" if self.modo_demonstracao
+                     else a.nome)
             self.mensagem.setText(f"Identificado como {a.nome}")
         elif a.sem_rosto:
             titulo, cor = "Sem rosto", AMBAR
-            texto = f"{a.mensagem} Posicione o rosto no centro da imagem e identifique de novo."
+            texto = f"{a.mensagem} Centralize o rosto e tente de novo."
             self.mensagem.setText(titulo)
         else:
             titulo, cor = "Não reconhecido", VERMELHO
             self.mensagem.setText(titulo)
-            texto = (f"Menor distância vista: {_numero(a.distancia)} · limiar {limiar}" if a.distancia is not None
-                     else "Nenhum cadastro para comparar.")
+            if a.distancia is None:
+                texto = "Nenhum cadastro para comparar."
+            elif self.modo_demonstracao:
+                texto = f"Menor distância vista: {_numero(a.distancia)} · limiar {limiar}"
+            else:
+                texto = "Nenhum cadastro corresponde a este rosto."
         self.titulo_decisao.setText(titulo)
         self.titulo_decisao.setStyleSheet(f"color:{cor};")
         self.texto_decisao.setText(texto)
         self.titulo_decisao.show()
         self.texto_decisao.show()
-        self.titulo_candidatos.setVisible(bool(a.candidatos))
+        candidatos = a.candidatos if self.modo_demonstracao else ()
+        self.titulo_candidatos.setVisible(bool(candidatos))
         for i, linha in enumerate(self.linhas_candidatos):
-            if i < len(a.candidatos):
+            if i < len(candidatos):
                 c = a.candidatos[i]
                 linha.setText(f"{i + 1}. {c.nome or 'Não reconhecido'} · distância {_numero(c.distancia)}")
                 dentro = c.nome is not None and c.distancia <= a.limiar
@@ -160,7 +168,7 @@ class VistaIdentificacao(QWidget):
                 linha.show()
             else:
                 linha.hide()
-        if a.segundos is not None:
+        if a.segundos is not None and self.modo_demonstracao:
             self.tempo.setText(f"Tempo do primeiro rosto até a decisão: {_numero(a.segundos)} s")
             self.tempo.show()
 

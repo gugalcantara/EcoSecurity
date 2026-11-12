@@ -69,7 +69,7 @@ class RepositorioTentativas(Protocol):
 
 class RepositorioConsentimentos(Protocol):
     def registrar(self, consentimento: Consentimento) -> Consentimento:
-        """Grava o aceite (ainda sem usuário: o termo vem ANTES da captura)."""
+        """Grava o aceite (ainda sem usuário: o termo vem antes da captura)."""
         ...
 
     def vincular(self, consentimento_id: int, usuario_id: int) -> None:
@@ -133,7 +133,7 @@ class RepositorioAdministradores(Protocol):
         ...
 
     def registrar_passo(self, usuario_id: int, passo: int) -> bool:
-        """Grava o último código aceito SÓ se for maior que o atual (atômico). False = já usado."""
+        """Grava o último código aceito só se for maior que o atual (atômico). False = já usado."""
         ...
 
     def trocar_codigos(self, usuario_id: int, hashes: list[str], momento: datetime) -> None:
@@ -143,7 +143,7 @@ class RepositorioAdministradores(Protocol):
     def codigos_validos(self, usuario_id: int) -> list[CodigoRecuperacao]: ...
 
     def usar_codigo(self, codigo_id: int, momento: datetime) -> bool:
-        """Marca como usado SÓ se ainda não estava (atômico). False = alguém usou antes."""
+        """Marca como usado só se ainda não estava (atômico). False = alguém usou antes."""
         ...
 
 

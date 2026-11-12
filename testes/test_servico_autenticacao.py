@@ -83,7 +83,7 @@ def ambiente():
     rec = ReconhecedorFalso()
     p = ParametrosAutenticacao.de_configuracao(cfg)
     p.custo_bcrypt = CUSTO
-    # a regra dos dois está desligada no config do grupo, mas a S7 continua no
+    # a regra dos dois está desligada no config do projeto, mas a S7 continua no
     # sistema: estes testes a ligam para provar que ela funciona
     p.acesso = dataclasses.replace(p.acesso, exigir_segunda_pessoa=True)
 
@@ -374,7 +374,7 @@ def test_n3_gesto_com_rosto_fora_da_qualidade_nao_vale(ambiente):
 def test_n3_conferencias_antes_do_gesto_nao_valem(ambiente):
     """Ataque: a foto da vítima aparece em quadros bons (conferidos) e é trocada
     pelo rosto do atacante, borrado, para fazer o gesto. As conferências têm de
-    vir DEPOIS do gesto."""
+    vir depois do gesto."""
     caio = ambiente.criar("caio", 3, SENHA_N3)
     ambiente.rec.distancias = {caio.id: 30.0}
     sessao = ambiente.servico.nova_sessao(3)
@@ -596,7 +596,7 @@ def test_n3_sem_regra_dos_dois_conclui_com_rosto_senha_e_vivacidade(ambiente):
 # ================================================================ piscada no step-up do N3
 class OlhosGravados:
     """A abertura do olho (EAR) que a câmera "vê" agora. Só a medida do olho é falsa:
-    o detector do gesto é o REAL (`DetectorGesto`), o mesmo do N3."""
+    o detector do gesto é o real (`DetectorGesto`), o mesmo do N3."""
 
     def __init__(self):
         self.ear = 0.30
@@ -656,7 +656,7 @@ def step_up_n3_com_detector_real(amb):
 
 
 def test_piscada_e_detectada_em_sequencia_de_quadros(ambiente):
-    """Com o config do grupo, o step-up do N3 pede a piscada, e uma piscada de verdade
+    """Com o config do projeto, o step-up do N3 pede a piscada, e uma piscada de verdade
     (olho aberto, fechado em 2 quadros, reaberto), pelo detector real, conclui o acesso."""
     sessao, olhos = step_up_n3_com_detector_real(ambiente)
     andamento, pedidos = fazer_o_que_a_tela_pede(ambiente, sessao, olhos, OLHO_PISCANDO)
@@ -676,7 +676,7 @@ def test_piscada_nao_e_detectada_em_quadros_estaticos(ambiente):
 
 
 def test_step_up_n3_exige_piscada_quando_configurada(ambiente):
-    """Config do grupo (A1): os três gestos no sorteio e a piscada em TODA sequência, em
+    """Config do projeto: os três gestos no sorteio e a piscada em toda sequência, em
     posição sorteada; o outro gesto continua imprevisível."""
     ambiente.servico.p.acesso = dataclasses.replace(ambiente.p.acesso, exigir_segunda_pessoa=False)
     ambiente.servico.gerador = random.Random(2026)            # determinístico só no teste

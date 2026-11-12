@@ -5,14 +5,14 @@ sistema fica visível: nem os níveis, nem o acervo, nem o menu. Quem não dever
 estar ali não aprende a estrutura do que está protegido.
 
 Layout de tela de login: à esquerda, a marca e como funciona o acesso; à
-direita, um cartão com matrícula e senha. A câmera só aparece DENTRO do cartão
+direita, um cartão com matrícula e senha. A câmera só aparece dentro do cartão
 quando chega a vez do rosto. A lógica é a mesma da TelaAutenticacao (sessão,
 vídeo, falha segura); TelaLogin só rearruma o layout.
 
 O nome não substitui a matrícula (não é único e é público; ver a ajuda
 "Esqueci minha matrícula" na própria tela).
 
-Acesso de emergência: uma porta discreta, mas documentada (README e ata), que
+Acesso de emergência: uma porta discreta, que
 aparece no resultado só quando um administrador acertou matrícula e senha e o
 rosto ou a câmera falhou, e só se o quórum for possível. Ela abre uma tela sem
 instruções que pede os códigos dos administradores. A segurança está nos
@@ -36,9 +36,9 @@ LARGURA_COM_MARCA = 980
 VERDE_ESCURO, VERDE = "#0E4D36", "#1F9D6B"
 
 PASSOS = (
-    ("1", "Matrícula e senha", "Primeiro o sistema confere se a matrícula pode tentar entrar; depois, a senha."),
-    ("2", "Rosto", "A câmera liga e compara o seu rosto só com o cadastro da matrícula informada (1:1)."),
-    ("3", "Acesso", "Você vê os níveis do sistema e abre apenas o que o seu papel permite."),
+    ("1", "Matrícula e senha", "Os dados do seu cadastro."),
+    ("2", "Rosto", "Verificação pela câmera."),
+    ("3", "Acesso", "Conforme o seu perfil."),
 )
 
 
@@ -91,11 +91,6 @@ class PainelMarca(QFrame):
             v.addLayout(linha)
             v.addSpacing(12)
         v.addStretch(1)
-        aviso = QLabel("Antes do login, nada do sistema fica visível. Cada tentativa fica registrada na trilha "
-                       "de auditoria.")
-        aviso.setWordWrap(True)
-        aviso.setStyleSheet("font-size: 12px; color: rgba(255,255,255,0.85);")
-        v.addWidget(aviso)
         rodape = QLabel("Trabalho acadêmico · UNIP · 2026/2")
         rodape.setStyleSheet("font-size: 11px; color: rgba(255,255,255,0.6);")
         v.addWidget(rodape)
@@ -160,7 +155,7 @@ class TelaLogin(TelaAutenticacao):
         centro.addWidget(self.cartao, 3)
         centro.addStretch(1)
         raiz.addLayout(centro)
-        # as camadas do login, discretas, abaixo do cartão
+        # as camadas do login, abaixo do cartão (só no modo demonstração)
         self.faixa = FaixaCamadas()
         faixa = QHBoxLayout()
         faixa.addStretch(1)
@@ -222,7 +217,7 @@ class PaginaEntrada(QWidget):
     def iniciar(self):
         self.lados.setCurrentWidget(self.autenticacao)
         self.autenticacao.iniciar(self.app.autenticacao.nova_entrada, "Entrar",
-                                  "Use a sua matrícula e a sua senha. Em seguida, o rosto.")
+                                  "Informe a sua matrícula e senha.")
 
     def _abrir_emergencia(self, usuario_id: int):
         sessao = self.app.administracao.nova_emergencia(usuario_id)

@@ -1,4 +1,4 @@
-"""Camada MySQL: leitor de scripts, falha segura e integração com o banco REAL.
+"""Camada MySQL: leitor de scripts, falha segura e integração com o banco real.
 
 Os testes de integração só rodam depois de `python -m ferramentas.preparar_banco`;
 antes disso aparecem como pulados.
@@ -74,7 +74,7 @@ def test_modo_invalido_e_erro():
         montar(CFG, modo="planilha")
 
 
-# ================================================================ integração (banco REAL)
+# ================================================================ integração (banco real)
 def _conta(chave_usuario, chave_senha, banco):
     from ecosec.repositorios.mysql import conectar_direto
     usuario, senha = segredos.ler(chave_usuario), segredos.ler(chave_senha)
@@ -128,7 +128,7 @@ def test_tabela_nivel_concorda_com_o_dominio():
 
 
 def test_banco_recusa_estado_invalido_mesmo_se_a_aplicacao_errar(banco_mysql_limpo):
-    """As regras de segurança moram TAMBÉM no banco (CHECK)."""
+    """As regras de segurança moram também no banco (CHECK)."""
     from ecosec.repositorios.contratos import ErroRepositorio
     with pytest.raises(ErroRepositorio):                   # N2 sem UF
         with banco_mysql_limpo.transacao() as c:

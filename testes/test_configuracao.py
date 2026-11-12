@@ -73,7 +73,7 @@ def caixas(monkeypatch, qt, tmp_path):
     monkeypatch.setattr(janela, "mostrar_erro_abertura", lambda msg: vistas.append(msg) or 1)
     # sem isto o teste gravaria em logs/erros.log e trocaria o sys.excepthook da suíte inteira
     monkeypatch.setattr(entrada, "_configurar_log", lambda cfg: None)
-    # e sem isto main() abriria com o .env REAL (e criaria nele as chaves que faltassem)
+    # e sem isto main() abriria com o .env real (e criaria nele as chaves que faltassem)
     monkeypatch.setattr(segredos, "CAMINHO_PADRAO", tmp_path / ".env")
     return vistas
 
@@ -102,7 +102,7 @@ def test_parametro_lido_pelas_telas_ausente_aparece_na_tela(monkeypatch, caixas)
 
 # ---------------------------------------------------------------- prova de vida (S6)
 def test_config_gesto_obrigatorio_aceita_piscada(tmp_path):
-    """O config do grupo exige a piscada, e um nome errado
+    """O config do projeto exige a piscada, e um nome errado
     ("piscada" no lugar de PISCAR) para a ABERTURA com mensagem clara. Sem isso, o erro só
     aparecia no meio do step-up do N3, que passava a negar sempre (ERRO_INTERNO)."""
     import copy

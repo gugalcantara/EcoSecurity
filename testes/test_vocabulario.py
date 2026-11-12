@@ -1,12 +1,12 @@
 """Vocabulário, glossário, situação, remoções no N3 e N1 sem dado financeiro.
 
-  - 17.2: todo código que aparece no acervo tem rótulo de exibição; nenhum "escore" no código-fonte; nenhum "KPI-0"
+  - todo código que aparece no acervo tem rótulo de exibição; nenhum "escore" no código-fonte; nenhum "KPI-0"
     como título visível (só na dica);
-  - 17.3: situação Ativos / Encerrados / Todos, padrão Todos, com rótulo de campo e dica, no mapa e na planilha; as
+  - situação Ativos / Encerrados / Todos, padrão Todos, com rótulo de campo e dica, no mapa e na planilha; as
     contagens "dentro · fora" continuam coerentes; os KPIs e o resumo continuam sobre os ativos;
-  - 17.1: o N3 sem "Painéis temáticos" e sem "Evolução";
-  - 17.4: aba Glossário nos três níveis, só com definições (nenhum dado do acervo);
-  - 17.5: nenhum "R$" no N1 (tela, dicas, resumo, exportação e relatórios A1); o serviço recusa o painel de custo e
+  - o N3 sem "Painéis temáticos" e sem "Evolução";
+  - aba Glossário nos três níveis, só com definições (nenhum dado do acervo);
+  - nenhum "R$" no N1 (tela, dicas, resumo, exportação e relatórios A1); o serviço recusa o painel de custo e
     omite o KPI-05 no N1, com a recusa na trilha.
 """
 import csv
@@ -110,7 +110,7 @@ def _dicas(raiz) -> list[str]:
     return [w.toolTip() for w in _fora_do_glossario(raiz, QWidget) if w.toolTip()] + [raiz.toolTip()]
 
 
-# ================================================================ 17.2 vocabulário
+# ================================================================ vocabulário
 def test_todo_codigo_do_acervo_tem_rotulo(acervo):
     pendencias = list(acervo.repo.pendencias())
     esperado = {
@@ -184,7 +184,7 @@ def test_glossario_tem_as_secoes_pedidas_e_a_busca_ignora_acento():
     assert vocabulario.buscar("zzzz inexistente") == []
 
 
-# ================================================================ 17.5 N1 sem dado financeiro (serviço)
+# ================================================================ N1 sem dado financeiro (serviço)
 def test_servico_n1_sem_custo_e_recusa_registrada(acervo):
     with pytest.raises(ErroAcervo):
         acervo.painel_custo(ANA_N1, 1)
@@ -228,7 +228,7 @@ def test_relatorios_a1_sem_reais(acervo, monkeypatch):
     assert not [t for t in escritos if "KPI-0" in t or "NBR 10004" in t]
 
 
-# ================================================================ 17.1, 17.4 abas e glossário (tela)
+# ================================================================ abas e glossário (tela)
 @pytest.mark.parametrize("nivel, abas", [
     (Nivel.N1, ["panorama", "agregado", "glossario"]),
     (Nivel.N2, ["mapa", "paineis_uf", "planilha", "agregado", "glossario"]),
@@ -269,7 +269,7 @@ def test_glossario_em_todo_nivel_so_com_definicoes(tela, qt, nivel):
     assert len(g.termos_visiveis()) == len(vocabulario.TODOS_OS_TERMOS) - 2     # Só o nível da camada
 
 
-# ================================================================ 17.3 situação
+# ================================================================ situação
 @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
 def test_situacao_abre_em_todos_no_mapa_e_na_planilha(tela, qt, nivel):
     assert Filtro().situacao == "TODAS" and Filtro().vazio()
@@ -327,7 +327,7 @@ def test_resumo_continua_sobre_os_ativos_com_todos(tela, qt):
     assert "ativos" in pa.agregado.aviso_filtro.text()
 
 
-# ================================================================ 17.2 rótulos na tela e 17.5 N1 sem R$
+# ================================================================ rótulos na tela e N1 sem R$
 def test_combos_mostram_rotulos_e_filtram_pelo_codigo(tela, qt):
     pa = _abrir(tela, qt, Nivel.N3, "planilha")
     pl = pa.planilha

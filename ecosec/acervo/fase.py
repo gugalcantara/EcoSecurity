@@ -110,5 +110,5 @@ def rotulo(codigo: str) -> str:
 
 
 def fases_do_ciclo(ciclo: str) -> tuple[str, ...]:
-    """Fase de cada etapa do ciclo, na ordem das etapas (para conferência e para a ata)."""
+    """Fase de cada etapa do ciclo, na ordem das etapas."""
     return tuple(fase_da_etapa(e) for e in CICLOS[ciclo][0])

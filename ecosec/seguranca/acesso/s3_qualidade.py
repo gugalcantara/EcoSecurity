@@ -2,7 +2,7 @@
 
 Uma decisão tomada sobre imagem ruim é um sorteio. Um rosto escuro e borrado
 gera um histograma LBP pobre, e a distância vira ruído: tanto pode negar o
-dono quanto aceitar um parecido. Por isso a S3 vem ANTES da S4: o reconhecedor
+dono quanto aceitar um parecido. Por isso a S3 vem antes da S4: o reconhecedor
 só recebe o que vale a pena reconhecer.
 
 As medidas (nitidez, brilho, contraste, número de faces) são calculadas pela

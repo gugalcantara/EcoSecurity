@@ -231,18 +231,9 @@ class GraficoEstoque(QWidget):
         self.suprimidas, self._saldo_suprimido, self.dica_fonte = [], set(), ""
         self.modo = MODOS[0]
 
-    def definir_dica(self, texto: str):
-        """A dica do gráfico, em cada vista."""
-        self.dica_fonte = texto
-        for vista in self.vistas:
-            vista.setToolTip(texto)
-
     # compatibilidade: o gráfico principal (o único nos modos de um gráfico)
     def chart(self) -> QChart:
         return self.vistas[0].chart()
-
-    def charts(self) -> list[QChart]:
-        return [v.chart() for v in self.vistas if not v.isHidden()]
 
     def vistas_visiveis(self) -> list[VistaEstoque]:
         return [v for v in self.vistas if not v.isHidden()]
@@ -281,10 +272,6 @@ class GraficoEstoque(QWidget):
         self._legenda_eventos()
         for vista in self.vistas_visiveis():
             vista.posicionar()
-
-    def marcar_ano(self, ano: int | None):
-        if self._serie is not None:
-            self.mostrar(self._serie, [e for _, _, e in self._eventos], ano=ano, classe=self._classe)
 
     def _arrumar(self, n: int, colunas: bool):
         for vista in self.vistas:

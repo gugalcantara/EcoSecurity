@@ -358,10 +358,10 @@ def test_botao_exportar_mostra_o_cadeado_mas_nao_decide(qt):
     agora = datetime(2026, 10, 17, 12, 0)
     sessao = SimpleNamespace(verificacao=SimpleNamespace(momento=agora - timedelta(minutes=5, seconds=1)))
     botao = BotaoExportar("Exportar", sessao, 5, relogio=lambda: agora)
-    assert not botao.livre and "PEDIR O ROSTO" in botao.toolTip()
+    assert not botao.livre and "verificação facial" in botao.toolTip()
     sessao.verificacao.momento = agora - timedelta(minutes=2)
     botao.atualizar()
-    assert botao.livre and "LIBERADA" in botao.toolTip()
+    assert botao.livre and "liberada" in botao.toolTip()
 
 
 def test_servico_exige_rosto_mesmo_com_cadeado_aberto(acervo, tmp_path):
@@ -413,19 +413,6 @@ def test_painel_deslizante_abre_e_esc_fecha(qt):
     esperar(lambda: not painel.isVisible())
     assert not painel.aberto and not painel.isVisible()
     pai.close()
-
-
-def test_slider_de_eventos(qt):
-    from ecosec.interface.componentes.slider_eventos import SliderEventos
-    s = SliderEventos([(2021, "MTR NACIONAL"), (2022.25, "RESOLUCAO CNEN 293")], 2006, 2026)
-    s.resize(600, 40)
-    xs = [s.x_do_valor(a) for a in range(2006, 2027)]
-    assert all(a < b for a, b in zip(xs, xs[1:]))
-    assert s.eventos_perto(s.x_do_valor(2021)) == ["2021 · MTR NACIONAL"]
-    recebidos = []
-    s.ano_escolhido.connect(recebidos.append)
-    s.setValue(2015)
-    assert recebidos == [2015]
 
 
 def test_quintis_da_legenda():

@@ -1,46 +1,14 @@
-"""Mapa vetorial interativo: zoom até o município, arrastar, dica, clique, camadas e coroplético.
+"""Mapa interativo do acervo, desenhado no próprio Qt (QGraphicsView), sem serviço de mapas nem internet.
 
-Desenhado no próprio Qt (QGraphicsView), sem serviço de mapas nem internet:
-  - contorno do país, divisas das UFs e polígonos dos municípios (malhas do IBGE);
-  - CAMADAS: cada uma é uma raiz sem conteúdo (componentes.camada.Camada) com
-    visibilidade, OPACIDADE e ORDEM próprias (: `definir_ordem` muda o z-value): divisas das
-    UFs, coroplético municipal, limites municipais, densidade, pendências e custódias;
-  - um ponto por pendência com a simbologia acessível (componentes.simbologia): cor da faixa
-    escurecida até 3:1 sobre o fundo, raio crescente por faixa e anel no crítico, tamanho fixo na tela;
-  - custódias com símbolo por TIPO (◇ definitivo, □ intermediário, △ NORM, ○ inicial) e filtro por tipo;
-  - DENSIDADE (KDE ponderada pela pontuação de criticidade) em rampa azul, recalculada para a vista
-    atual quando a escala muda mais de 2× ou a vista se desloca;
-  - coroplético MUNICIPAL (N2/N3) e coroplético por UF sem nenhum ponto (N1: só totais, RF-20);
-  - roda do mouse = zoom no cursor (com `zoom_com_ctrl`, só Ctrl + roda: o mapa no meio de uma página que rola,
-    N1); arrastar = mover, a partir de qualquer lugar, inclusive de um ponto (ponto, agregado e UF reagem
-    ao soltar, a até LIMIAR_CLIQUE_PX do aperto); a área do mapa tem folga de uma vista inteira (no recuo máximo)
-    além do país, então arrasta em qualquer zoom; o zoom para no limite em vez de recusar o passo; duplo clique =
-    aproximar; ir_para_uf/município animados;
-  - Teclado: + e − (também = e o teclado numérico) dão zoom; setas movem; Tab e Shift+Tab percorrem
-    os pontos soltos e os agregados visíveis do filtro, de oeste para leste, com foco visível; Enter abre a
-    ficha (o mesmo sinal do clique) ou aproxima o agregado; Esc solta o foco. Nome e descrição acessíveis no mapa, na legenda e no ponto focado;
-  - Legenda dinâmica: widget sobreposto (componentes.legenda_mapa) com uma seção por
-    camada visível e o mesmo símbolo do mapa; conta só o que cruza a vista e mostra dentro × fora do filtro;
-  - Barra de escala: distância com o cosseno da latitude do centro da vista, comprimento redondo
-    (1, 2 ou 5 × 10ⁿ km), redesenhada a cada zoom e rolagem;
-  - Recorte do filtro: `aplicar_recorte(códigos)` cruza com o ano do mapa; dicas, coroplético
-    municipal, densidade e legenda contam só os pontos ativos no ano e no recorte;
-  - SITUAÇÃO: `definir_ano(corte, so_ativas=False)` deixa o recorte decidir sozinho (o ponto só
-    precisa existir no corte) e desenha as encerradas como ponto vazado (contorno na cor da faixa, sem
-    preenchimento), em vez de sumirem;
-  - Agregação por zoom: abaixo de ZOOM_DESAGREGA (a escala de UF), pontos do filtro a até
-    RAIO_AGREGACAO_PX pixels uns dos outros viram um AGREGADO (componentes.agregacao): disco branco com a
-    contagem e anel em setores pela composição. Modo da camada de pendências (filhos dela: ligar, opacidade e
-    ordem seguem a camada), com liga/desliga `definir_agregacao`. Recalculado no zoom, no recorte, no ano e na
-    temática; a grade fica ancorada na cena, então rolar não muda os grupos. Os pontos atenuados (fora do
-    filtro, modo "atenuar") não agregam: ficam soltos e atenuados, como contexto. A legenda continua contando
-    pontos; o agregado ganha a sua entrada. Clique ou Enter no agregado aproximam até ele;
-  - TEMÁTICA: `definir_tematica("faixa" | "classe" | "fase")` troca o símbolo dos pontos, o anel dos
-    agregados e as entradas da legenda (o mesmo objeto `Simbolo`). A fase vem de `acervo.fase`, pela etapa
-    vigente no corte da linha do tempo.
+Usa as malhas do IBGE (país, UFs e municípios) e organiza o conteúdo em camadas com visibilidade, opacidade e
+ordem próprias: divisas, coroplético por UF ou por município, densidade, pendências e custódias. Cada pendência
+é um ponto com a simbologia do sistema, que não depende só da cor; em zoom baixo, os pontos próximos viram um
+agregado com a contagem. No nível 1 só aparece o coroplético por UF, sem nenhum ponto.
 
-As coordenadas são dado RESERVADO/SECRETO: a cena leva uma marca visível com a matrícula e o horário
-(quem fotografar a tela fotografa junto a própria identificação).
+O mapa aceita zoom pela roda e pelo teclado, arrasto, duplo clique e navegação por Tab entre os pontos, e
+mostra a legenda e a barra de escala da vista atual. O recorte do filtro e o ano do corte decidem quais pontos
+contam; os casos encerrados aparecem vazados. Como as coordenadas são dado reservado, a cena leva a marca
+visível com a matrícula e o horário de quem consulta.
 """
 from collections import Counter
 from math import cos, floor, log10, pi, radians, sin
@@ -73,7 +41,6 @@ ZOOM_NOMES = 14.0                            # ... e os nomes deles
 ESCALAS = ((0.0, "PAIS"), (3.0, "UF"), (12.0, "MUNICIPIO"))
 MODOS_RECORTE = ("esconder", "atenuar")
 OPACIDADE_ATENUADA = 0.15                    # modo "atenuar": pontos fora do recorte, só como contexto
-NOME_TIPO = {"DEFINITIVO": "DEFINITIVO", "INTERMEDIARIO": "INTERMEDIARIO", "NORM": "NORM", "INICIAL": "INICIAL"}
 SIMBOLO = sb.SIMBOLO_CUSTODIA
 FATOR_ZOOM_TECLADO = 1.6                     # o mesmo dos botões + e − do painel
 ZOOM_MINIMO, ZOOM_MAXIMO = 0.8, 400.0        # do país inteiro (com folga) até ~1 km na tela; o passo para no limite
@@ -279,7 +246,7 @@ class _Ponto(QGraphicsEllipseItem):
             self.setScale(1.0)
 
     def ativar(self):
-        """Abre a ficha: o MESMO caminho do clique (o sinal `pendencia_escolhida` do mapa)."""
+        """Abre a ficha: o mesmo caminho do clique (o sinal `pendencia_escolhida` do mapa)."""
         self._ao_clicar(self.pendencia)
 
     def hoverEnterEvent(self, evento):
@@ -598,7 +565,7 @@ class MapaVetorial(QGraphicsView):
         self.agregacao_mudou.emit(self._agregar)
 
     def coropletico(self, pais, divisas_uf: dict, cores: dict, dicas: dict):
-        """N1: só os polígonos das UFs pintados (cores {uf: QColor}); NENHUM ponto na cena (RF-20)."""
+        """N1: só os polígonos das UFs pintados (cores {uf: QColor}); nenhum ponto na cena (RF-20)."""
         self._nova_cena()
         self._contorno(pais)
         for uf, aneis in divisas_uf.items():
@@ -680,16 +647,6 @@ class MapaVetorial(QGraphicsView):
         self._legenda.start()
         self.ordem_mudou.emit(list(ordem))
         return ordem
-
-    def mover_camada(self, chave: str, passo: int) -> list[str]:
-        """Sobe (passo -1) ou desce (passo +1) uma camada na ordem de desenho."""
-        ordem = self.ordem_camadas
-        if chave not in ordem:
-            return ordem
-        i = ordem.index(chave)
-        j = max(0, min(len(ordem) - 1, i + passo))
-        ordem[i], ordem[j] = ordem[j], ordem[i]
-        return self.definir_ordem(ordem)
 
     def _atualizar_derivadas(self):
         """Camadas derivadas (/): dicas das UFs e dos municípios e coroplético municipal contam só os
@@ -812,8 +769,8 @@ class MapaVetorial(QGraphicsView):
         self._enquadrar(r)
 
     def aproximar(self, fator: float = 1.5):
-        """Zoom de `fator`; o passo que passaria do limite para exatamente nele (antes, era recusado
-        inteiro e o mapa parecia emperrado). Já além do limite (um enquadramento), não anda mais para fora."""
+        """Zoom de `fator`; um passo que passaria do limite para exatamente nele, para o mapa não parecer
+        emperrado. Já além do limite (um enquadramento), não anda mais para fora."""
         atual = self.aumento
         alvo = atual * fator
         if fator > 1:

@@ -174,7 +174,7 @@ def decidir(ev: Evidencias, parametros: ParametrosAcesso) -> Decisao:
     try:
         for veredito in _percorrer(ev, nivel, parametros, ate=None):
             vereditos.append(veredito)
-    except Exception:  # noqa: BLE001, de propósito: NENHUMA exceção pode conceder
+    except Exception:  # noqa: BLE001, de propósito: nenhuma exceção pode conceder
         return Decisao(Motivo.ERRO_INTERNO, tuple(vereditos), exigidas)
     ultimo = vereditos[-1] if vereditos else None
     if ultimo is None or not ultimo.aprovado:
@@ -193,6 +193,6 @@ def primeira_falha(ev: Evidencias, parametros: ParametrosAcesso, ate: C) -> Vere
         for veredito in _percorrer(ev, nivel, parametros, ate):
             if not veredito.aprovado:
                 return veredito
-    except Exception:  # noqa: BLE001, de propósito: NENHUMA exceção pode aprovar
+    except Exception:  # noqa: BLE001, de propósito: nenhuma exceção pode aprovar
         return Veredito(ate, Motivo.ERRO_INTERNO)
     return None

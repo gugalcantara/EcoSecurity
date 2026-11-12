@@ -9,7 +9,7 @@ from datetime import datetime
 
 import pytest
 
-from ecosec.acervo import analise, relatorios, sinteticos, vocabulario
+from ecosec.acervo import analise, relatorios, sinteticos
 from ecosec.acervo.desenho import Fontes, Tela
 from ecosec.configuracao import carregar
 from ecosec.dominio.entidades import Usuario

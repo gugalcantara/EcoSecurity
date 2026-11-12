@@ -12,7 +12,7 @@ Dois modos, conforme o nível:
   aceitação cresce com o número de cadastrados.
 - 1:1 (N2, N3), a senha já disse quem a pessoa alega ser; compara-se só com
   ela. Uma hipótese em vez de N: a falsa aceitação cai. É por isso que a
-  senha vem ANTES da face, e não só "como um fator a mais".
+  senha vem antes da face, e não só "como um fator a mais".
 
 Falha segura com NaN: a comparação é escrita como `not (distancia <= limiar)`.
 Qualquer comparação com NaN é falsa, então uma distância corrompida nega. A
@@ -43,7 +43,7 @@ def avaliar(nivel: Nivel, distancia: float | None, identidade_medida: int | None
         return negar(falha)
     if not (distancia <= limiar):
         return negar(falha)
-    # no 1:1 a distância PRECISA ter sido medida contra o alegado; medida contra
+    # no 1:1 a distância precisa ter sido medida contra o alegado; medida contra
     # outra identidade, ela não prova nada sobre quem digitou a senha
     if verificacao and identidade_medida != identidade_alegada:
         return negar(falha)

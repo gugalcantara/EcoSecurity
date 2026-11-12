@@ -18,7 +18,7 @@ trilha. Só o root consegue: e mesmo ele não passa despercebido.
 recalcula a cauda inteira. Por isso, periodicamente (por exemplo, ao fim de cada
 dia de uso ou na revisão de acessos), o administrador gera no painel, com o
 código do próprio celular, uma linha com o id e o hash do último registro, para
-guardar FORA do banco (celular, e-mail ou impressa). A geração fica registrada
+guardar fora do banco (celular, e-mail ou impressa). A geração fica registrada
 na trilha, por isso não é feita por aqui. Esta ferramenta só lê: `--conferir`
 ou `--conferir-arquivo` prova que a trilha continua igual até cada registro
 ancorado.

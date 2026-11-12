@@ -197,7 +197,7 @@ def test_n1_legenda_de_quintis(tela):
             assert baixo > anterior
             anterior = alto
         assert all("UF" in c.toolTip() for c in leg.caixas)
-    assert leg.suprimida.text() == "SUPRIMIDA (k<3)" and leg.suprimida.isVisibleTo(leg)
+    assert leg.suprimida.text() == "SUPRIMIDA" and leg.suprimida.isVisibleTo(leg)
     assert leg.sem_ativas.text() == "SEM ATIVAS"
     assert COR_SUPRIMIDA in leg.suprimida.styleSheet() and COR_SEM_ATIVAS in leg.sem_ativas.styleSheet()
 
@@ -236,19 +236,6 @@ def test_n3_priorizacao_e_custo_por_responsavel(tela):
 
 
 # ================================================================ componentes
-def test_slider_marcadores_sem_sobreposicao_e_com_ano(qt):
-    from ecosec.interface.componentes.slider_eventos import LARGURA, SliderEventos
-    eventos = [(e.data_evento.year + (e.data_evento.month - 1) / 12, e.rotulo) for e in sinteticos.EVENTOS]
-    for largura in (300, 600, 1200):
-        s = SliderEventos(eventos, 2006, 2026)
-        s.resize(largura, 40)
-        marcas = s.marcadores()
-        xs = [x for x, _ in marcas]
-        assert all(b - a >= LARGURA for a, b in zip(xs, xs[1:])), largura
-        assert sum(len(g) for _, g in marcas) == len(eventos)
-        for x, grupo in marcas:
-            perto = s.eventos_perto(x)
-            assert len(perto) == len(grupo) and all(re.match(r"\d{4} · ", t) for t in perto)
 
 
 def test_estoque_sem_opcao_de_acumulado_e_eixos_redondos(qt):

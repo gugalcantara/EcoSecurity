@@ -1,7 +1,7 @@
 """Atividade do usuário: uma definição só, para todos os prazos de inatividade.
 
 Princípio: nada fecha ou bloqueia no meio de uma atividade, só depois de um
-tempo REAL sem uso. Conta como uso qualquer interação com o programa: mover o
+tempo real sem uso. Conta como uso qualquer interação com o programa: mover o
 mouse, clicar, rolar a página, teclar. A câmera ligada também conta (quem faz o
 gesto do N3 ou a captura do cadastro não toca no teclado), e isso é verificado
 por quem usa o prazo, no momento em que ele vence.

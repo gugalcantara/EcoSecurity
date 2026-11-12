@@ -5,8 +5,8 @@ cofre sozinha. Mesmo que uma identidade de nível 3 seja inteiramente
 comprometida (senha vazada e rosto falsificado), ela não basta.
 
 Condições:
-- a segunda pessoa passou por TODA a autenticação (S1 a S6) por conta própria;
-- é OUTRA identidade, também de nível 3 e ativa;
+- a segunda pessoa passou por toda a autenticação (S1 a S6) por conta própria;
+- é outra identidade, também de nível 3 e ativa;
 - chegou dentro da janela: a confirmação vale para este acesso, não para um
   acesso de horas atrás.
 

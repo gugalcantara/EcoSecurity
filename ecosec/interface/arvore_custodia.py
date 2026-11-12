@@ -1,4 +1,4 @@
-"""Árvore Custódia → Pendência → Documento do N3.
+"""Árvore Custódia -> Pendência -> Documento do N3.
 
 Carga preguiçosa: cada expansão é uma chamada ao serviço (que passa pela matriz e,
 para documentos, pela trilha). Nada é pré-carregado. Raízes: uma por custódia

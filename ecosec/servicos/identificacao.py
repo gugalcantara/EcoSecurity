@@ -1,4 +1,4 @@
-"""Identificação 1:N: o sistema diz QUEM é, comparando com todos os cadastros, sem conceder nada.
+"""Identificação 1:N: o sistema diz quem é, comparando com todos os cadastros, sem conceder nada.
 
 Serve a seção "Identificação facial" do painel de Administração: só o administrador identifica
 (identidade de pessoas é gestão de acesso, não acervo), com o painel já aberto pelo rosto e pelo celular. Não é a
@@ -16,7 +16,7 @@ Regras:
 - o prazo ([reconhecimento] timeout_face_segundos) só decide quem nunca se firmou: rosto instável vira "não
   reconhecido"; nenhum rosto utilizável vira "sem rosto", sem registro (nada foi comparado);
 - trilha: um registro por identificação (IDENTIFICACAO / REGISTRADO), com o operador no detalhe; usuario_id e
-  distância só de quem foi identificado. O registro vem ANTES do resultado: se a trilha falhar, a exceção sobe à
+  distância só de quem foi identificado. O registro vem antes do resultado: se a trilha falhar, a exceção sobe à
   thread do vídeo e a tela não mostra nada (sem registro, sem resultado).
 
 Recebe ResultadoQuadro (da visão), nunca a câmera: testável com quadros fabricados.

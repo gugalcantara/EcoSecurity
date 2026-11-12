@@ -194,8 +194,7 @@ class PaineisUF(QWidget):
         cv.addWidget(self.linha_estoque)
         cv.addWidget(self.linha_fluxos)
         self.evolucao = CartaoGrafico("Evolução da UF: o estoque e o que entra e sai",
-                                      "O número de casos em aberto está caindo? Abaixo, no mesmo eixo de anos, quantos "
-                                      "casos entraram no cadastro e quantos foram encerrados em cada ano.", corpo)
+                                      "Casos que entraram no cadastro e casos encerrados, por ano.", corpo)
         # 4. UF × país
         self.texto_comparacao = QLabel()
         self.texto_comparacao.setWordWrap(True)
@@ -209,8 +208,8 @@ class PaineisUF(QWidget):
         cv.addWidget(self.texto_comparacao)
         cv.addWidget(self.halteres)
         self.comparacao = CartaoGrafico("UF × país nos indicadores de prazo e risco",
-                                        "A UF está melhor ou pior que o país? Na taxa de encerramento, maior é "
-                                        "melhor; nos demais, menor é melhor. Cada linha mostra a UF e o país no "
+                                        "Na taxa de encerramento, maior é melhor; nos demais, menor é melhor. "
+                                        "Cada linha mostra a UF e o país no "
                                         "mesmo eixo, de 0 a 100%.", corpo)
         self.comparacoes: list[Comparacao] = []
         # 5. custo

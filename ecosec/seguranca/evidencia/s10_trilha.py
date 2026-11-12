@@ -13,11 +13,11 @@ Por que isso detecta adulteração:
 Em todos os casos o verificador diz onde a corrente rompeu.
 
 Limite: quem tiver acesso administrativo ao banco pode apagar as últimas
-linhas, ou recalcular TODA a cauda, sem quebrar a corrente. A defesa é a
+linhas, ou recalcular toda a cauda, sem quebrar a corrente. A defesa é a
 âncora: o id e o hash do último registro, numa linha de texto guardada fora do
 banco (impressa em ata, ou enviada a outro computador). Conferir a âncora depois
 prova que tudo até aquele registro continua igual: se ele sumiu, a cauda foi
-apagada; se o hash mudou, a cauda foi recalculada. O que veio DEPOIS da âncora
+apagada; se o hash mudou, a cauda foi recalculada. O que veio depois da âncora
 só fica protegido pela âncora seguinte, por isso ela é periódica.
 
 Por que SHA-256 aqui e bcrypt nas senhas: aqui se quer integridade, rápido e
@@ -100,7 +100,7 @@ _HEX = set("0123456789abcdef")
 
 @dataclass(frozen=True)
 class Ancora:
-    """O último registro da trilha num instante: id, hash e momento. Guardada FORA do banco, como uma linha."""
+    """O último registro da trilha num instante: id, hash e momento. Guardada fora do banco, como uma linha."""
     id: int
     hash: str
     momento: datetime | None = None

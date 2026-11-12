@@ -6,7 +6,7 @@
   - QR (ecosec://verificar/{TIPO}/{NUMERO}/{hash16}): procura o documento no cadastro (os documentos são
     derivados das pendências) e confere se o hash dos campos bate. Diz qual pendência e qual documento é;
   - hash de 16 caracteres da marca visível (hash_consulta): procura na trilha a abertura com esse hash e
-    diz QUEM abriu e quando: uma foto da tela leva a quem a tirou.
+    diz quem abriu e quando: uma foto da tela leva a quem a tirou.
 """
 import sys
 

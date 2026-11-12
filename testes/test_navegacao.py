@@ -159,7 +159,7 @@ def test_foco_pela_arvore_e_ir_para_ponto_depois_de_um_zoom(tela):
     _esperar_fim(m.mapa)
     arvore = m.arvore
     raizes = [arvore.topLevelItem(i) for i in range(arvore.topLevelItemCount())]
-    # nó de UF (IN SITU) → ir_para_uf
+    # nó de UF (IN SITU) -> ir_para_uf
     in_situ = next(r for r in raizes if r.data(0, PAPEL)[0] == "IN_SITU")
     in_situ.setExpanded(True)
     no_uf = in_situ.child(0)
@@ -168,7 +168,7 @@ def test_foco_pela_arvore_e_ir_para_ponto_depois_de_um_zoom(tela):
     assert _animando(m.mapa)
     _esperar_fim(m.mapa)
     assert _area_visivel(m.mapa).contains(m.mapa.ufs[uf].boundingRect().center())
-    # nó de pendência → ficha aberta e ponto enquadrado
+    # nó de pendência -> ficha aberta e ponto enquadrado
     no_uf.setExpanded(True)
     no_p = no_uf.child(0)
     p = no_p.data(0, PAPEL)[1]
@@ -178,7 +178,7 @@ def test_foco_pela_arvore_e_ir_para_ponto_depois_de_um_zoom(tela):
     assert m.ficha.aberto
     assert _area_visivel(m.mapa).contains(projetar(p.longitude, p.latitude))
     assert m.mapa.aumento > 20, m.mapa.aumento
-    # custódia → enquadramento mais aberto (400) em torno dela
+    # custódia -> enquadramento mais aberto (400) em torno dela
     in_situ.setExpanded(False)
     no_c = next(r for r in raizes if r.data(0, PAPEL)[0] == "CUSTODIA")
     c = no_c.data(0, PAPEL)[1]

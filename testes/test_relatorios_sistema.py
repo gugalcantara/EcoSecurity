@@ -1,5 +1,4 @@
 """Relatórios do sistema S-01 a S-07."""
-from datetime import timedelta
 
 import pytest
 

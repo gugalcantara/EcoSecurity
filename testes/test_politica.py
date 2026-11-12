@@ -87,7 +87,7 @@ def test_evidencias_vazias_negam_em_todos_os_niveis():
     "qualidade_aprovada", "distancia", "identidade_medida", "consentimento_vigente",
     "vivacidade_confirmada", "segundo_usuario", "segundo_autenticado", "segundos_entre"])
 def test_n3_qualquer_evidencia_ausente_nega(campo):
-    """O teste mais importante do arquivo: remover QUALQUER evidência nega."""
+    """O teste mais importante do arquivo: remover qualquer evidência nega."""
     assert not decidir(ev_n3(**{campo: None}), PARAMS).concedido
 
 
@@ -170,4 +170,4 @@ def test_parametros_lidos_do_config():
     p = ParametrosAcesso.de_configuracao(carregar())
     # um nível mais sensível nunca aceita mais que um menos sensível; o N3 é estritamente o mais rígido
     assert p.limiares[Nivel.N1] >= p.limiares[Nivel.N2] > p.limiares[Nivel.N3]
-    assert p.exigir_segunda_pessoa is False     # desligada a pedido do grupo (07/10/2026)
+    assert p.exigir_segunda_pessoa is False     # desligada: o cargo de ministro tem uma única pessoa

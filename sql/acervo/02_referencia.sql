@@ -1,7 +1,7 @@
 -- GERADO por ferramentas/gerar_referencia.py a partir de ecosec/acervo/sinteticos.py: NÃO EDITE À MÃO.
 -- Catálogo da camada causal e eventos regulatórios, no padrão de
 -- texto do banco. Idempotente: linhas existentes são ATUALIZADAS.
--- Subclasses CNAE: só 8640-2/11 (AG-08) conferida; as demais A CONFERIR (integrante 3).
+-- Subclasses CNAE: só a 8640-2/11 (AG-08) foi conferida; as demais são indicativas.
 
 INSERT INTO atividade_geradora (codigo, nome, descricao_operacional, cnae_subclasse, exemplos, observacao) VALUES
 ('AG-01', 'POSTOS DE COMBUSTIVEIS',

@@ -45,7 +45,7 @@ def sortear_saidas(registros, saidas_por_ano: dict[int, int], rng, data_base: fl
 
     Latência: com risco constante desde a entrada, o tempo até a saída seria exponencial,
     com densidade máxima em t = 0, e áreas contaminadas "reabilitadas" em semanas apareceriam. O piso
-    não muda quantos saem por ano (a calibração), só QUEM pode sair."""
+    não muda quantos saem por ano (a calibração), só quem pode sair."""
     por_ano = defaultdict(list)
     for r in registros:
         por_ano[int(r.entrada)].append(r)

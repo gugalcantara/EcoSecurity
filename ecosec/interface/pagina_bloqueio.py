@@ -69,9 +69,8 @@ class PaginaBloqueio(QWidget):
 
     def mostrar(self, nome: str, matricula: str, minutos: float):
         self.quem.setText(f"{nome} · matrícula {matricula}")
-        self.explicacao.setText(f"Ficou {minutos:g} minutos sem uso. Para continuar de onde parou, digite a "
-                                "sua senha. A custódia e a Administração, se estavam abertas, pedem o rosto de "
-                                "novo.")
+        self.explicacao.setText(f"Sessão bloqueada após {minutos:g} minutos sem uso. Digite a sua senha para "
+                                "continuar.")
         self.erro.setText("")
         self.campo.clear()
         self.campo.setFocus()

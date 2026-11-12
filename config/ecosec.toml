@@ -108,9 +108,9 @@ timeout_face_segundos = 15
 [identificacao]
 # Página "Identificação facial" (só o administrador, dentro do painel): o sistema diz QUEM é,
 # comparando com TODOS os cadastros (1:N), sem conceder acesso.
-# Mais rígido que o N1 (70): no 1:N cada cadastro a mais é mais uma chance de falso positivo.
-# Provisório: conferir com os rostos reais do grupo e de 1 ou 2 pessoas de fora antes da apresentação:
-# cadastrado acima do limiar = subir (60 a 70); não cadastrado abaixo = descer (40). Mudança só com registro em ata.
+# Mais rígido que o login (55): no 1:N cada cadastro a mais é mais uma chance de falso positivo.
+# No experimento de 11/11/2026 (ferramentas/experimento_det.py), nenhuma identificação errada foi medida.
+# Cadastrado acima do limiar = subir; não cadastrado abaixo = descer. Mudança só com registro em ata.
 limiar = 50.0
 # quadros seguidos acima do limiar para dizer "não reconhecido" (cerca de 1 s a 15 quadros por segundo).
 # O prazo [reconhecimento] timeout_face_segundos só decide quando o rosto não se firma ou não aparece.
@@ -190,7 +190,7 @@ modelo_landmarks_sha256 = "70dd8b1657c42d1595d6bd13d97d932877b3bed54a95d3c4733a0
 # os pixels da região dos olhos, localizada pelos landmarks. A escolha depende da câmera:
 #   - webcam de baixa qualidade, 20 quadros/s (02/11/2026, gravação com gabarito): o EAR
 #     caiu só 12% a 27%; a região separou as 10 piscadas. Lá, use "regiao".
-#   - câmera de um integrante, 30 quadros/s (02/11/2026, 19:25, calibrar_vivacidade): EAR pegou
+#   - outra câmera, 30 quadros/s (02/11/2026, 19:25, calibrar_vivacidade): EAR pegou
 #     10 piscadas, 0 falsas; a região pegou 3 e "piscou" 1 vez ao deslizar.
 #   - câmera usada em 10/11/2026, 20 quadros/s (calibrar_vivacidade): a região pegou
 #     5 de 5 piscadas, nenhuma falsa; o EAR não pegou nenhuma. Lá, use "regiao".
@@ -250,7 +250,8 @@ quadros_conferidos_minimos = 2
 # Regra dos dois: o nível 3 só concede depois que uma SEGUNDA pessoa de nível 3
 # também se autentica. Com false, o fator sai da lista do nível: não vira um
 # fator "cumprido" que não foi.
-# Desligada a pedido do grupo (07/10/2026): o N3 exige rosto, senha forte e vivacidade.
+# Desligada porque o cargo de ministro é ocupado por uma única pessoa, e o acesso dele não pode
+# depender de outra: o N3 exige rosto, senha forte e vivacidade.
 # A camada continua implementada e testada; para religar, troque para true.
 exigir_segunda_pessoa = false
 # segundos para a segunda pessoa se autenticar após a primeira

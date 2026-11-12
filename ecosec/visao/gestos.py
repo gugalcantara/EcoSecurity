@@ -1,60 +1,19 @@
-"""Detecção dos gestos da prova de vivacidade (usada pela S6).
+"""Detecção dos gestos da prova de vivacidade. Aqui só se percebe, quadro a quadro, se o gesto aconteceu; o
+sorteio e a decisão ficam na camada S6.
 
-A S6 sorteia o desafio e decide; aqui está a visão: perceber, quadro a quadro,
-se o gesto aconteceu.
+Piscar: o FacemarkLBF ajusta 68 pontos ao rosto e localiza os olhos. No sinal padrão, a piscada é
+reconhecida quando a imagem da região dos olhos muda em relação aos olhos abertos e a parte escura (íris e
+pupila) diminui, as duas coisas juntas, por pelo menos dois quadros, e depois volta ao normal. A razão de
+aspecto do olho (EAR, Soukupová e Čech, 2016) continua disponível como alternativa no config
+(`sinal_piscada`), para câmeras em que o contorno do olho fecha bem. Quadros com o rosto em movimento não
+contam.
 
-PISCAR: abertura do olho por landmarks. O FacemarkLBF do OpenCV (Local Binary
-  Features, parente do LBPH) ajusta 68 pontos ao rosto; seis contornam cada
-  olho. A razão de aspecto do olho (EAR, Soukupová e Čech, 2016):
-        EAR = (|p2 - p6| + |p3 - p5|) / (2 |p1 - p4|)
-  fica perto de 0,3 com o olho aberto e despenca ao fechar. Não depende de luz
-  nem de textura; numa foto (parada ou em movimento) a abertura não muda.
-    abertos (N quadros, referência) ─▶ EAR caiu Q% (M quadros) ─▶ recuperou metade = piscou
-  A reabertura é medida pela recuperação a partir do mínimo, não pela volta à
-  referência: com a câmera real, o patamar do sinal deriva devagar (aproximar
-  o rosto, mudar a luz) e o olho reaberto nem sempre volta ao valor antigo.
-  Quadros com o rosto em deslocamento não contam (o ajuste dos pontos piora).
+Mover: vale deslizar o rosto (o centro anda uma fração da largura da face) ou virar a cabeça (o nariz se
+afasta do meio dos olhos). Com `direcao_livre`, qualquer lado vale. Uma foto deslizada também cumpre esse
+gesto; quem barra a foto é a piscada, que é obrigatória.
 
-  REGIÃO DOS OLHOS (alternativa ao EAR, escolhida em `sinal_piscada` conforme a
-  câmera; ver config/ecosec.toml). Com webcam de baixa
-  qualidade, o FacemarkLBF quase não fecha o contorno do olho: numa gravação
-  com gabarito (10 piscadas em instantes conhecidos, 20 quadros/s) o EAR caiu
-  só 12% a 27% na piscada, do tamanho do ruído, e nunca chegou aos 40% pedidos.
-  Os pontos continuam ótimos para localizar os olhos; a piscada passa a ser
-  medida nos pixels dessa região:
-    mudança  diferença média entre a região normalizada e a mediana das
-             regiões do último ~1 s (a pálpebra cobre íris e esclera: a
-             imagem muda muito e volta)
-    escuro   fração de pixels escuros na região (íris e pupila somem ao fechar)
-  Os dois têm de subir juntos (o menor dos dois, cada um na sua escala): o
-  "escuro" sozinho dispara ao deslizar (a luz muda), a "mudança" sozinha tem
-  pouca folga. No gabarito: piscadas 1,05 a 1,46; parado até 0,19; deslizando
-  até 0,70; limiar 0,85. Uma foto (parada ou deslizada) não muda a região dos
-  olhos, porque os pontos acompanham o olho.
-
-  Histórico (07/10/2026, dados da câmera real): o Haar de olhos achava "olho"
-  em 100% dos quadros, inclusive fechados; a textura da faixa dos olhos pegou só
-  3 de ~5 piscadas e "piscava" ao deslizar o rosto (borrão de movimento). Os dois
-  sinais seguem medidos, para a ferramenta de calibração comparar.
-
-MOVER: vale DESLIZAR o rosto (o centro da face anda uma fração da LARGURA da
-  face; em pixels, perto da câmera o mesmo gesto andaria mais) ou virar a cabeça
-  (o nariz se afasta do meio dos olhos, medido pelos landmarks, em distâncias
-  entre os olhos). Basta um dos dois.
-  Desde 02/11/2026 (medido com a câmera real: virando a cabeça, o detector
-  frontal perdia o rosto em 20% a 45% dos quadros e o centro andava pouco; só
-  4 de 8 gestos chegavam aos 25% exigidos): a direção pedida orienta a pessoa,
-  mas com `direcao_livre` qualquer lado vale. O mover não é a defesa contra a
-  foto (deslizar uma foto impressa também cumpre): quem barra a foto é a
-  piscada, obrigatória. O mover prova que há alguém se mexendo AGORA.
-  O vídeo bruto da webcam não é espelhado: a esquerda da pessoa aparece na
-  DIREITA da imagem. Por isso "esquerda" é +x aqui (e o nariz de quem vira
-  para a própria esquerda também vai para +x).
-
-Quadro inconclusivo não conta para nada. Um caso real que motiva isso: quando o
-rosto sai do quadro, o recorte dos olhos fica vazio e o Haar responde "nenhum
-olho" sem erro; contar isso como olho fechado deixaria alguém "piscar"
-simplesmente saindo de cena.
+Quadros inconclusivos (rosto fora do quadro, olhos não localizados) não contam para nenhum gesto. A imagem da
+câmera não é espelhada: a esquerda da pessoa aparece à direita.
 """
 import hashlib
 import statistics

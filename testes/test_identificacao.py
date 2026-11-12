@@ -1,4 +1,4 @@
-"""Identificação 1:N: o sistema diz QUEM é, sem conceder nada.
+"""Identificação 1:N: o sistema diz quem é, sem conceder nada.
 
 Serviço próprio (`app.identificacao`), e não a sessão do N1: aquela decide ACESSO (nível, consentimento,
 contenção) e grava AUTENTICACAO na trilha. Aqui só se identifica, e cada identificação vai para a trilha como

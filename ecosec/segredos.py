@@ -125,7 +125,7 @@ def proteger_existentes(caminho: Path = CAMINHO_PADRAO) -> int:
 
 
 # ---------------------------------------------------------------- backup (o "envelope" fora do PC)
-# O backup precisa abrir em OUTRO computador, então não pode usar DPAPI: os
+# O backup precisa abrir em outro computador, então não pode usar DPAPI: os
 # segredos são cifrados com uma chave derivada de uma FRASE-SENHA (scrypt, que é
 # lento de propósito, para encarecer a adivinhação) e guardados num arquivo.
 _SCRYPT = {"n": 2 ** 15, "r": 8, "p": 1}

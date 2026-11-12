@@ -171,5 +171,3 @@ def tabela() -> list[tuple[str, str, str, str]]:
     return linhas
 
 
-def nivel_da_classificacao(classificacao: Classificacao) -> Nivel:
-    return Nivel(int(classificacao))

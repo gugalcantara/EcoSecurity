@@ -15,7 +15,7 @@ Só depois do passo 6 a imagem sai do serviço. A interface nunca recebe o
 pixel original de uma região que o nível não autoriza.
 
 Escopo exclusivo: cada perfil consulta só a própria camada, e o administrador não consulta
-nada. Todo método que entrega dado recebe QUEM pede e pergunta à matriz pelo papel dessa pessoa, mesmo quando
+nada. Todo método que entrega dado recebe quem pede e pergunta à matriz pelo papel dessa pessoa, mesmo quando
 recebe um painel, um resumo ou um relatório já aberto: o objeto não carrega permissão.
 
 Exportação (RF-14): N1 livre · N2 com marca d'água e rosto conferido há pouco
@@ -54,19 +54,15 @@ DETALHE_MAX = 200                      # tamanho da coluna log_acesso.detalhe
 MENSAGENS = {
     "NIVEL_INSUFICIENTE": "Este conteúdo não faz parte do seu perfil.",
     "SEM_ACESSO": "Este cadastro não tem acesso aos dados do acervo.",
-    "RISCO_CONTEXTUAL_ALTO": "Esta sessão começou num contexto de risco (estação nova ou erros recentes) e vale "
-                             "só para consulta: exportações e conteúdo sigiloso ficam bloqueados.",
+    "RISCO_CONTEXTUAL_ALTO": "Sessão só para consulta: exportações e conteúdo sigiloso estão bloqueados.",
     "SEM_REGISTROS_NO_NIVEL": "Este acesso não tem registros individuais para exportar.",
-    ("EXPORTACAO_BLOQUEADA", Operacao.EXPORTAR_RELATORIO): "O conteúdo de custódia é só para visualização, em sessão "
-                                                           "com tempo-limite: não é exportado.",
+    ("EXPORTACAO_BLOQUEADA", Operacao.EXPORTAR_RELATORIO): "O conteúdo de custódia é só para visualização.",
     ("EXPORTACAO_BLOQUEADA", Operacao.EXPORTAR_REGISTROS): "Este acesso não exporta: a planilha é só para "
                                                            "visualização.",
     ("EXPORTACAO_BLOQUEADA", Operacao.EXPORTAR_AGREGADO): "Este acesso não exporta: o resumo é só para visualização.",
-    ("EXPORTACAO_BLOQUEADA", Operacao.EXPORTAR_DOCUMENTO): "Documentos não saem do sistema: só são vistos, com marca "
-                                                           "d'água e registro na trilha.",
+    ("EXPORTACAO_BLOQUEADA", Operacao.EXPORTAR_DOCUMENTO): "Documentos são só para visualização.",
     "DOCUMENTO_SO_NO_NIVEL_3": "O conteúdo dos documentos não faz parte deste acesso: a lista mostra só os metadados.",
-    "RESPONSAVEL_SO_NO_NIVEL_3": "Custo somado por responsável não faz parte deste acesso: atribuir um valor a um "
-                                 "nome é atribuição da custódia.",
+    "RESPONSAVEL_SO_NO_NIVEL_3": "Custo por responsável não faz parte deste acesso.",
     "PRIORIZACAO_SO_NO_NIVEL_3": "A fila do orçamento público não faz parte deste acesso.",
     "CUSTO_NO_NIVEL_1": "Este acesso não recebe dado financeiro.",
 }
@@ -88,7 +84,7 @@ class ErroAcervo(Exception):
 
 
 class VerificacaoNecessaria(ErroAcervo):
-    """A operação é permitida, mas o rosto precisa ser conferido de novo AGORA (step-up)."""
+    """A operação é permitida, mas o rosto precisa ser conferido de novo agora (step-up)."""
 
 
 @dataclass(frozen=True)
@@ -375,7 +371,7 @@ class EntregaDocumento:
 
 @dataclass(frozen=True)
 class Entrega:
-    """O que a tela recebe: SÓ a imagem já tratada."""
+    """O que a tela recebe: só a imagem já tratada."""
     item: RelatorioCatalogo
     nivel: Nivel
     usuario_id: int
@@ -450,7 +446,7 @@ class ServicoAcervo:
             recente = verificado_em is not None and self.relogio() - verificado_em <= self.janela_verificacao
             if not recente:
                 self._registrar_negacao(evento, "VERIFICACAO_EXIGIDA", usuario, nivel, codigo)
-                raise VerificacaoNecessaria("Antes de exportar dados nominais, o sistema confere o seu rosto de novo.")
+                raise VerificacaoNecessaria("A exportação exige nova verificação facial.")
 
     def _exporta(self, usuario: Usuario, nivel: Nivel, operacao: Operacao) -> bool:
         return self._decidir(usuario, nivel, operacao).permitido
@@ -539,15 +535,14 @@ class ServicoAcervo:
         return regras.priorizar(painel.pendencias, painel.hoje, painel.regras, orcamento, criterio)
 
     def resumo_agregado(self, usuario: Usuario, nivel: int, filtro=None) -> ResumoAgregado:
-        """Totais por grupo. No N2 e no N3, `filtro` (acervo.filtro.Filtro) recorta as pendências ANTES de
+        """Totais por grupo. No N2 e no N3, `filtro` (acervo.filtro.Filtro) recorta as pendências antes de
         agregar e os chips vão para a trilha. No N1 o filtro é RECUSADO: o k=3 protege o
         cubo inteiro, e um recorte arbitrário reabriria a dedução por diferença entre consultas."""
         nivel = Nivel(nivel)
         self._autorizar(usuario, nivel, Operacao.VISUALIZAR, codigo="RESUMO")
         if filtro is not None and nivel is Nivel.N1:
             self._registrar_negacao("CONSULTA", "FILTRO_NO_NIVEL_1", usuario, nivel, "RESUMO")
-            raise ErroAcervo("Este resumo não aceita filtro: com um recorte, daria para deduzir os totais "
-                             "pequenos, que ficam ocultos.")
+            raise ErroAcervo("Este resumo não aceita filtro.")
         uf = self._escopo(usuario, nivel)
         atividades = {a.codigo: a for a in self.repo.atividades()}
         motivos = {m.codigo: m for m in self.repo.motivos()}
@@ -1221,7 +1216,7 @@ class ServicoAcervo:
         if not ok:
             raise ErroAcervo("Falha ao gerar o arquivo.")
         destino = Path(destino)
-        # registra ANTES de gravar: se a trilha falhar, o arquivo não sai
+        # registra antes de gravar: se a trilha falhar, o arquivo não sai
         self.trilha.registrar("EXPORTACAO", "CONCEDIDO", "EXPORTACAO_" + entrega.exportacao.value,
                               nivel_solicitado=entrega.nivel.value, usuario_id=usuario.id,
                               detalhe=f"{entrega.item.codigo}; arquivo {destino.name}")
@@ -1240,7 +1235,7 @@ class ServicoAcervo:
         conteudo = (analise.tabela_csv(titulos, linhas) if formato == "csv"
                     else analise.tabela_xlsx(titulos, linhas, rastreio, aba))
         resumo = analise.sha256(conteudo)
-        # registra ANTES de gravar: se a trilha falhar, o arquivo não sai
+        # registra antes de gravar: se a trilha falhar, o arquivo não sai
         self.trilha.registrar("EXPORTACAO", "CONCEDIDO", motivo, nivel_solicitado=nivel.value, usuario_id=usuario.id,
                               detalhe=(f"{formato.upper()}; {len(linhas)} linhas; sha256 {resumo[:32]}"
                                        + (f"; {filtros}" if filtros else ""))[:DETALHE_MAX])

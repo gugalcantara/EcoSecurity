@@ -5,7 +5,7 @@ senha de 8 caracteres cai por tentativa e erro, e o LBPH acaba aceitando
 alguém parecido se receber rostos suficientes.
 
 Decisões:
-- Conta como falha QUALQUER prova de identidade errada sob a matrícula: senha
+- Conta como falha qualquer prova de identidade errada sob a matrícula: senha
   incorreta (S2) e rosto que não confere (S4). Quem roubou a senha e testa
   rostos também precisa ser contido.
 - Conta mesmo para matrícula inexistente. Se só as reais travassem, o

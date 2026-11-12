@@ -16,9 +16,9 @@ A semântica reproduz os predicados que já existiam (para a ligação nas telas
     TODAS = identificadas até o corte. Sem ano e com o cadastro todo datado até hoje, isso coincide com a
     planilha (ENCERRAMENTO vazio / preenchido / qualquer);
   - busca: o termo (sem espaços nas pontas, em maiúsculas) contido em código, substância, município,
-    bairro, logradouro ou CEP, como na planilha, e AGORA também na classe (auditoria: "REJEITO" não
-    achava nada pela classe).
-Dimensões novas (não existiam em nenhuma vista): município (par UF, município: há nomes repetidos entre
+    bairro, logradouro ou CEP, como na planilha, e também na classe ("REJEITO" acha os rejeitos
+    radioativos).
+Dimensões só desta vista: município (par UF, município: há nomes repetidos entre
 UFs), classe e etapa (`etapa_atual`).
 
 A situação aparece como "Situação do caso" com os rótulos Ativos, Encerrados e

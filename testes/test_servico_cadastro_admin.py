@@ -81,7 +81,7 @@ def test_termo_html_escapa_o_nome():
 def test_aceite_fica_em_memoria_ate_concluir(cadastro):
     aceite = cadastro.registrar_aceite("Bia Souza")
     assert aceite.id is None and aceite.vigente
-    assert aceite.titular_nome == "BIA SOUZA"                # padrão do banco ANTES do hash
+    assert aceite.titular_nome == "BIA SOUZA"                # padrão do banco antes do hash
     assert aceite.hash_termo == termo.calcular_hash(cadastro.texto_termo("BIA SOUZA", False))
     assert not cadastro.consentimentos._por_id                 # nada gravado ainda
 
@@ -323,7 +323,7 @@ def test_a_escolha_da_finalidade_b_entra_no_hash(cadastro):
 
 
 # ---------------------------------------------------------------- termo: versões e prova
-# hashes do termo 2.0 calculados ANTES de a versão 3.0 existir: se o arquivo da
+# hashes do termo 2.0 calculados antes de a versão 3.0 existir: se o arquivo da
 # 2.0 mudar um caractere, os consentimentos já gravados deixam de ser prováveis
 HASHES_V2 = {None: "3d240f407a66ddbbe809823d940faccb65327bf65f8c70afe03bee691b4c20ec",
              True: "ad311aa18c469812a2439536e7be437590ad805cb6bbc6f221b805d3e62ee3f7",

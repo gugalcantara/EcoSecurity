@@ -62,16 +62,6 @@ class BotaoExportar(PushButton):
 
     def atualizar(self):
         verificacao = getattr(self._sessao, "verificacao", None)
-        if verificacao is None:
-            self.livre, minutos = False, None
-        else:
-            idade = self._relogio() - verificacao.momento
-            minutos = max(0, int(idade.total_seconds() // 60))
-            self.livre = idade <= self._janela
+        self.livre = verificacao is not None and self._relogio() - verificacao.momento <= self._janela
         self.setIcon(icone_glifo(DESTRAVA if self.livre else TRAVA, "#2e7d32" if self.livre else "#b26a00"))
-        if minutos is None:
-            self.setToolTip("EXPORTAR VAI PEDIR O ROSTO")
-        elif self.livre:
-            self.setToolTip(f"ROSTO CONFERIDO HA {minutos} MIN · EXPORTACAO LIBERADA")
-        else:
-            self.setToolTip(f"ULTIMA CONFERENCIA HA {minutos} MIN · EXPORTAR VAI PEDIR O ROSTO")
+        self.setToolTip("Exportação liberada" if self.livre else "A exportação pede verificação facial")

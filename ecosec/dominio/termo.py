@@ -2,7 +2,7 @@
 
 Imagem de rosto é dado pessoal sensível (Lei 13.709/2018, art. 5º, II), e
 tratá-la exige consentimento específico e destacado (art. 11, I). O termo é
-apresentado ANTES de a câmera abrir.
+apresentado antes de a câmera abrir.
 
 Quatro escolhas de projeto:
 
@@ -39,12 +39,12 @@ VERSAO = "3.4"
 # 1.1 -> 2.0: resumo em camadas e consentimento separado por finalidade (art. 8º, §4º).
 # 2.0 -> 3.0: redação formal (preâmbulo, cláusulas, assinatura eletrônica descrita, revisão
 #             humana com base no art. 20); conteúdo do tratamento inalterado.
-#             Ajuste na 3.0 (07/10/2026, sem subir versão porque NENHUM aceite 3.0 tinha sido
+#             Ajuste na 3.0 (07/10/2026, sem subir versão porque nenhum aceite 3.0 tinha sido
 #             registrado): a Cláusula 7ª deixa de afirmar que a segunda pessoa é sempre exigida.
 #             Ajuste na 3.0 (07/10/2026, mesmo motivo): o sistema passa a se chamar EcoSecurity.
 # 3.0 -> 3.1: contato do controlador preenchido (endereço SIMULADO, sem caixa postal real) e rodapé de
 #             documento simulado (premissa formal do projeto acadêmico). A 3.0 foi
-#             arquivada em termo_v3_0.py, com o contato provisório com que sempre foi apresentada.
+#             arquivada em termo_v3_0.py, com o contato não preenchido com que sempre foi apresentada.
 # 3.1 -> 3.2: só descritiva: a Cláusula 2ª (IV) fala do PERFIL de acesso (um por cadastro;
 #             o administrador não tem camada) e a 7ª, dos fatores de cada perfil (o código do celular do
 #             administrador). Finalidades, forma, prazo, controlador e compartilhamento iguais: os aceites 3.1

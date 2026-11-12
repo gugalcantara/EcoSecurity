@@ -11,7 +11,7 @@ Três situações:
   não tem camada: nenhum dado do acervo aparece para ele. Aqui ele gere pessoas
   e perfis, exclui cadastros, lê a trilha (com o detalhe do acervo mascarado),
   os relatórios do sistema e faz a identificação facial 1:N. Ações
-  críticas pedem o código do celular de OUTRO admin.
+  críticas pedem o código do celular de outro admin.
 - Acesso de emergência: sem rosto nem celular (foi isso que falhou); abre
   direto o painel restrito, que só conserta o acesso.
 
@@ -82,8 +82,7 @@ class DialogoPerfil(MessageBoxBase):
         super().__init__(parent)
         self.viewLayout.addWidget(SubtitleLabel("Atribuir perfil"))
         texto = BodyLabel(f"{usuario.nome} ({usuario.matricula}) tem hoje o perfil {usuario.perfil.rotulo}. "
-                          "Ministro pede o código de outro administrador. O administrador não recebe perfil com "
-                          "camada: tire o papel antes.")
+                          "O perfil Ministro exige a aprovação de outro administrador.")
         texto.setWordWrap(True)
         self.viewLayout.addWidget(texto)
         self.combo = ComboBox()
@@ -146,7 +145,7 @@ class PaginaAdministracao(QWidget):
         self.tela_emergencia.recadastrar_rosto.connect(self._recadastrar_rosto)
         self.tela_emergencia.sair.connect(self.sair_emergencia.emit)
         self.pilha.addWidget(self.tela_emergencia)     # EMERGENCIA
-        # tranca por inatividade REAL (mouse, rolagem, teclado); a câmera do cadastro ou da identificação ligada
+        # tranca por inatividade real (mouse, rolagem, teclado); a câmera do cadastro ou da identificação ligada
         # conta como uso
         self._inatividade = PrazoInatividade(
             app.cfg["administracao.bloqueio_inatividade_minutos"], ocupado=self.camera_ligada, parent=self)
@@ -174,8 +173,7 @@ class PaginaAdministracao(QWidget):
         self.pilha.setCurrentIndex(ROSTO)
         self.tela_rosto.iniciar(lambda: self.app.autenticacao.nova_verificacao_admin(self.sessao.identidade),
                                 "Conferência do administrador",
-                                "O login já identificou você como administrador. Para abrir o painel, o "
-                                "rosto é conferido de novo, na hora, e depois é pedido o código do celular.")
+                                "Confirme a sua identidade para abrir o painel.")
 
     def _apos_rosto(self):
         """Rosto conferido: falta o celular. Sem celular cadastrado, este é o primeiro acesso: cadastra."""
@@ -206,10 +204,8 @@ class PaginaAdministracao(QWidget):
         icone = QLabel()
         icone.setPixmap(pixmap_logo(48))
         icone.setFixedSize(48, 48)
-        texto = BodyLabel("Primeira execução: defina a senha de INSTALAÇÃO. Ela abre a configuração inicial e "
-                          "serve uma única vez para indicar o primeiro administrador; depois disso, cada admin "
-                          "entra com a própria matrícula, o rosto e o celular. Use uma senha forte: ela não fica "
-                          "guardada, só um código que permite conferi-la.")
+        texto = BodyLabel("Primeira execução: defina a senha de instalação. Ela é usada uma única vez, para "
+                          "cadastrar o primeiro administrador.")
         texto.setWordWrap(True)
         self.def_senha = PasswordLineEdit()
         self.def_confirmacao = PasswordLineEdit()
@@ -265,28 +261,27 @@ class PaginaAdministracao(QWidget):
         de administrador comum, e os níveis "somem" sem explicação."""
         if self.servico.administrador_vinculado:
             self.bloq_titulo.setText("Área administrativa")
-            self.bloq_texto.setText("O painel abre pelo login de um administrador: a matrícula e a senha dele, "
-                                    "o rosto conferido na hora e o código do celular.")
+            self.bloq_texto.setText("Disponível apenas para administradores.")
         else:
             self.bloq_titulo.setText("Configuração inicial")
-            self.bloq_texto.setText("Instalação nova: ainda não há administrador. Entre com a senha de instalação "
-                                    "e faça o seu cadastro (Novo cadastro, perfil Externo): ele vira o primeiro "
-                                    "administrador. Depois, o sistema abre pelo login (matrícula, senha e rosto).")
+            self.bloq_texto.setText("Ainda não há administrador. Entre com a senha de instalação e faça o seu "
+                                    "cadastro (Novo cadastro, perfil Externo) para se tornar o primeiro "
+                                    "administrador.")
 
     def _entrar(self):
         motivo = self.servico.autenticar(self.campo_admin.text())
         self.campo_admin.clear()
         if motivo is Motivo.CONCEDIDO:
             if self.servico.administrador_vinculado:       # depois do vínculo, a senha não abre o painel
-                InfoBar.error("Use o login", "Com um administrador definido, o painel abre pelo login de cada "
-                              "administrador.", duration=5000, position=InfoBarPosition.TOP, parent=self)
+                InfoBar.error("Use o login", "O painel abre pelo login do administrador.",
+                              duration=5000, position=InfoBarPosition.TOP, parent=self)
             else:
                 self._abrir_painel()                       # configuração inicial: só a senha
         elif motivo is Motivo.ERRO_INTERNO:
             InfoBar.error("Banco indisponível", "Não foi possível conferir a senha. Verifique o "
                           "serviço do MySQL.", duration=6000, position=InfoBarPosition.TOP, parent=self)
         elif motivo is Motivo.BLOQUEADO:
-            InfoBar.error("Bloqueado", "Tentativas seguidas demais. Aguarde alguns minutos.",
+            InfoBar.error("Bloqueado", "Tentativas esgotadas. Aguarde alguns minutos.",
                           duration=5000, position=InfoBarPosition.TOP, parent=self)
         else:
             InfoBar.warning("Senha incorreta", "Confira a senha do administrador.",
@@ -335,8 +330,7 @@ class PaginaAdministracao(QWidget):
         v.addLayout(topo)
 
         if self.app.modo_persistencia == "memoria":
-            aviso = CaptionLabel("Modo de desenvolvimento: os cadastros ficam em memória e somem ao "
-                                 "fechar o programa. A persistência chega com o MySQL.")
+            aviso = CaptionLabel("Modo em memória: os cadastros são descartados ao fechar o programa.")
             aviso.setStyleSheet(f"color:{COR_NIVEL[Nivel.N2]};")
             v.addWidget(aviso)
 
@@ -389,17 +383,14 @@ class PaginaAdministracao(QWidget):
         self.botao_titular.clicked.connect(self._dados_do_titular)
         self.botao_perfil = PushButton("Atribuir perfil")
         self.botao_perfil.setIcon(FIF.PEOPLE)
-        self.botao_perfil.setToolTip("Dar ou trocar o perfil (Externo, Servidor, Diretor ou Ministro). Ministro pede o "
-                                     "código de outro administrador.")
+        self.botao_perfil.setToolTip("Atribui ou altera o perfil de acesso.")
         self.botao_perfil.clicked.connect(self._atribuir_perfil)
         self.botao_excluir = PushButton("Excluir")
         self.botao_excluir.setIcon(FIF.DELETE)
-        self.botao_excluir.setToolTip("Exclusão lógica e irreversível: revoga o consentimento e elimina o rosto. "
-                                      "A trilha e o termo aceito ficam, como prova.")
+        self.botao_excluir.setToolTip("Desativa o cadastro e elimina o modelo facial. Não pode ser desfeito.")
         self.botao_excluir.clicked.connect(self._excluir)
-        explicacao = CaptionLabel("Desativar suspende o acesso sem apagar histórico. Revogar o "
-                                  "consentimento ou excluir desativa o cadastro e ELIMINA o rosto do modelo: só "
-                                  "um novo cadastro, com novo termo, devolve o acesso.")
+        explicacao = CaptionLabel("Desativar suspende o acesso. Revogar o consentimento ou excluir elimina o "
+                                  "modelo facial, e o acesso só volta com um novo cadastro.")
         explicacao.setWordWrap(True)
         explicacao.setStyleSheet(f"color:{cor_texto_secundario()};")
         acoes.addWidget(self.botao_perfil)
@@ -410,7 +401,7 @@ class PaginaAdministracao(QWidget):
         acoes.addWidget(explicacao, 1)
         vu.addLayout(acoes)
 
-        # papel de administrador: as ações que pedem o código do celular de OUTRO admin
+        # papel de administrador: as ações que pedem o código do celular de outro admin
         papeis = QHBoxLayout()
         self.botao_tornar_admin = PushButton("Tornar administrador")
         self.botao_tornar_admin.setIcon(FIF.ADD)
@@ -420,8 +411,7 @@ class PaginaAdministracao(QWidget):
         self.botao_tirar_admin.clicked.connect(self._tirar_admin)
         self.botao_refazer_celular = PushButton("Refazer celular")
         self.botao_refazer_celular.setIcon(FIF.PHONE)
-        self.botao_refazer_celular.setToolTip("Apaga o celular e os códigos de recuperação do administrador; ele "
-                                              "cadastra um novo no próximo acesso ao painel.")
+        self.botao_refazer_celular.setToolTip("Remove o celular e os códigos de recuperação do administrador.")
         self.botao_refazer_celular.clicked.connect(self._refazer_celular)
         self.explicacao_papeis = CaptionLabel()
         self.explicacao_papeis.setWordWrap(True)
@@ -441,9 +431,8 @@ class PaginaAdministracao(QWidget):
         v.setContentsMargins(0, 0, 0, 0)
         v.setSpacing(12)
         topo = QHBoxLayout()
-        explicacao = CaptionLabel("Cada evento guarda o hash SHA-256 do anterior. Alterar ou apagar qualquer "
-                                  "registro rompe a corrente, e a verificação aponta onde. A conta da "
-                                  "aplicação não tem permissão para alterar esta tabela.")
+        explicacao = CaptionLabel("Cada registro é encadeado ao anterior. A verificação aponta qualquer "
+                                  "alteração.")
         explicacao.setWordWrap(True)
         explicacao.setStyleSheet(f"color:{cor_texto_secundario()};")
         verificar = PrimaryPushButton("Verificar integridade")
@@ -454,8 +443,7 @@ class PaginaAdministracao(QWidget):
         atualizar.clicked.connect(self._abrir_trilha)
         ancorar = PushButton("Gerar âncora")
         ancorar.setIcon(FIF.PIN)
-        ancorar.setToolTip("Gera a linha com o último registro da trilha, para guardar fora do computador. "
-                           "Pede o código do seu celular e fica registrado na trilha.")
+        ancorar.setToolTip("Gera uma linha de conferência da trilha, para guardar fora do computador.")
         ancorar.clicked.connect(self._gerar_ancora)
         conferir = PushButton("Conferir âncora")
         conferir.setIcon(FIF.SEARCH)
@@ -541,8 +529,7 @@ class PaginaAdministracao(QWidget):
     def _gerar_ancora(self):
         codigo = self.pedir_codigo_proprio(
             "Gerar a âncora da trilha",
-            "A âncora é a linha com o último registro da trilha, para guardar fora deste computador. Para "
-            "gerá-la, digite o código que o SEU celular mostra agora. A geração fica registrada na trilha.")
+            "Digite o código do seu aplicativo autenticador.")
         if codigo is None:
             return
         ancorada, recusa = self.servico.gerar_ancora(self._eu(), codigo)
@@ -590,8 +577,7 @@ class PaginaAdministracao(QWidget):
         topo.addWidget(rastrear)
         self.botao_revisao = PrimaryPushButton("Registrar revisão")
         self.botao_revisao.setIcon(FIF.CERTIFICATE)
-        self.botao_revisao.setToolTip("Depois de o grupo conferir o S-10: grava na trilha que a revisão foi feita, "
-                                      "com quem pediu e quem aprovou.")
+        self.botao_revisao.setToolTip("Registra na trilha a revisão periódica de acessos.")
         self.botao_revisao.clicked.connect(self._registrar_revisao)
         topo.addWidget(self.botao_revisao)
         v.addLayout(topo)
@@ -646,8 +632,8 @@ class PaginaAdministracao(QWidget):
         imagem = cv2.imdecode(np.frombuffer(Path(caminho).read_bytes(), np.uint8), cv2.IMREAD_COLOR)
         marca = None if imagem is None else self.app.acervo.identificar_marca(imagem)
         if marca is None:
-            InfoBar.warning("Sem marca legível", "Este arquivo não traz marca d'água do EcoSecurity (ou ela foi "
-                            "destruída por recorte). Nenhum palpite é dado.", duration=7000,
+            InfoBar.warning("Sem marca legível", "Nenhuma marca d'água do EcoSecurity foi encontrada.",
+                            duration=7000,
                             position=InfoBarPosition.TOP, parent=self)
             return
         usuario = self.servico.usuario(marca.usuario_id)
@@ -690,11 +676,11 @@ class PaginaAdministracao(QWidget):
         if self.sessao is None:
             texto = "Os papéis de administrador são geridos depois do login de um administrador."
         elif self.servico.exige_aprovacao:
-            texto = ("Ações de papel e a revogação pedem o código do celular de OUTRO administrador. O sistema "
-                     f"não fica com menos de {self.servico.governanca.minimo_administradores} administradores.")
+            texto = ("Alterações de papel e revogações exigem a aprovação de outro administrador. O mínimo é de "
+                     f"{self.servico.governanca.minimo_administradores} administradores.")
         else:
-            texto = ("Fase de implantação: com menos de 2 administradores, você designa o próximo sozinho "
-                     "(fica na trilha). Depois, toda ação crítica pede um segundo administrador.")
+            texto = ("Fase de implantação: designe o próximo administrador. Depois, as ações críticas exigem "
+                     "a aprovação de um segundo administrador.")
         self.explicacao_papeis.setText(texto)
         self._selecao_mudou()
 
@@ -752,7 +738,7 @@ class PaginaAdministracao(QWidget):
         if u is not None:
             self._critica("Tornar administrador", u,
                           lambda c: self.servico.tornar_administrador(self._eu(), u.id, c),
-                          f"{u.nome} agora é administrador. No primeiro acesso ao painel, cadastra o celular.")
+                          f"{u.nome} agora é administrador.")
 
     def _tirar_admin(self):
         u = self._selecionado()
@@ -765,7 +751,7 @@ class PaginaAdministracao(QWidget):
         u = self._selecionado()
         if u is not None:
             self._critica("Refazer o celular", u, lambda c: self.servico.refazer_celular(self._eu(), u.id, c),
-                          f"Celular de {u.nome} apagado. Ele cadastra um novo no próximo acesso ao painel.")
+                          f"Celular de {u.nome} removido.")
 
     def escolher_perfil(self, usuario) -> tuple[Perfil, str | None] | None:
         """O perfil novo e a UF (diretor). Separado para os testes trocarem (o diálogo é modal)."""
@@ -797,18 +783,17 @@ class PaginaAdministracao(QWidget):
         if u is None:
             return
         caixa = MessageBox("Excluir o cadastro",
-                           f"Excluir {u.nome} ({u.matricula})? O cadastro é desativado, o consentimento revogado e "
-                           "o modelo do rosto, ELIMINADO. Não há como desfazer. A trilha e o termo aceito ficam, "
-                           "como prova.", self.window())
+                           f"Excluir {u.nome} ({u.matricula})? O cadastro será desativado e o modelo facial, "
+                           "eliminado. Esta ação não pode ser desfeita.", self.window())
         if not caixa.exec():
             return
         self._critica("Excluir o cadastro", u, lambda c: self.servico.excluir_usuario(self._eu(), u.id, c),
-                      f"Cadastro de {u.nome} excluído; o rosto foi eliminado do modelo.")
+                      f"Cadastro de {u.nome} excluído.")
 
     def _registrar_revisao(self):
         self._critica("Registrar a revisão de acessos (S-10)", None,
                       lambda c: self.servico.registrar_revisao(self._eu(), c),
-                      "Revisão registrada na trilha, com quem pediu e quem aprovou.")
+                      "Revisão registrada.")
 
     def _alternar_ativo(self):
         usuario = self._selecionado()
@@ -831,8 +816,8 @@ class PaginaAdministracao(QWidget):
             return
         caixa = MessageBox("Revogar consentimento",
                            f"Revogar o consentimento de {usuario.nome} ({usuario.matricula})? O cadastro "
-                           "será desativado e o modelo do rosto, ELIMINADO. Não há como desfazer: "
-                           "só um novo cadastro, com novo termo, devolve o acesso.", self.window())
+                           "será desativado e o modelo facial, eliminado. Esta ação não pode ser desfeita.",
+                           self.window())
         if not caixa.exec():
             return
         if self.sessao is None or not self.servico.administrador_vinculado:     # configuração inicial

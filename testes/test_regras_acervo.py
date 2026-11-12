@@ -494,7 +494,7 @@ def test_serie_anual_no_mysql_termina_no_ano_corrente(acervo_mysql):
 
 
 # ================================================================ termo 3.1 e a 3.0 arquivada
-# hashes da 3.0 calculados pelo código ANTES de a 3.1 existir (contato provisório com que a 3.0 sempre saiu)
+# hashes da 3.0 calculados pelo código antes de a 3.1 existir (contato não preenchido com que a 3.0 sempre saiu)
 HASHES_V3_0 = {None: "3f39c3262a49428cfe68f9b0539918ce45cac6c52d95806273b007ae11bf02f0",
                True: "2dbe748462dec89212c2c006d19815d16d74b46e773b0870b47edda13440943e",
                False: "08f322d782310b348b0699e7cbfc36e1db3d044ca945be1955f9046f30f059bb"}

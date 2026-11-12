@@ -5,7 +5,7 @@ apresentado (LGPD art. 8º, §2º: o ônus da prova é do controlador). Qualquer
 aqui, até de pontuação, faz o hash deixar de conferir. Um teste trava os hashes de
 referência (testes/test_regras_acervo.py).
 
-A 3.0 foi apresentada sempre com o contato provisório abaixo (é o valor que o
+A 3.0 foi apresentada sempre com o contato não preenchido abaixo (é o valor que o
 `[lgpd] contato` teve desde o primeiro commit até a 3.1): por isso ele fica fixo
 aqui, e a conferência de um aceite 3.0 não depende do contato configurado hoje.
 

@@ -5,7 +5,7 @@ Por que TOML e não .ini: o TOML tem tipos. `largura = 640` já chega como int e
 precisaria converter por conta própria. O leitor (tomllib) é da biblioteca
 padrão do Python 3.11, sem dependência nova.
 
-Falha segura: parâmetro ausente é ERRO na abertura, nunca um valor padrão
+Falha segura: parâmetro ausente é erro na abertura, nunca um valor padrão
 escondido no código. Um padrão silencioso faria o sistema rodar com um limiar
 que ninguém escolheu: e em controle de acesso isso é uma decisão de segurança
 tomada por acidente.

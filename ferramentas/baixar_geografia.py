@@ -19,7 +19,6 @@ import sys
 import time
 import urllib.parse
 import urllib.request
-from pathlib import Path
 
 from ecosec.configuracao import RAIZ_PROJETO
 from ecosec.dominio import texto

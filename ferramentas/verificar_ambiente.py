@@ -1,6 +1,6 @@
 """Verificação de ambiente: confirma que esta máquina consegue rodar o EcoSecurity.
 
-Cada integrante roda na própria máquina e cola o resultado no grupo:
+Rode na máquina em que o sistema vai ser usado:
     .venv\\Scripts\\python.exe -m ferramentas.verificar_ambiente
 
 Sai com código 1 se houver qualquer FALHA (útil em script de instalação).

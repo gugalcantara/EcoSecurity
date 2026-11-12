@@ -4,12 +4,10 @@ from datetime import date, datetime
 import cv2
 import numpy as np
 import pytest
-from cryptography.fernet import Fernet
 
 from ecosec.acervo import sinteticos
 from ecosec.configuracao import carregar
 from ecosec.dominio.entidades import Usuario
-from ecosec.dominio.niveis import Nivel
 from ecosec.repositorios.memoria import RepositorioAcervoMemoria, RepositorioTrilhaMemoria
 from ecosec.servicos.acervo import ErroAcervo, ServicoAcervo
 from ecosec.servicos.trilha import ServicoTrilha
@@ -119,7 +117,7 @@ def test_mapa_de_densidade_e_so_do_n1_e_nao_tem_o_que_suprimir(acervo):
 
 
 def _pixels_azuis(imagem):
-    """Azul dos depósitos SÓ na área do mapa (x < 660): as barras do gráfico ao lado usam o mesmo azul."""
+    """Azul dos depósitos só na área do mapa (x < 660): as barras do gráfico ao lado usam o mesmo azul."""
     mapa = imagem[:, 50:660]
     b, g, r = (mapa[..., i].astype(int) for i in range(3))
     return int(((b > 150) & (r < 80) & (g > 90) & (g < 140)).sum())
@@ -256,7 +254,7 @@ def test_marca_dagua_nao_cobre_conteudo_sensivel(acervo, monkeypatch):
 
 
 def test_marca_dagua_invisivel_continua_funcionando(acervo, tmp_path):
-    """Proteção (verde de propósito): a visível entra ANTES da S9. O arquivo exportado no N2 ainda diz
+    """Proteção (verde de propósito): a visível entra antes da S9. O arquivo exportado no N2 ainda diz
     quem consultou e em que minuto."""
     entrega = acervo.abrir("A2-04", BIA_N2, 2)
     destino = acervo.exportar(entrega, BIA_N2, tmp_path / "s9.png", verificado_em=datetime(2026, 10, 7, 10, 29))

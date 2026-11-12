@@ -12,7 +12,7 @@ Regras (janela deslizante sobre os eventos):
   MEDIO  NEGACOES_EM_SERIE          3+ negações do login da mesma matrícula em 15 min
   MEDIO  EXPORTACAO_BARRADA         tentativa de exportar o que a matriz nega
   ALTO   ACESSO_DE_EMERGENCIA       o acesso de emergência foi aberto (quórum de admins): ele é "barulhento" de
-                                    propósito; o grupo registra em ata o motivo e revisa a trilha do período
+                                    propósito; os administradores registram em ata o motivo e revisam a trilha
   MEDIO  APROVACAO_RECUSADA         código errado ao aprovar uma ação crítica de outro administrador
   MEDIO  EMERGENCIA_RECUSADA        código errado na porta do acesso de emergência
 

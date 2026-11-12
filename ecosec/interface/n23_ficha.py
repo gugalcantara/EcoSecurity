@@ -44,7 +44,7 @@ def _destaque(texto: str) -> str:
 
 
 class _Bloco(QWidget):
-    """Um bloco da ficha: título (frase, semibold) e linhas chave → valor numa grade de duas colunas."""
+    """Um bloco da ficha: título (frase, semibold) e linhas chave -> valor numa grade de duas colunas."""
 
     def __init__(self, chave: str, parent=None):
         super().__init__(parent)

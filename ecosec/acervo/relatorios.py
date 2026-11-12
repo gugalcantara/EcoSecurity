@@ -37,7 +37,7 @@ import numpy as np
 from PIL import Image
 
 from ecosec.acervo import analise, fase, ficha, formatos, quantidades, regras, sinteticos, vocabulario
-from ecosec.acervo.desenho import CINZA, LINHA, TINTA, VERMELHO, Documento, Fontes, Tela  # noqa: F401
+from ecosec.acervo.desenho import CINZA, TINTA, Documento, Fontes, Tela
 from ecosec.acervo.mapa import CENTROIDES_UF, CONTORNO_BRASIL, Mapa
 from ecosec.acervo.sinteticos import AREA, CLASSE_I, RADIOATIVO
 from ecosec.dominio.acervo import GRUPOS_MOTIVO, Pendencia, RelatorioCatalogo, Responsavel, grupo_do_motivo
@@ -54,7 +54,6 @@ COR_NIVEL = {1: (46, 163, 107), 2: (217, 154, 30), 3: (210, 56, 79)}
 CLASSIFICACAO = {1: "USO INTERNO", 2: "RESERVADO", 3: "SECRETO"}
 
 DADO = (44, 82, 130)               # a série única das contagens (azul-ardósia; o azul AZUL fica para a custódia)
-DADO_CLARO = (196, 210, 228)
 AZUL = (52, 120, 180)              # instalação de custódia (o mesmo símbolo no A1-05 e no A3-03)
 FUNDO_SUAVE = (246, 247, 249)
 FUNDO_GRUPO = (239, 242, 246)
@@ -69,8 +68,7 @@ COR_CLASSE = {AREA: (78, 121, 167), CLASSE_I: (242, 142, 43), RADIOATIVO: (225, 
 RAMPA = ((220, 228, 247), (157, 184, 230), (85, 128, 204), (36, 81, 158), (11, 44, 102))
 
 # a régua (pesos, faixas, prazo, custo, ação) mora nas regras de negócio: relatórios e painel usam a mesma
-from ecosec.acervo.regras import (ACAO_GRUPO, CATEGORIAS, LIMITES, PESO_GRUPO, RISCO_CLASSE,  # noqa: E402,F401
-                                  categoria, criticidade, fator_atraso)
+from ecosec.acervo.regras import ACAO_GRUPO, CATEGORIAS, PESO_GRUPO, RISCO_CLASSE, categoria, criticidade, fator_atraso
 
 # título de exibição (o do banco fica em caixa alta e sem acento: item_acervo.titulo tem CHECK de padrão)
 TITULOS = {"A1-01": "Panorama nacional", "A1-02": "Origem e motivo dos casos", "A1-05": "Mapa de densidade",
@@ -878,12 +876,12 @@ def a1_01(item, dados: DadosRelatorio, fontes: Fontes) -> Documento:
     y = _kpis(t, y, [
         Kpi("Casos ativos", formatos.inteiro(n), f"na data de corte, {hoje:%d/%m/%Y}"),
         Kpi(vocabulario.rotulo("KPI-03b", "kpi"), _qtd(fora), f"{_pct(fora, n)} dos casos ativos" if _pct(fora, n)
-            else "oculto: menos de 3 casos"),
+            else "oculto: poucos casos"),
         Kpi(vocabulario.rotulo("KPI-03", "kpi"), _qtd(alem), f"{_pct(alem, n)} dos casos ativos" if _pct(alem, n)
-            else "oculto: menos de 3 casos"),
+            else "oculto: poucos casos"),
         Kpi("Casos de risco crítico", _qtd(criticas),
             f"{_pct(criticas, n)} dos casos ativos (score {_limiar_critico()} ou mais)" if _pct(criticas, n)
-            else "oculto: menos de 3 casos")])
+            else "oculto: poucos casos")])
 
     # 1. gravidade e natureza
     y = _secao(t, y, 1, "Gravidade e natureza dos casos",

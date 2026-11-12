@@ -1,10 +1,10 @@
 """Fase 2, Pré-processamento: deixar toda face comparável a qualquer outra.
 
-    recorte colorido ─▶ cinza ─▶ 200×200 ─▶ CLAHE ─▶ suavização ─▶ face normalizada
+    recorte colorido -> cinza -> 200×200 -> CLAHE -> suavização -> face normalizada
 
 - Cinza: o LBP compara intensidades de vizinhos; a cor não acrescenta nada e
   triplicaria o custo.
-- 200×200 ANTES do CLAHE: os blocos do CLAHE (8×8) passam a cobrir sempre a
+- 200×200 antes do CLAHE: os blocos do CLAHE (8×8) passam a cobrir sempre a
   mesma porção do rosto, perto ou longe da câmera.
 - CLAHE (equalização adaptativa com limite de contraste): uma lâmpada do lado
   esquerdo deixa metade do rosto escura. A equalização global não resolve isso;

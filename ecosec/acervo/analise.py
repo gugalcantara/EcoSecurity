@@ -18,7 +18,7 @@ from statistics import median
 
 # a régua (faixas, prazo, custo, ação) mora nas regras de negócio: painel e relatórios usam a mesma
 from ecosec.acervo import quantidades, regras
-from ecosec.acervo.regras import CATEGORIAS, LIMITES, categoria, criticidade  # noqa: F401
+from ecosec.acervo.regras import CATEGORIAS, categoria, criticidade
 from ecosec.dominio.acervo import Pendencia
 
 BOM = "﻿"                   # o Excel só reconhece UTF-8 com a marca no início
@@ -473,7 +473,7 @@ class _Grupos:
 
 
 def _margens_do_agrupamento(agrupamento: str):
-    """Margens que o N1 também vê em OUTRAS tabelas do resumo (o total geral está em todas)."""
+    """Margens que o N1 também vê em outras tabelas do resumo (o total geral está em todas)."""
     total = (lambda c: (),)
     if agrupamento == "POR UF":
         return total + (lambda c: (REGIAO_DA_UF.get(c[0], "OUTRA"),),)        # a região soma as suas UFs
@@ -1167,10 +1167,6 @@ def tabela_xlsx(titulos, dados, rastreio: dict[str, str], aba_dados: str = "PASS
 
 def para_csv(dados: list[LinhaPlanilha]) -> bytes:
     return tabela_csv(TITULOS, ([getattr(l, c) for c in COLUNAS] for l in dados))
-
-
-def para_xlsx(dados: list[LinhaPlanilha], rastreio: dict[str, str]) -> bytes:
-    return tabela_xlsx(TITULOS, ([getattr(l, c) for c in COLUNAS] for l in dados), rastreio)
 
 
 def sha256(conteudo: bytes) -> str:

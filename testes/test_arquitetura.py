@@ -51,7 +51,7 @@ def test_camada_nao_importa_o_que_nao_pode(camada):
 
 
 # ---------------------------------------------------------------- texto visível
-# Decisão do grupo (07/10/2026): nenhum travessão nos textos que a aplicação
+# Regra do projeto (07/10/2026): nenhum travessão nos textos que a aplicação
 # mostra. Vale para toda string do código (telas, termo, PDF, relatórios,
 # mensagens das ferramentas); comentários e docstrings não aparecem para
 # ninguém e ficam de fora. Exceção: o termo 2.0 arquivado precisa continuar

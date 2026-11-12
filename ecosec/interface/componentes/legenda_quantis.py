@@ -122,9 +122,7 @@ class LegendaQuantis(QWidget):
         self.titulo = CaptionLabel("Legenda")
         topo.addWidget(self.titulo)
         topo.addStretch(1)
-        self.suprimida = _Cinza("SUPRIMIDA (k<3)", COR_SUPRIMIDA,
-                                "UF ou valor suprimido (menos de k pendências ativas, ou complementar): fora dos "
-                                "quintis, a cor não revela o número")
+        self.suprimida = _Cinza("SUPRIMIDA", COR_SUPRIMIDA, "UF com poucos casos: valor oculto")
         self.sem_ativas = _Cinza("SEM ATIVAS", COR_SEM_ATIVAS, "UF sem nenhuma pendência ativa no ano")
         topo.addWidget(self.suprimida)
         topo.addWidget(self.sem_ativas)
@@ -148,7 +146,7 @@ class LegendaQuantis(QWidget):
         `formato_fino` (mais casas) entra quando o arredondamento faria dois quintis vizinhos se tocarem."""
         if titulo:
             self.titulo.setText(f"Legenda: {titulo}")
-        self.suprimida.definir(f"SUPRIMIDA (k<{supressao_minima})")
+        self.suprimida.definir("SUPRIMIDA")
         self.suprimida.setVisible(supressao_minima > 0)
         if inferiores is not None and formato_fino is not None:
             tocam = any(inferiores[k] is not None and formato(inferiores[k]) == formato(limites[k - 1])
@@ -167,7 +165,7 @@ class LegendaQuantis(QWidget):
             else:
                 texto = f"{formato(baixo)} a {formato(lim)}"
             caixa.setText(texto)
-            # o 1º quintil começa no mínimo REAL; sem `inferiores`, fica aberto embaixo
+            # o 1º quintil começa no mínimo real; sem `inferiores`, fica aberto embaixo
             self.intervalos.append((baixo if (k == 0 and inferiores is not None) or k else None,
                                     None if vazio else lim))
             nome = f"Quintil {k + 1}: {texto}"

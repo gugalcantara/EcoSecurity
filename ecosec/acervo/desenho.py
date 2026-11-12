@@ -139,8 +139,8 @@ class Tela:
 def desenhar_marca_visivel(imagem: np.ndarray, texto: str, fonte: str = "segoeuib.ttf") -> np.ndarray:
     """Marca d'água visível: `texto` em diagonal, repetido pela página inteira, cinza a 22%. Devolve uma cópia (BGR).
 
-    Trabalha sobre a imagem pronta, FORA da Tela: a marca não é conteúdo do relatório (não vira região sensível nem
-    entra na conferência de sobreposição). Vem depois da tarja (S8) e ANTES da S9: pintar depois da S9 degradaria os
+    Trabalha sobre a imagem pronta, fora da Tela: a marca não é conteúdo do relatório (não vira região sensível nem
+    entra na conferência de sobreposição). Vem depois da tarja (S8) e antes da S9: pintar depois da S9 degradaria os
     coeficientes da marca invisível. Dissuade quem vê; quem prova a origem continua sendo a S9."""
     altura, largura = imagem.shape[:2]
     lado = int(math.hypot(largura, altura)) + 2 * PASSO_MARCA      # cobre a página em qualquer ângulo

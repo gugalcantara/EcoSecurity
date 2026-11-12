@@ -3,8 +3,8 @@
 - PainelCodigoCelular     o 3º passo para abrir o painel: o código do celular (ou um de recuperação)
 - PainelCadastroCelular   o primeiro acesso de um admin: QR para o aplicativo, primeiro código e os
                           códigos de recuperação, mostrados uma vez
-- DialogoAprovacao        ação crítica: o código ATUAL do celular de OUTRO administrador
-- pedir_codigo_proprio    ação sensível de quem já está no painel: o código do PRÓPRIO celular
+- DialogoAprovacao        ação crítica: o código atual do celular de outro administrador
+- pedir_codigo_proprio    ação sensível de quem já está no painel: o código do próprio celular
 - mostrar_ancora / pedir_linha_ancora   a âncora da trilha, para guardar e conferir fora do banco
 - PaginaEmergencia        no login: os códigos do quórum, em qualquer ordem, sem instruções na tela
 - PainelEmergencia        a Administração restrita do acesso de emergência: só consertar o acesso
@@ -101,11 +101,9 @@ class PainelCodigoCelular(QWidget):
         botoes.addStretch(1)
         botoes.addWidget(botao)
         v.addWidget(_cartao(icone, TitleLabel("Código do celular"),
-                            _corpo("O rosto confere. Falta o terceiro fator: digite o código que o aplicativo "
-                                   "autenticador mostra agora (ele muda a cada 30 segundos)."),
+                            _corpo("Digite o código do aplicativo autenticador."),
                             self.campo, self.mensagem, botoes,
-                            _secundario("Perdeu o celular? Use um dos seus códigos de recuperação, no formato "
-                                        "XXXX-XXXX-XXXX-XXXX. Cada um vale uma vez.")))
+                            _secundario("Sem o celular, use um código de recuperação.")))
 
     def iniciar(self, usuario_id: int):
         self.usuario_id = usuario_id
@@ -124,7 +122,7 @@ class PainelCodigoCelular(QWidget):
             return
         self.mensagem.setStyleSheet(f"color:{VERMELHO};")
         if motivo is Motivo.BLOQUEADO and ate is not None:
-            self.mensagem.setText(f"Erros seguidos: este passo está bloqueado até as {ate:%H:%M}.")
+            self.mensagem.setText(f"Tentativas esgotadas. Tente novamente às {ate:%H:%M}.")
         else:
             self.mensagem.setText(motivo.mensagem)
 
@@ -168,14 +166,11 @@ class PainelCadastroCelular(QWidget):
         centro.addWidget(self.qr)
         centro.addStretch(1)
         return _cartao(TitleLabel("Cadastre o seu celular"),
-                       _corpo("Primeiro acesso ao painel. No celular, abra o Google Authenticator (ou o Microsoft "
-                              "Authenticator), toque em adicionar e escaneie o QR. O código gerado passa a ser "
-                              "pedido toda vez que você abrir a Administração."),
+                       _corpo("Escaneie o QR com um aplicativo autenticador (Google ou Microsoft Authenticator). "
+                              "O código gerado será pedido sempre que você abrir a Administração."),
                        centro,
-                       _secundario("Sem câmera no celular? Digite esta chave no aplicativo (tipo: baseada em tempo):"),
-                       self.segredo, self.campo, self.mensagem, botoes,
-                       _secundario("Funciona sem internet: o celular e o sistema calculam o mesmo código a partir "
-                                   "da hora certa. O segredo fica cifrado no banco."), largura=520)
+                       _secundario("Ou digite esta chave no aplicativo (baseada em tempo):"),
+                       self.segredo, self.campo, self.mensagem, botoes, largura=520)
 
     def _passo_codigos(self):
         self.grade = QGridLayout()
@@ -183,7 +178,7 @@ class PainelCadastroCelular(QWidget):
         self.grade.setVerticalSpacing(6)
         grade = QWidget()
         grade.setLayout(self.grade)
-        self.guardei = CheckBox("Guardei estes códigos num lugar seguro, fora do computador")
+        self.guardei = CheckBox("Guardei estes códigos em local seguro")
         self.botao_concluir = PrimaryPushButton("Concluir")
         self.botao_concluir.setIcon(FIF.ACCEPT)
         self.botao_concluir.setEnabled(False)
@@ -196,9 +191,8 @@ class PainelCadastroCelular(QWidget):
         botoes.addWidget(copiar)
         botoes.addStretch(1)
         botoes.addWidget(self.botao_concluir)
-        aviso = _corpo("Estes códigos aparecem SÓ AGORA. Cada um vale uma vez e substitui o celular se ele for "
-                       "perdido; também contam como o seu voto no acesso de emergência. Imprima ou anote e guarde "
-                       "longe do computador.")
+        aviso = _corpo("Estes códigos são exibidos uma única vez. Cada um pode ser usado uma vez, no lugar do "
+                       "celular. Guarde-os fora do computador.")
         aviso.setStyleSheet(f"color:{AMBAR};")
         return _cartao(TitleLabel("Códigos de recuperação"), aviso, grade, self.guardei, botoes, largura=520)
 
@@ -219,8 +213,7 @@ class PainelCadastroCelular(QWidget):
         codigos = self.app.administracao.confirmar_celular(self.usuario_id, self.novo, texto) if texto.strip() else None
         if codigos is None:
             self.mensagem.setStyleSheet(f"color:{VERMELHO};")
-            self.mensagem.setText("O código não confere. Confira se o relógio do celular está certo e digite o "
-                                  "código que aparece agora.")
+            self.mensagem.setText("Código inválido. Verifique se o relógio do celular está correto.")
             return
         self.novo = None                                  # o segredo não fica mais na memória da tela
         self.qr.clear()
@@ -263,10 +256,8 @@ class DialogoAprovacao(MessageBoxBase):
         resumo = StrongBodyLabel(acao + (f": {alvo}" if alvo else ""))
         resumo.setWordWrap(True)
         self.viewLayout.addWidget(resumo)
-        self.viewLayout.addWidget(_corpo(
-            "Esta ação precisa de um segundo administrador. Ligue ou mande mensagem para outro admin, leia este "
-            "resumo e, se ele concordar, digite o código que o celular DELE mostra agora. Você não pode aprovar o "
-            "próprio pedido; a trilha registra quem pediu e quem aprovou."))
+        self.viewLayout.addWidget(_corpo("Esta ação exige a aprovação de outro administrador. Informe o código "
+                                         "do aplicativo autenticador dele."))
         self.campo = campo_codigo("Código do celular do outro administrador")
         self.viewLayout.addWidget(self.campo)
         self.yesButton.setText("Aprovar e executar")
@@ -278,8 +269,8 @@ def pedir_aprovacao(parent, servico, acao: str, alvo: str | None) -> str | None:
     """Devolve o código digitado; "" na fase de implantação (confirmado sem código); None se desistiu."""
     if not servico.exige_aprovacao:
         caixa = MessageBox("Fase de implantação",
-                           f"{acao}{': ' + alvo if alvo else ''}.\n\nAinda há menos de 2 administradores, então "
-                           "você faz esta ação sozinho. Ela fica na trilha marcada como fase de implantação.",
+                           f"{acao}{': ' + alvo if alvo else ''}.\n\nSem um segundo administrador, a ação é "
+                           "confirmada apenas por você e registrada na trilha.",
                            parent)
         caixa.yesButton.setText("Continuar")
         return "" if caixa.exec() else None
@@ -310,10 +301,8 @@ class DialogoAncora(MessageBoxBase):
     def __init__(self, linha: str, parent=None):
         super().__init__(parent)
         self.viewLayout.addWidget(SubtitleLabel("Âncora da trilha"))
-        self.viewLayout.addWidget(_corpo(
-            "Guarde esta linha FORA deste computador: no celular, num e-mail ou impressa. Ela prova como a trilha "
-            "estava agora. Se alguém apagar ou recalcular os últimos registros direto no banco, a conferência "
-            "desta linha mostra a diferença."))
+        self.viewLayout.addWidget(_corpo("Guarde esta linha fora deste computador. Ela permite conferir depois "
+                                         "a integridade da trilha."))
         self.campo = LineEdit()
         self.campo.setText(linha)
         self.campo.setReadOnly(True)
@@ -335,9 +324,7 @@ class DialogoConferirAncora(MessageBoxBase):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.viewLayout.addWidget(SubtitleLabel("Conferir uma âncora"))
-        self.viewLayout.addWidget(_corpo(
-            "Cole a linha guardada fora do computador (começa com ECOSEC-TRILHA). O sistema confere se a trilha "
-            "continua íntegra e se ainda contém o registro ancorado com o mesmo hash."))
+        self.viewLayout.addWidget(_corpo("Cole a linha da âncora guardada (começa com ECOSEC-TRILHA)."))
         self.campo = LineEdit()
         self.campo.setPlaceholderText("ECOSEC-TRILHA ...")
         self.viewLayout.addWidget(self.campo)
@@ -376,7 +363,7 @@ class PaginaEmergencia(QWidget):
         botoes.addWidget(voltar)
         botoes.addStretch(1)
         botoes.addWidget(botao)
-        # sem instruções de propósito: quem precisa desta tela já sabe o que fazer (README e ata)
+        # sem instruções de propósito: quem precisa desta tela já sabe o que fazer
         v.addWidget(_cartao(icone, TitleLabel("Acesso de emergência"), self.contador, self.campo, self.mensagem,
                             botoes, largura=420))
 
@@ -429,10 +416,8 @@ class PainelEmergencia(QWidget):
         encerrar.clicked.connect(self.sair.emit)
         topo.addWidget(encerrar, 0, Qt.AlignmentFlag.AlignTop)
         v.addLayout(topo)
-        v.addWidget(_corpo("Aberto pelo quórum de administradores. Aqui só se conserta o acesso: recadastrar o "
-                           "rosto de um administrador, refazer o celular de um administrador ou designar um novo. "
-                           "Nada do acervo aparece, e cada ação fica na trilha marcada como emergência. Depois, "
-                           "registrem em ata o motivo e revisem a trilha deste período."))
+        v.addWidget(_corpo("Acesso restrito à recuperação de administradores: recadastrar o rosto, refazer o "
+                           "celular ou designar um novo. As ações são registradas na trilha."))
         self.tabela = TableWidget()
         self.tabela.setBorderVisible(True)
         self.tabela.setBorderRadius(8)
@@ -474,7 +459,7 @@ class PainelEmergencia(QWidget):
 
     def atualizar(self):
         fim = self.sessao.emergencia.fim
-        self.prazo.setText(f"Vale até as {fim:%H:%M}. Depois disso, a sessão termina sozinha.")
+        self.prazo.setText(f"Válido até as {fim:%H:%M}.")
         admins = self.servico.administradores_ativos()
         self.tabela.setRowCount(len(admins))
         for i, a in enumerate(admins):
@@ -514,11 +499,11 @@ class PainelEmergencia(QWidget):
         if alvo is None:
             return
         recusa = self.servico.refazer_celular(self.sessao.usuario.id, alvo, emergencia=self.sessao.emergencia)
-        self._aviso(recusa, "Celular apagado. A pessoa cadastra um novo no próximo acesso ao painel.")
+        self._aviso(recusa, "Celular removido. Um novo será cadastrado no próximo acesso.")
 
     def _designar(self):
         alvo = self.combo_candidato.currentData()
         if alvo is None:
             return
         recusa = self.servico.tornar_administrador(self.sessao.usuario.id, alvo, emergencia=self.sessao.emergencia)
-        self._aviso(recusa, "Administrador designado. Ele cadastra o celular no primeiro acesso ao painel.")
+        self._aviso(recusa, "Administrador designado.")

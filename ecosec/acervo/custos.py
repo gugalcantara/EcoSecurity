@@ -100,7 +100,7 @@ def rota_de(p: Pendencia, c: ParametrosCustos) -> Rota:
 
 
 def decompor(p: Pendencia, c: ParametrosCustos) -> tuple[Componente, ...]:
-    """A memória de cálculo: um componente por linha, na ordem fixos → variáveis → monitoramento."""
+    """A memória de cálculo: um componente por linha, na ordem fixos -> variáveis -> monitoramento."""
     rota = rota_de(p, c)
     unidade = "m³" if p.unidade == METROS_CUBICOS else "t"
     cat = c.categoria_componente.get

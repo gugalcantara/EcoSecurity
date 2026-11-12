@@ -1,48 +1,19 @@
-"""Experimento da curva DET: mede FAR e FRR e sugere os limiares de cada nível.
+r"""Experimento da curva DET: mede a FAR e a FRR e sugere os limiares de cada nível.
 
-    .venv\\Scripts\\python.exe -m ferramentas.experimento_det coletar --sessao 1 [--ignorar MATRICULA ...]
-    .venv\\Scripts\\python.exe -m ferramentas.experimento_det base --pasta <CroppedYale> --alvo MATRICULA
-    .venv\\Scripts\\python.exe -m ferramentas.experimento_det analisar
+    .venv\Scripts\python.exe -m ferramentas.experimento_det coletar --sessao 1 [--ignorar MATRICULA ...]
+    .venv\Scripts\python.exe -m ferramentas.experimento_det base --pasta <CroppedYale> --alvo MATRICULA
+    .venv\Scripts\python.exe -m ferramentas.experimento_det analisar
 
-Administrador: `coletar` e `base` leem o modelo facial e os consentimentos, então pedem antes a matrícula, a senha e
-o código do celular de um administrador ativo. O início e o fim ficam na trilha de auditoria, sem nenhuma distância.
-`analisar` só lê o arquivo de distâncias e não pede login.
+`coletar` e `base` leem o modelo facial, por isso pedem a matrícula, a senha e o código do celular de um
+administrador e registram o início e o fim na trilha. Só participam cadastros que autorizaram a finalidade (b)
+do termo; `--ignorar` tira cadastros da mesma pessoa, que contariam como impostor.
 
-Quem participa: só cadastros ativos, com consentimento vigente que autoriza a finalidade (b) do termo
-(estatísticas e experimentos) e com rosto no modelo. Quem não autorizou a (b) não aparece nem como alvo.
-`--ignorar` tira do experimento os cadastros que são da mesma pessoa (por exemplo, um cadastro de demonstração com o
-rosto do próprio voluntário): eles contariam a pessoa "se passando por ela mesma" como impostor.
-
-Coleta com a câmera (por voluntário): a pessoa informa a matrícula e fica diante da câmera em algumas tentativas
-curtas. Cada quadro aprovado pelo portão de qualidade é comparado (1:1) com o próprio cadastro, o que dá a distância
-genuína, e com cada um dos outros participantes, o que dá as distâncias de impostor (o impostor de esforço zero, que
-só apresenta o próprio rosto). O mesmo quadro também passa pela identificação 1:N do modelo inteiro. Repetir com a
-`--sessao 2` em outra iluminação: o modelo foi treinado no cadastro, e as tentativas daqui são capturas novas.
-
-Base pública (Extended Yale B, versão recortada): as imagens já são o recorte da face, então a segmentação de Haar
-dá lugar ao próprio recorte, e o resto é o mesmo do sistema: portão de qualidade, redimensionamento, CLAHE,
-suavização e LBPH com os parâmetros do config. As imagens são separadas pelos subconjuntos de iluminação da base
-(o ângulo entre a luz e o eixo da câmera): o subconjunto 1, o de luz quase frontal, vira o cadastro de cada pessoa
-num modelo próprio, só em memória, e os subconjuntos 2 a 5 viram as tentativas. Cada imagem é uma tentativa de um
-quadro: genuína contra a própria pessoa e de impostor contra cada uma das outras. A curva usa os subconjuntos 2 e
-3 (luz até 50 graus do eixo, a variação de um ambiente interno); os subconjuntos 4 e 5, de luz lateral extrema,
-mostram o portão de qualidade em ação e têm a EER relatada à parte. A imagem recusada pela qualidade é uma falha
-de aquisição, relatada separadamente da FRR (ISO/IEC 19795-1). Com `--alvo`, cada imagem aprovada
-também é comparada ao cadastro real dessa matrícula no modelo do sistema, o que mede a FAR contra ele (uma foto
-parada repete a mesma distância em todos os quadros, então um quadro basta). O modelo do sistema não é alterado.
-
-Análise: a pontuação de cada tentativa da câmera segue o confirmador do login (N quadros seguidos dentro do limiar),
-e a curva, a EER e os limiares sugeridos saem de ecosec/visao/desempenho.py, em três recortes: a câmera (cada
-voluntário contra os outros cadastros), a base pública e o sistema (as tentativas genuínas da câmera contra os rostos
-da base comparados ao cadastro do alvo). Cada recorte também traz a FAR e a FRR nos limiares do config. A figura, em
-resultados/curva_det.png, mostra a curva da câmera, com os limiares sugeridos, e a da base pública; a do sistema
-fica só no texto, porque rostos de outra câmera ficam longe do cadastro e deixam essa curva otimista. O resumo vai
-para resultados/experimento_det_analise.json. Não altera o config: trocar um limiar é decisão que se registra em
-ata.
-
-LGPD: nenhuma imagem é gravada. Os arquivos guardam só distâncias, e cada participante aparece por um código (não
-pela matrícula, nem pelo identificador do banco), calculado com um sal aleatório do próprio arquivo. As imagens da
-base pública ficam numa pasta fora do repositório.
+`coletar` mede o voluntário diante da câmera, contra o próprio cadastro (genuína) e contra os outros
+participantes (impostor). `base` mede a Extended Yale B recortada com o mesmo tratamento do sistema: a luz
+quase frontal forma o cadastro, a luz até 50 graus forma a curva, e a imagem recusada pela qualidade conta como
+falha de aquisição. `analisar` calcula a curva, a EER, os limiares sugeridos e a FAR e a FRR nos limiares do
+config, e grava a figura em resultados/curva_det.png. Nenhuma imagem é gravada, só distâncias, e o config não é
+alterado.
 """
 import argparse
 import getpass

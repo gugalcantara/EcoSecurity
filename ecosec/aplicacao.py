@@ -137,7 +137,7 @@ def _rasterizar_documento(html, qr_modulos, orgao, marca):
 
 def montar(cfg: Configuracao | None = None, caminho_env: Path | None = None,
            modo: str | None = None) -> Aplicacao:
-    """Um .env protegido pelo Windows de OUTRA conta (ou outro PC) também é "não abre com segurança": vira
+    """Um .env protegido pelo Windows de outra conta (ou outro PC) também é "não abre com segurança": vira
     ErroAbertura, que o programa e todas as ferramentas já mostram com a orientação de restaurar o backup."""
     try:
         return _montar(cfg, caminho_env, modo)

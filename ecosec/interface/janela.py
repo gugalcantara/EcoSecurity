@@ -7,10 +7,10 @@
                           É o mesmo login para todos: o sistema reconhece o
                           perfil pelo cadastro
     LOGADO                Início · a aba da camada do perfil (só ela: escopo
-                          exclusivo) · Camadas de segurança · Encerrar
-                          sessão. O administrador não tem camada: Início,
-                          Camadas de segurança e Administração, e nenhuma aba
-                          do acervo, nunca
+                          exclusivo) · Encerrar sessão. O administrador não
+                          tem camada: Início e Administração, e nenhuma aba
+                          do acervo, nunca. "Camadas de segurança" só entra
+                          no menu com [interface] modo_demonstracao = true
     EMERGÊNCIA            pelo acesso de emergência (quórum de admins): só a
                           Administração restrita e Encerrar; termina sozinha
                           no fim do prazo ou na primeira inatividade
@@ -51,7 +51,7 @@ ID_APLICATIVO = "UNIP.EcoSecurity.APS"
 
 
 def declarar_aplicativo_windows() -> None:
-    """Precisa vir ANTES da primeira janela."""
+    """Precisa vir antes da primeira janela."""
     if sys.platform == "win32":
         import ctypes
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(ID_APLICATIVO)
@@ -93,6 +93,7 @@ class JanelaPrincipal(FluentWindow):
         self.paginas_nivel = {n: PaginaNivel(app, n, self) for n in Nivel}
         s7_ligada = app.autenticacao.p.acesso.exigir_segunda_pessoa
         self.pagina_camadas = PaginaCamadas(self, desligadas=() if s7_ligada else {CamadaSeguranca.S7_CUSTODIA})
+        self.modo_demonstracao = self.pagina_entrada.autenticacao.modo_demonstracao
         self.pagina_admin = PaginaAdministracao(app, self)
         self.pagina_bloqueio = PaginaBloqueio(self)
         self.pagina_bloqueio.desbloquear.connect(self._tentar_desbloqueio)
@@ -122,7 +123,7 @@ class JanelaPrincipal(FluentWindow):
         self.navigationInterface.addItem("tema", FIF.CONSTRACT, "Tema claro/escuro", onClick=alternar_tema,
                                          selectable=False, position=NavigationItemPosition.BOTTOM)
 
-        # inatividade REAL (mouse, rolagem, teclado; câmera ligada conta como uso): bloqueia, não encerra
+        # inatividade real (mouse, rolagem, teclado; câmera ligada conta como uso): bloqueia, não encerra
         self._inatividade = PrazoInatividade(app.sessao.inatividade_minutos, ocupado=self._ocupado, parent=self)
         self._inatividade.vencido.connect(self.bloquear_sessao)
 
@@ -149,7 +150,8 @@ class JanelaPrincipal(FluentWindow):
         for nivel, pagina in self.paginas_nivel.items():
             self._mostrar_no_menu(pagina, nivel in visiveis)
         self._mostrar_no_menu(self.pagina_inicio, logado and not self.sessao.em_emergencia)
-        self._mostrar_no_menu(self.pagina_camadas, logado and not self.sessao.em_emergencia)
+        self._mostrar_no_menu(self.pagina_camadas, logado and not self.sessao.em_emergencia
+                              and self.modo_demonstracao)
 
     def _aplicar_estado(self, destino=None):
         estado = self.estado
@@ -209,14 +211,14 @@ class JanelaPrincipal(FluentWindow):
             InfoBar.error("Sessão encerrada", motivo.mensagem, duration=8000, position=InfoBarPosition.TOP,
                           parent=self)
         else:
-            self.pagina_bloqueio.mostrar_erro("Senha incorreta. Erros seguidos bloqueiam a matrícula.")
+            self.pagina_bloqueio.mostrar_erro("Senha incorreta.")
 
     # ============================================================ sessão
     def _talvez_fim_da_configuracao(self):
         if self.sessao is None and self.estado is Estado.LOGIN:
             self._aplicar_estado()
-            InfoBar.success("Configuração inicial concluída", "Agora entre pelo login, com a matrícula, a senha "
-                            "e o rosto do cadastro.", duration=8000, position=InfoBarPosition.TOP, parent=self)
+            InfoBar.success("Configuração inicial concluída", "Entre pelo login.", duration=8000,
+                            position=InfoBarPosition.TOP, parent=self)
 
     def _entrou(self, sessao_entrada):
         sessao = self.app.sessao.abrir(sessao_entrada)
@@ -238,8 +240,8 @@ class JanelaPrincipal(FluentWindow):
         restante = (emergencia.fim - self.app.administracao.relogio()).total_seconds()
         self._fim_emergencia.start(max(1, int(restante * 1000)))
         self._aplicar_estado()
-        InfoBar.warning("Acesso de emergência", f"Só para consertar o acesso, até as {emergencia.fim:%H:%M}. "
-                        "Tudo fica na trilha.", duration=8000, position=InfoBarPosition.TOP, parent=self)
+        InfoBar.warning("Acesso de emergência", f"Válido até as {emergencia.fim:%H:%M}.", duration=8000,
+                        position=InfoBarPosition.TOP, parent=self)
 
     def _emergencia_expirou(self):
         if self.sessao is not None and self.sessao.em_emergencia:

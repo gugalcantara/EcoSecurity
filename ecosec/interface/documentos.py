@@ -96,8 +96,7 @@ class JanelaDocumento(QDialog):
         v.addLayout(cabeca)
         self.visualizador = VisualizadorDocumento(de_bgr(entrega.imagem), entrega.marca_visivel, self)
         v.addWidget(self.visualizador, 1)
-        aviso = CaptionLabel(f"Só visualização: o documento não sai do sistema. Esta leitura está na trilha "
-                             f"(SHA-256 {entrega.hash_consulta[:16].upper()}).")
+        aviso = CaptionLabel("Somente visualização. A consulta é registrada.")
         aviso.setWordWrap(True)
         v.addWidget(aviso)
         fechar = PushButton("Fechar")

@@ -36,8 +36,7 @@ from ecosec.servicos.cadastro import DadosCadastro, ErroCadastro
 PASSOS = ("Preparação", "Termo", "Dados", "Rosto", "Concluído")
 # o que cada perfil faz, para quem cadastra escolher (só o próprio escopo de cada um)
 DESCRICAO_PERFIL = {
-    Perfil.EXTERNO: "Não é do quadro do governo: só registra a matrícula, o termo e o rosto, não vê dados e não "
-                    "entra no sistema. O administrador é escolhido entre os externos.",
+    Perfil.EXTERNO: "Fora do quadro do governo. Não acessa o acervo. Administradores têm este perfil.",
     Perfil.SERVIDOR: "Estatísticas agregadas, sem localização; regiões sensíveis suprimidas. Exportação livre.",
     Perfil.DIRETOR: "Registros da própria UF, com a cadeia de responsabilidade. Exporta com marca d'água.",
     Perfil.MINISTRO: "Visão nacional da custódia, matriz de criticidade e fila do orçamento público. Só visualização.",
@@ -50,9 +49,9 @@ FONTE_DOCUMENTO = "Georgia"
 PREPARACAO, TERMO, DADOS, ROSTO, FIM = range(5)
 
 REQUISITOS = (
-    "A pessoa a ser cadastrada está aqui, diante desta tela: o cadastro é dela, não de quem opera.",
-    "Ela tem 18 anos ou mais (dados de menores exigem o consentimento dos responsáveis, art. 14 da LGPD).",
-    "Há luz à frente do rosto (não atrás) e a câmera não está aberta em outro programa (Teams, navegador).",
+    "A pessoa a ser cadastrada está presente, diante da câmera.",
+    "A pessoa tem 18 anos ou mais (art. 14 da LGPD).",
+    "O rosto está bem iluminado e a câmera não está em uso por outro programa.",
 )
 
 
@@ -129,8 +128,7 @@ class AssistenteCadastro(QWidget):
         v.setContentsMargins(28, 24, 28, 24)
         v.setSpacing(12)
         v.addWidget(SubtitleLabel("Antes de começar"))
-        v.addWidget(BodyLabel("O cadastro leva cerca de 2 minutos e tem quatro etapas: a pessoa lê e assina o termo, "
-                              "escolhe a própria senha, faz duas capturas rápidas do rosto e recebe a matrícula."))
+        v.addWidget(BodyLabel("Etapas: termo de consentimento, dados e senha, captura do rosto e matrícula."))
         v.addSpacing(6)
         v.addWidget(StrongBodyLabel("Confirme os requisitos:"))
         self.requisitos = []
@@ -140,8 +138,7 @@ class AssistenteCadastro(QWidget):
             self.requisitos.append(caixa)
             v.addWidget(caixa)
         v.addSpacing(6)
-        aviso = BodyLabel("Durante o cadastro, a PESSOA digita a senha: vire a tela para ela. Quem opera não "
-                          "deve ver nem saber a senha de ninguém.")
+        aviso = BodyLabel("A senha é digitada pela própria pessoa cadastrada.")
         aviso.setWordWrap(True)
         aviso.setStyleSheet(f"color:{AMBAR};")
         v.addWidget(aviso)
@@ -235,8 +232,7 @@ class AssistenteCadastro(QWidget):
         for item in (self.check_lido, self.check_finalidade_a, self.check_finalidade_b):
             vm.addWidget(item)
         vm.addWidget(linha_rotulada("Assinatura eletrônica", self.campo_assinatura,
-                                    "O nome e as autorizações entram no texto aceito. O sistema grava o hash "
-                                    "SHA-256 desse texto como prova do consentimento (Cláusula 11ª)."))
+                                    "O nome e as autorizações passam a integrar o termo aceito (Cláusula 11ª)."))
         self.motivo_aceite = CaptionLabel()
         self.motivo_aceite.setWordWrap(True)
         self.motivo_aceite.setStyleSheet(f"color:{AMBAR};")
@@ -334,8 +330,7 @@ class AssistenteCadastro(QWidget):
         grade.setContentsMargins(24, 20, 24, 20)
         grade.setHorizontalSpacing(24)
         grade.setVerticalSpacing(12)
-        aviso = BodyLabel("Vire a tela para a pessoa: é ELA quem digita a senha. Ninguém mais deve vê-la, nem "
-                          "quem opera o cadastro.")
+        aviso = BodyLabel("A senha deve ser digitada pela pessoa cadastrada, sem que outros a vejam.")
         aviso.setWordWrap(True)
         aviso.setStyleSheet(f"color:{AMBAR};")
         grade.addWidget(aviso, 0, 0, 1, 2)
@@ -362,14 +357,13 @@ class AssistenteCadastro(QWidget):
 
         grade.addWidget(linha_rotulada("Nome (da assinatura do termo)", self.campo_nome), 1, 0)
         grade.addWidget(linha_rotulada("Perfil de acesso", self.combo_perfil,
-                                       "Escolha o perfil que a função exige: acesso a mais é risco a mais. "
-                                       "Externo: quem não é do quadro do governo (o administrador é um externo)."),
+                                       "O mínimo que a função exige."),
                         2, 0)
         grade.addWidget(self.descricao_perfil, 3, 0)
         grade.addWidget(linha_rotulada("UF sob responsabilidade", self.combo_uf,
-                                       "Só para o diretor: ele vê apenas a própria região."), 4, 0)
+                                       "Apenas para o perfil Diretor."), 4, 0)
         grade.addWidget(linha_rotulada("Senha", self.campo_senha,
-                                       "Algo que só a pessoa saiba. Não use data de nascimento nem a matrícula."), 1, 1)
+                                       "Não use data de nascimento nem a matrícula."), 1, 1)
         grade.addWidget(linha_rotulada("Confirme a senha", self.campo_confirmacao), 2, 1)
         grade.addWidget(self.checklist, 3, 1, 2, 1, Qt.AlignmentFlag.AlignTop)
 
@@ -436,8 +430,8 @@ class AssistenteCadastro(QWidget):
         self.sessao_titulo = SubtitleLabel()
         self.sessao_instrucao = BodyLabel()
         self.sessao_instrucao.setWordWrap(True)
-        dicas = _texto_secundario("Dicas: rosto dentro da moldura oval · sem óculos escuros, boné ou máscara · "
-                                  "uma pessoa por vez na imagem · movimentos LENTOS.")
+        dicas = _texto_secundario("Rosto dentro da moldura · sem óculos escuros, boné ou máscara · uma pessoa "
+                                  "por vez · movimentos lentos.")
         self.barra_coleta = ProgressBar()
         self.contagem = StrongBodyLabel()
         self.orientacao = BodyLabel()
@@ -446,8 +440,7 @@ class AssistenteCadastro(QWidget):
         self.botao_captura = PrimaryPushButton("Iniciar captura")
         self.botao_captura.setIcon(FIF.CAMERA)
         self.botao_captura.clicked.connect(self._acao_captura)
-        explicacao = _texto_secundario("As imagens ficam só na memória: treinam o modelo e são apagadas. Duas "
-                                       "sessões com iluminações diferentes tornam o reconhecimento mais robusto.")
+        explicacao = _texto_secundario("As imagens não são gravadas: são descartadas após o treinamento.")
         for item in (self.sessao_titulo, self.sessao_instrucao, dicas, self.barra_coleta, self.contagem,
                      self.orientacao, self.recusas, self.botao_captura, explicacao):
             v.addWidget(item)
@@ -459,11 +452,9 @@ class AssistenteCadastro(QWidget):
         estado = self.coleta.estado()
         self.sessao_titulo.setText(f"Sessão {estado.sessao} de {estado.total_sessoes}")
         if estado.sessao == 1:
-            self.sessao_instrucao.setText("Olhe para a câmera e mova a cabeça devagar, um pouco para os lados, "
-                                          "para cima e para baixo.")
+            self.sessao_instrucao.setText("Olhe para a câmera e mova a cabeça devagar.")
         else:
-            self.sessao_instrucao.setText("Mude a iluminação (acenda ou apague uma luz, ou mude de posição) e "
-                                          "repita os movimentos lentos.")
+            self.sessao_instrucao.setText("Mude a iluminação ou a posição e repita os movimentos.")
         self.barra_coleta.setRange(0, estado.meta)
         self.barra_coleta.setValue(0)
         self.contagem.setText(f"0 de {estado.meta} imagens")
@@ -565,8 +556,7 @@ class AssistenteCadastro(QWidget):
         self.fim_titulo.setText("Rosto recadastrado")
         self.fim_rotulo_matricula.setText("Matrícula (não muda):")
         self.fim_matricula.setText(self.recadastro.matricula)
-        self.fim_resumo.setText(f"{self.recadastro.nome}: o modelo anterior do rosto foi eliminado e o novo já vale "
-                                "no próximo login. O termo de consentimento continua o mesmo.")
+        self.fim_resumo.setText(f"{self.recadastro.nome}: rosto recadastrado. Vale a partir do próximo login.")
         self.botao_pdf.hide()
         self.botao_cancelar.setEnabled(False)
         self._ir(FIM)
@@ -587,13 +577,11 @@ class AssistenteCadastro(QWidget):
         self.fim_resumo = BodyLabel()
         self.fim_resumo.setWordWrap(True)
         v.addWidget(self.fim_resumo)
-        v.addWidget(_texto_secundario("Entregue a matrícula à pessoa: ela é pedida no login. "
-                                      "Não contém I, O, 0 nem 1, para não haver confusão ao digitar. A senha "
-                                      "não pode ser recuperada: se esquecida, é preciso um novo cadastro."))
+        v.addWidget(_texto_secundario("Entregue a matrícula à pessoa. A senha não pode ser recuperada."))
         botoes = QHBoxLayout()
         self.botao_pdf = PushButton("Salvar via do titular (PDF)")
         self.botao_pdf.setIcon(FIF.SAVE)
-        self.botao_pdf.setToolTip("O termo assinado: nome, autorizações, data, matrícula e o hash registrado.")
+        self.botao_pdf.setToolTip("Via do termo assinado.")
         self.botao_pdf.clicked.connect(self._salvar_pdf)
         copiar = PushButton("Copiar matrícula")
         copiar.setIcon(FIF.COPY)

@@ -1,6 +1,6 @@
 """Gráficos e peças de painel do analítico N2 e N3, desenhados com QPainter.
 
-Método (skill dataviz): a forma vem da pergunta, a cor vem por último.
+Regra de visualização: a forma vem da pergunta, a cor vem por último.
   - BarrasH: magnitude por categoria (barras horizontais ordenadas, rótulo direto na ponta). Com dois segmentos,
     é a forma de ênfase: a parte que importa (ex.: casos críticos) na cor de status, o resto em cinza;
   - LinhasAno: evolução no tempo (linha de 2 px, ponto final com anel da superfície, cruz e dica no hover);
@@ -9,8 +9,8 @@ Método (skill dataviz): a forma vem da pergunta, a cor vem por último.
   - CurvaAcumulada: custo acumulado × redução de risco acumulada (uma linha por critério) com a linha do orçamento.
 Especificações fixas: barra de no máximo 20 px com ponta arredondada de 4 px (reta na base), linhas de 2 px, grade
 e eixos em linha fina contínua, texto sempre nas cores de texto (nunca na cor da série), um eixo só, nenhum eixo
-duplo. A paleta categórica é a de referência da skill, validada com `validate_palette.js` (claro e escuro: todos
-os testes passam; contraste abaixo de 3:1 em dois tons do claro, por isso todo segmento tem rótulo visível).
+duplo. A paleta categórica foi conferida quanto à separação para daltonismo e ao contraste, no tema claro e no
+escuro (contraste abaixo de 3:1 em dois tons do claro, por isso todo segmento tem rótulo visível).
 As cores de risco e de classe vêm de `componentes.simbologia` (fonte única do mapa).
 
 Toda peça tem nome e descrição acessíveis com os valores (a alternativa em texto do gráfico) e dica no hover.
@@ -27,7 +27,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QSizePolicy, QToolTip, QVBoxL
 from ecosec.interface.estilo import cor_borda, cor_texto_secundario
 from ecosec.interface.fluent import isDarkTheme
 
-# paleta categórica de referência (dataviz), na ordem fixa dos slots; nunca ciclada
+# paleta categórica, na ordem fixa dos slots; nunca ciclada
 CATEGORICA_CLARO = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100")
 CATEGORICA_ESCURO = ("#3987e5", "#d95926", "#199e70", "#c98500")
 CINZA_CONTEXTO = ("#C5CCD3", "#4A4F55")          # o resto, na forma de ênfase (claro, escuro)

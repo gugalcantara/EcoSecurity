@@ -3,7 +3,7 @@
 - contrato: memória e MySQL guardam e devolvem o perfil, o nível nulo (Externo, inclusive o administrador) e a
   exclusão lógica (`excluido_em`);
 - o banco recusa perfil e nível incoerentes (CHECK `ck_usuario_perfil_nivel`), mesmo que a aplicação erre;
-- a migração (`ferramentas.preparar_banco.migrar_perfis`) leva ao modelo de quatro perfis tanto um banco de ANTES
+- a migração (`ferramentas.preparar_banco.migrar_perfis`) leva ao modelo de quatro perfis tanto um banco de antes
   (só níveis) quanto um da primeira versão dela (perfis Administrador, Sem perfil e Ministério Público):
   cada um pelo nível; administradores e perfis retirados viram Externo, sem camada. É idempotente. Os dois
   schemas estão congelados em `testes/dados/`.
@@ -116,7 +116,7 @@ def _banco_descartavel(schema, cadastros):
 
 @pytest.fixture
 def banco_antigo():
-    """Schema de ANTES e quatro cadastros: N1, N2, N3 e um administrador que era N3."""
+    """Schema de antes e quatro cadastros: N1, N2, N3 e um administrador que era N3."""
     inserir = ("INSERT INTO usuario (matricula, nome, nivel, uf, senha_hash, ativo, criado_em) "
                "VALUES (%s, 'ANA LIMA', %s, %s, '$2b$x', TRUE, %s)")
     yield from _banco_descartavel(SCHEMA_ANTES, [(inserir, ("SERVIDOR1", 1, None)), (inserir, ("DIRETOR2", 2, "SP")),

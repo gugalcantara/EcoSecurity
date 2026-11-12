@@ -34,7 +34,7 @@ def _animacao_da_vista(vista) -> QVariantAnimation:
     anim.setStartValue(0.0)
     anim.setEndValue(1.0)
     anim.setEasingCurve(QEasingCurve.Type.InOutCubic)
-    # passo e fim do enquadramento ATUAL; trocados a cada chamada, sem reconectar sinais
+    # passo e fim do enquadramento atual; trocados a cada chamada, sem reconectar sinais
     vista._enquadramento_atual = (None, None)
     anim.valueChanged.connect(lambda t: vista._enquadramento_atual[0] and vista._enquadramento_atual[0](t))
     anim.finished.connect(lambda: vista._enquadramento_atual[1] and vista._enquadramento_atual[1]())

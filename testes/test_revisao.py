@@ -23,14 +23,14 @@ def test_preparar_banco_recusa_nome_de_banco_inseguro(nome):
 
 @pytest.mark.parametrize("lado", [16, 48, 256])
 def test_logo_sai_em_todos_os_tamanhos_com_as_cores_escolhidas(qt, lado):
-    """Cadeado com argola menta, corpo branco e símbolo de radiação escuro (escolha do grupo, 08/10/2026)."""
+    """Cadeado com argola menta, corpo branco e símbolo de radiação escuro (identidade visual do sistema)."""
     from PySide6.QtGui import QColor
     from ecosec.interface.logo import ARGOLA, CORPO, SIMBOLO, imagem_logo
     imagem = imagem_logo(lado)
     corpo = [imagem.pixelColor(x, y) for x in range(int(lado * 0.27), int(lado * 0.73))
              for y in range(int(lado * 0.46), int(lado * 0.84))]
     assert any(c.name() == QColor(CORPO).name() for c in corpo)                 # corpo branco
-    assert any(c.lightness() < 90 for c in corpo)                                # símbolo escuro DENTRO do corpo
+    assert any(c.lightness() < 90 for c in corpo)                                # símbolo escuro dentro do corpo
     argola = [imagem.pixelColor(x, y) for x in range(lado) for y in range(int(lado * 0.12), int(lado * 0.44))]
     menta = QColor(ARGOLA)
     assert any(abs(c.green() - menta.green()) < 60 and c.green() > c.red() + 40 for c in argola)   # argola visível

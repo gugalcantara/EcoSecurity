@@ -23,7 +23,7 @@ from functools import lru_cache
 
 from ecosec.acervo import custos as _custos
 from ecosec.acervo.sinteticos import AREA, CLASSE_I, RADIOATIVO
-from ecosec.dominio.acervo import GRUPOS_MOTIVO, Pendencia, grupo_do_motivo
+from ecosec.dominio.acervo import Pendencia, grupo_do_motivo
 
 CHAVE_CLASSE = {RADIOATIVO: "rejeito_radioativo", CLASSE_I: "classe_i", AREA: "area_contaminada"}
 
@@ -130,7 +130,7 @@ def responsabilidade(p: Pendencia) -> str:
 
 
 def acao_recomendada(p: Pendencia, hoje: date, r: ParametrosRegras) -> str:
-    """A ação que o caso exige AGORA: a regra de escalonamento, em ordem de gravidade."""
+    """A ação que o caso exige agora: a regra de escalonamento, em ordem de gravidade."""
     faixa, grupo, vencida = categoria(p, hoje), grupo_do_motivo(p.motivo), p.vencida(hoje)
     if grupo == "Carga em local desconhecido":
         return "AUTUAR E RASTREAR A CARGA"
@@ -183,5 +183,3 @@ def priorizar(pendencias, hoje: date, r: ParametrosRegras, orcamento: float | No
                        sum(e for _, _, e in candidatas), len(candidatas), orcamento)
 
 
-def grupos_por_responsabilidade() -> dict[str, tuple[str, ...]]:
-    return {RESPONSABILIDADE_GRUPO[g]: codigos for g, codigos in GRUPOS_MOTIVO.items()}

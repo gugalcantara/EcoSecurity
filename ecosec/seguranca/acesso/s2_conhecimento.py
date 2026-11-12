@@ -83,7 +83,7 @@ def gerar_hash(senha: str, custo: int) -> str:
 
 @lru_cache(maxsize=4)
 def _hash_de_referencia(custo: int) -> bytes:
-    """Hash de uma senha que ninguém conhece, com o MESMO custo dos reais."""
+    """Hash de uma senha que ninguém conhece, com o mesmo custo dos reais."""
     return bcrypt.hashpw(b"ecosec-hash-de-referencia-para-tempo-constante", bcrypt.gensalt(rounds=custo))
 
 

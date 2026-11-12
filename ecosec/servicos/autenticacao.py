@@ -1,39 +1,16 @@
-"""Autenticação: conduz uma tentativa, etapa por etapa, até a decisão.
+"""Autenticação: conduz uma tentativa etapa por etapa (credenciais, rosto e, no nível 3, os gestos) até a
+decisão da política de acesso.
 
-    N1:  ROSTO (1:N) ──────────────────────────────────────────▶ decisão
-    N2:  CREDENCIAIS ─▶ ROSTO (1:1) ───────────────────────────▶ decisão
-    N3:  CREDENCIAIS ─▶ ROSTO (1:1) ─▶ DESAFIO ─▶ [2ª pessoa: o mesmo] ─▶ decisão
+O login de entrada usa matrícula, senha e rosto 1:1 e gera uma identidade comprovada, válida durante a
+sessão. Abrir os níveis 1 e 2 só reavalia essas evidências; abrir o nível 3 começa uma nova sessão no rosto,
+com o limiar mais rígido e a vivacidade, e o painel do administrador também começa no rosto. Essas sessões
+têm contenção própria (matrícula e nível), para que falhar o gesto do nível 3 não bloqueie o login.
 
-Login de entrada e STEP-UP. Antes de qualquer tela, a pessoa faz o login de
-entrada com os fatores do N2 (ver politica.py). O que ele prova vira uma
-IdentidadeComprovada, válida enquanto a sessão da aplicação durar:
-- abrir o N1 ou o N2: `abrir_nivel` reavalia as evidências do login com a
-  mesma `decidir()` daquele nível. Nenhum fator novo é pedido, porque o login
-  já provou matrícula, senha e rosto 1:1; a política é quem confirma;
-- abrir o N3: uma sessão que começa no rosto (matrícula e senha vêm do login)
-  e pede o que o login não provou: rosto de novo, vivacidade e segunda pessoa;
-- painel do administrador: o mesmo começo no rosto, para conferir na hora que
-  quem está diante da tela é o administrador logado.
-A contenção de um step-up usa uma chave própria (MATRÍCULA#N3, MATRÍCULA#ADM):
-falhar o gesto do N3 três vezes tranca o N3, não o login nem o N1/N2. Sem
-isso, um detector de gesto mal calibrado trancava a pessoa fora do sistema
-inteiro por causa de um único nível.
-
-Quem decide é a política (função pura). Este serviço só COLETA evidências e,
-a cada etapa, pergunta à política "até aqui, tudo certo?" (primeira_falha). A
-decisão final é sempre `decidir()` sobre todas as evidências.
-
-Recebe ResultadoQuadro (da visão), nunca a câmera: por isso é testável com
-quadros fabricados.
-
-Decisões de segurança deste serviço:
-- Matrícula bloqueada nem confere a senha: senão o bloqueio viraria oráculo.
-- Durante o desafio o ROSTO continua sendo conferido. Sem isso, mostra-se a
-  foto da vítima para a S4 e faz-se o gesto com o próprio rosto.
-- Desistir na etapa do rosto conta como falha para a S1. Sem isso, quem tem a
-  senha roubada testaria rostos e cancelaria antes do prazo, para sempre.
-- Métodos protegidos por Lock: o vídeo chama `processar` numa thread e a tela
-  chama `informar_credenciais` em outra.
+O serviço só coleta as evidências e pergunta à política, a cada etapa, se até ali está tudo certo; a decisão
+final é sempre da política. Ele recebe os quadros já processados pela visão, e não a câmera, por isso pode ser
+testado com quadros fabricados. A matrícula bloqueada nem confere a senha, o rosto continua sendo conferido
+durante os gestos, desistir na etapa do rosto conta como falha, e os métodos são protegidos por trava, porque
+o vídeo e a tela chamam o serviço de threads diferentes.
 """
 import dataclasses
 import functools
@@ -314,8 +291,7 @@ class SessaoAutenticacao:
             self._etapa = Etapa.CREDENCIAIS
             texto = ("Segunda pessoa de nível 3: informe a sua matrícula e senha."
                      if self._pessoa == 2 else
-                     "Informe a sua matrícula e senha. Ao continuar, o sistema confere primeiro se a matrícula "
-                     "pode tentar entrar e depois a senha.")
+                     "Informe a sua matrícula e senha.")
             # a S1 é a primeira camada avaliada: a tela a destaca desde o início
             self._atualizar(texto, C.S7_CUSTODIA if self._pessoa == 2 else C.S1_CONTENCAO)
         else:
@@ -323,7 +299,7 @@ class SessaoAutenticacao:
 
     def _herdar_credenciais(self):
         """Step-up: matrícula e senha já foram provadas no login de entrada.
-        A contenção e o cadastro são relidos AGORA (pode ter mudado desde o login)."""
+        A contenção e o cadastro são relidos agora (pode ter mudado desde o login)."""
         idt, ev = self.identidade, self._ev
         self._matriculas[-1] = idt.matricula
         sufixo = {Finalidade.ADMIN: "ADM", Finalidade.OPERACAO: "OPR"}.get(self.finalidade, f"N{self.nivel.value}")
@@ -508,8 +484,8 @@ class SessaoAutenticacao:
     #     (uma troca de rosto fica muito além; um quadro borrado isolado, não);
     #  2. se o rosto some da imagem durante a PISCADA, ela recomeça: trocar a
     #     foto da vítima pelo próprio rosto faz a face sumir por um instante.
-    #     No MOVER, sumir é normal (o detector frontal perde o rosto virado, medido
-    #     em 02/11/2026: 20% a 45% dos quadros); o quadro só não conta. A troca de
+    #     No MOVER, sumir é normal (o detector frontal perde o rosto virado em parte
+    #     dos quadros); o quadro só não conta. A troca de
     #     rosto continua barrada pelas regras 1 e 3;
     #  3. depois de cada gesto, a identidade precisa ser CONFERIDA de novo em N
     #     quadros seguidos. Contar conferências durante o gesto não basta: dois
@@ -726,7 +702,7 @@ class SessaoAutenticacao:
 
     @property
     def credenciais_sem_rosto(self) -> Usuario | None:
-        """Login de ENTRADA negado DEPOIS de a matrícula e a senha passarem (S1 e S2), no rosto ou na
+        """Login de ENTRADA negado depois de a matrícula e a senha passarem (S1 e S2), no rosto ou na
         câmera (S3/S4; a falha da câmera cancela a tentativa no rosto). É o único caso em que o login
         pode oferecer o acesso de emergência: quem chegou aqui sabe a senha e foi barrado pela câmera."""
         if self.finalidade is not Finalidade.ENTRADA or self._decisao is None or self._decisao.concedido:

@@ -9,7 +9,7 @@ Duas regras, conforme o campo:
     sentido ao texto: ". , ; : - / ( ) # %". "Lei 6.938/81, art. 14, §1º" ->
     "LEI 6.938/81, ART. 14, PARAGRAFO 1".
 
-Ficam FORA (o valor exato é o dado): hashes, senhas bcrypt, chaves e e-mails.
+Ficam fora (o valor exato é o dado): hashes, senhas bcrypt, chaves e e-mails.
 E não se reescreve o que já é prova: a trilha encadeada e o nome no
 consentimento entram em hashes; registros antigos ficam como foram gravados.
 """

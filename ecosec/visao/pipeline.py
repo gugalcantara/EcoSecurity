@@ -1,6 +1,6 @@
 """O pipeline: as fases 1 a 3 e o portão de qualidade, quadro a quadro.
 
-    quadro BGR ─▶ cinza ─▶ segmentação (Haar/KCF) ─▶ recorte ─▶ qualidade ─▶ normalização
+    quadro BGR -> cinza -> segmentação (Haar/KCF) -> recorte -> qualidade -> normalização
                                                                     │
                                                          reprovado: face_normalizada = None
 

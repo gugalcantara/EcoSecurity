@@ -192,7 +192,7 @@ class ServicoRelatoriosSistema:
                   else "Nenhuma revisão registrada ainda.")
         return Tabela("S-10", RELATORIOS["S-10"], "Conferência periódica de quem tem acesso: cada administrador "
                       "(quem designou e quem aprovou), se o celular está cadastrado, há quanto tempo cada pessoa não "
-                      "entra e qual versão do termo ela aceitou. Conferido pelo grupo, registre a revisão (pede "
+                      "entra e qual versão do termo ela aceitou. Depois de conferir, registre a revisão (pede "
                       f"outro administrador). {ultima}",
                       ("Matrícula", "Nome", "Perfil", "Situação", "Administrador", "Celular", "Último login",
                        "Termo aceito"), tuple(linhas))

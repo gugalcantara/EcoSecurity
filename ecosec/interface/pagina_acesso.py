@@ -20,7 +20,7 @@ from datetime import datetime
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QSizePolicy,
+from PySide6.QtWidgets import (QGridLayout, QHBoxLayout, QSizePolicy,
                                QStackedWidget, QVBoxLayout, QWidget)
 
 from ecosec.dominio.niveis import Nivel
@@ -36,11 +36,11 @@ ALTURA_BOTAO = 40
 
 
 def ao_abrir(app, nivel: Nivel) -> str:
-    """O que é pedido para abrir o nível DEPOIS do login (step-up)."""
+    """O que é pedido para abrir o nível depois do login (step-up)."""
     if nivel is not Nivel.N3:
-        return "Abre direto: o login já comprovou matrícula, senha e rosto."
-    extra = " e uma segunda pessoa de nível 3" if app.autenticacao.p.acesso.exigir_segunda_pessoa else ""
-    return f"Pede de novo o rosto e um gesto na câmera (prova de que é uma pessoa viva){extra}."
+        return "Acesso liberado pelo login."
+    extra = " e de uma segunda pessoa autorizada" if app.autenticacao.p.acesso.exigir_segunda_pessoa else ""
+    return f"Requer nova verificação facial{extra}."
 
 
 def _rotulo_secao(texto: str) -> CaptionLabel:
@@ -147,41 +147,6 @@ class PaginaInicio(QWidget):
         v.addLayout(topo)
         v.addSpacing(12)
 
-        # ---- como funciona, em três passos
-        guia = SimpleCardWidget()
-        hg = QHBoxLayout(guia)
-        hg.setContentsMargins(20, 16, 20, 16)
-        hg.setSpacing(20)
-        self.passos = []
-        for numero, titulo, texto in (
-                ("1", "Login feito", "Você provou quem é: matrícula, senha e rosto. A sessão vale até você "
-                                     "sair ou ficar sem usar o sistema."),
-                ("2", "Abra o seu acesso", "Pelo cartão abaixo ou pelo menu ao lado. Cada abertura fica na "
-                                           "trilha de auditoria."),
-                ("3", "Consulte e feche", "Os relatórios chegam já tratados para o seu perfil. Ao terminar, "
-                                          "feche ou encerre a sessão.")):
-            passo = QHBoxLayout()
-            passo.setSpacing(12)
-            circulo = QLabel("✓" if numero == "1" else numero)
-            circulo.setFixedSize(30, 30)
-            circulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            fundo = VERDE if numero == "1" else COR_DESTAQUE
-            circulo.setStyleSheet(f"QLabel {{ background:{fundo}; color:white; border-radius:15px; "
-                                  f"font-family:'Segoe UI'; font-size:14px; font-weight:700; }}")
-            passo.addWidget(circulo, 0, Qt.AlignmentFlag.AlignTop)
-            coluna = QVBoxLayout()
-            coluna.setSpacing(2)
-            coluna.addWidget(StrongBodyLabel(titulo))
-            explicacao = CaptionLabel(texto)
-            explicacao.setWordWrap(True)
-            explicacao.setStyleSheet(f"color:{cor_texto_secundario()};")
-            coluna.addWidget(explicacao)
-            coluna.addStretch(1)
-            passo.addLayout(coluna, 1)
-            hg.addLayout(passo, 1)
-        v.addWidget(guia)
-        v.addSpacing(16)
-
         # ---- o acesso da pessoa (só o da própria camada)
         self.grade = QGridLayout()
         self.grade.setHorizontalSpacing(16)
@@ -199,10 +164,7 @@ class PaginaInicio(QWidget):
         textos_admin = QVBoxLayout()
         textos_admin.setSpacing(2)
         textos_admin.addWidget(StrongBodyLabel("Administração"))
-        texto_admin = CaptionLabel("Cadastrar pessoas e atribuir o perfil de cada uma, gerir consentimentos e "
-                                   "administradores, verificar a trilha e identificar rostos. Nenhum dado do acervo "
-                                   "aparece aqui. Ao abrir, o rosto é conferido de novo e o código do celular é "
-                                   "pedido.")
+        texto_admin = CaptionLabel("Cadastros, perfis, consentimentos, administradores e trilha de auditoria.")
         texto_admin.setWordWrap(True)
         texto_admin.setStyleSheet(f"color:{cor_texto_secundario()};")
         textos_admin.addWidget(texto_admin)
@@ -329,7 +291,8 @@ class PaginaNivel(QWidget):
         self.aviso_titulo.setText(f"Nível {self.nivel.value}: acesso negado")
         self.aviso_titulo.setStyleSheet(f"color:{VERMELHO};")
         self.aviso_texto.setText(decisao.mensagem)
-        self.aviso_detalhe.setText(camadas_avaliadas(decisao.vereditos))
+        self.aviso_detalhe.setText(camadas_avaliadas(decisao.vereditos) if self.autenticacao.modo_demonstracao
+                                   else "")
         self.pilha.setCurrentIndex(0)
 
     def _step_up_concedido(self, sessao_autenticacao):

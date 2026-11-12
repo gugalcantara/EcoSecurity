@@ -1,4 +1,4 @@
-"""Calibra a prova de vivacidade (S6) com a SUA câmera e a SUA luz.
+"""Calibra a prova de vivacidade (S6) com a sua câmera e a sua luz.
 
     .venv\\Scripts\\python.exe -m ferramentas.calibrar_vivacidade
 
@@ -401,7 +401,7 @@ class JanelaCalibracao(QMainWindow):
         resultado["detector_regiao"] = dict(self.piscadas_regiao)
         texto = relatorio(resultado)
         self.saida.setPlainText(texto)
-        self.instrucao.setText("Pronto. Copie o resultado abaixo e envie ao grupo.")
+        self.instrucao.setText("Pronto. O resultado está abaixo e foi gravado em resultados/calibracao_vivacidade.json.")
         pasta = self.cfg.caminho("resultados")
         pasta.mkdir(parents=True, exist_ok=True)
         resultado["momento"] = datetime.now().isoformat(timespec="seconds")

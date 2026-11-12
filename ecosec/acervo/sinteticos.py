@@ -6,8 +6,8 @@ e o documento pode citar números estáveis.
 A forma segue os cadastros oficiais:
   - tipologia das atividades e contaminantes: Relação de Áreas Contaminadas da
     CETESB (SP) e BDNAC/IBAMA; passivos minerários: FEAM/IDE-Sisema (MG);
-  - geografia REAL, lida de dados/geografia.json (ferramentas.baixar_geografia):
-    a coordenada é sorteada DENTRO do polígono do município (malha do IBGE), a
+  - geografia real, lida de dados/geografia.json (ferramentas.baixar_geografia):
+    a coordenada é sorteada dentro do polígono do município (malha do IBGE), a
     pelo menos ~200 m da divisa; o bairro e o prefixo do CEP são da própria
     cidade (ViaCEP). O logradouro é genérico, para não apontar um endereço real.
     A cidade sai pelo porte e pelo perfil econômico dela (CIDADES), com um
@@ -43,7 +43,6 @@ from ecosec.dominio.acervo import (AtividadeGeradora, Custodia, EventoRegulatori
 SEMENTE = 2026
 QUANTIDADE = 2400                    # padrão de [geracao] quantidade (ecosec.toml)
 DATA_BASE = date(2026, 10, 1)        # referência para os prazos (alguns vencem, outros não)
-PRIMEIRA_IDENTIFICACAO = date(2006, 1, 1)     # início da série (antes: só estoque herdado)
 MARGEM_DIVISA = 0.002                # graus (~200 m): o ponto não encosta na divisa do município
 DISTANCIA_CONTINENTE = 0.5           # graus: anel municipal mais longe que isso do continente (ilha oceânica) não conta
 TOLERANCIA_CONTORNO = 0.03           # graus (~3 km): o contorno do país é simplificado; a costa real vai além dele
@@ -69,7 +68,7 @@ AFINIDADE = {
 AFINIDADE_EXCLUSIVA = {"AG-13"}
 
 # Cidades de cada UF: (nome, porte, perfis), a capital primeiro; os nomes são os de
-# dados/geografia.json. A cidade é sorteada DEPOIS da atividade, com peso porte × AFINIDADE_PERFIL quando a atividade
+# dados/geografia.json. A cidade é sorteada depois da atividade, com peso porte × AFINIDADE_PERFIL quando a atividade
 # é do perfil da cidade (porte × 1 nas demais): 295 cidades, proporcionais aos casos da UF (casos / 8, de 6
 # a 30; saíram as que o sorteio deixava sem caso), as novas com porte 1, em ordem de prioridade depois das 90
 # Campina Grande e Imperatriz, polos regionais, passaram a porte 2 (com 1 ficavam sem caso).
@@ -233,7 +232,7 @@ RODOVIAS = {
 AREA, CLASSE_I, RADIOATIVO = "AREA CONTAMINADA", "CLASSE I NBR 10004", "REJEITO RADIOATIVO CNEN"
 
 # Catálogo da camada causal. Subclasses CNAE pela CONCLA/IBGE: só a de
-# AG-08 (8640-2/11) foi conferida; as demais seguem a conferir (integrante 3).
+# AG-08 (8640-2/11) foi conferida; nas demais, a subclasse é indicativa e não foi conferida na fonte.
 ATIVIDADES = (
     AtividadeGeradora(
         "AG-01", "POSTOS DE COMBUSTIVEIS",
@@ -296,8 +295,8 @@ ATIVIDADES = (
         "0724-3/01", "MERCURIO EM SEDIMENTO DE GARIMPO; REJEITO DE AMALGAMACAO; BALSA DE GARIMPO ABANDONADA",
         "AMAZONIA LEGAL"),
 )
-# Bases legais revisadas: MP-01, MP-06, MP-07 e MP-08. Revisar com quem responde pelo
-# conteúdo jurídico do grupo antes de publicar.
+# Bases legais conferidas: MP-01, MP-06, MP-07 e MP-08; as dos demais motivos não foram
+# conferidas na fonte.
 MOTIVOS = (
     MotivoPermanencia(
         "MP-01", "GERADOR ENCERRADO OU FALIDO",
@@ -483,7 +482,6 @@ CUSTODIAS = (
     Custodia("ARMAZEM DE NORM DO QUADRILATERO", "NORM", -44.20, -19.40, 0.76, "MG"),
     Custodia("ARMAZENAMENTO INICIAL LITORAL SUDESTE", "INICIAL", -43.40, -22.80, 0.63, "RJ"),
 )
-TIPOS_CUSTODIA = ("DEFINITIVO", "INTERMEDIARIO", "NORM", "INICIAL")
 SIMBOLO_CUSTODIA = {"DEFINITIVO": "◇", "INTERMEDIARIO": "□", "NORM": "△", "INICIAL": "○"}
 
 # Catálogo de eventos: anotações dos gráficos e efeitos do gerador.

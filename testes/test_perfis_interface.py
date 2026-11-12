@@ -12,8 +12,7 @@ import pytest
 from PySide6.QtWidgets import QAbstractButton, QComboBox, QLabel, QWidget
 
 from ecosec.dominio.niveis import Nivel
-from test_interface import (SENHA_ADMIN, cadastrar_celular_pela_tela, destravar_admin, fazer_login,  # noqa: F401
-                            janela, no_menu)
+from test_interface import cadastrar_celular_pela_tela, destravar_admin, fazer_login, janela, no_menu
 from test_perfis_servicos import SENHA_FORTE, acervo, cadastrar_perfil, usuario  # noqa: F401
 
 SEMENTE = {"ADMINISTRADOR": 700, "SERVIDOR": 300, "DIRETOR": 100, "MINISTRO": 900}

@@ -7,7 +7,7 @@ panorama do N1: a célula (UF, classe) escondida na visão "todas as classes" n�
 /  o k só vale no N1: o panorama do N3 sai inteiro.
 """
 from dataclasses import replace
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 
 import pytest
 
