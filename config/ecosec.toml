@@ -572,7 +572,7 @@ latencia = 0.05
 
 [geracao.saidas.fontes_seladas]
 risco_base = 0.08
-metas = [[2023, 2022, 3.52], [2024, 2023, 0.54]]   # 377/107; 202/377 (ver plano 1.2)
+metas = [[2023, 2022, 3.52], [2024, 2023, 0.54]]   # 377/107; 202/377 (2024 anualizado)
 anualizar_parcial = false             # true: 2024 = (202 x 12/5) / 377 = 1,29
 verificacao = "PARAMETRO"
 latencia = 0.25

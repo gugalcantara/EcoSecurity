@@ -100,16 +100,16 @@ class ParametrosGestos:
     def de_configuracao(cls, cfg) -> "ParametrosGestos":
         from ecosec.configuracao import RAIZ_PROJETO
         v = cfg.secao("s6_vivacidade")
-        sinal = str(v.get("sinal_piscada", "regiao"))
+        sinal = str(v["sinal_piscada"])
         if sinal not in ("regiao", "ear"):
             raise ValueError(f"[s6_vivacidade] sinal_piscada = {sinal!r}: use \"regiao\" ou \"ear\".")
         return cls(v["haar_olhos"], int(v["vizinhos_olhos"]), int(v["frames_olho_aberto"]),
                    int(v["frames_olho_fechado"]), float(v["queda_ear_minima"]), float(v["recuperacao_ear"]),
                    float(v["movimento_maximo_piscada"]), float(v["deslocamento_minimo"]),
                    str(RAIZ_PROJETO / v["modelo_landmarks"]), str(v["modelo_landmarks_sha256"]).lower(),
-                   sinal, float(v.get("limiar_regiao", 0.85)), float(v.get("escala_mudanca", 0.40)),
-                   float(v.get("escala_escuro", 0.30)), float(v.get("giro_minimo", 0.15)),
-                   bool(v.get("direcao_livre", True)))
+                   sinal, float(v["limiar_regiao"]), float(v["escala_mudanca"]),
+                   float(v["escala_escuro"]), float(v["giro_minimo"]),
+                   bool(v["direcao_livre"]))
 
 
 class ErroModeloLandmarks(RuntimeError):

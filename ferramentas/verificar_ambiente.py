@@ -107,7 +107,7 @@ def verificar_webcam(cv2, haar):
 
     secao(f"4. Webcam (índice {indice}, meta: {larg}x{alt} a 15 FPS ou mais)")
     from ecosec.visao.aquisicao import BACKENDS
-    backend = cfg.secao("captura").get("backend", "auto")
+    backend = cfg.secao("captura")["backend"]
     abertura = time.perf_counter()
     camera = cv2.VideoCapture(indice, BACKENDS[backend])
     if not camera.isOpened() and backend != "auto":

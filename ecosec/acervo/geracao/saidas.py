@@ -101,7 +101,7 @@ CHAVES = {"POSTOS": "postos", "AREA": "area", "CLASSE I": "classe_i", "ATERROS":
 
 def _de_secao(s: dict) -> Saida:
     metas = tuple((int(a), int(r), float(x)) for a, r, x in s.get("metas", ()))
-    if s.get("anualizar_parcial"):                       # 2024 = 202 em 5 meses, anualizado (ver plano 1.2)
+    if s.get("anualizar_parcial"):                       # 2024 = 202 em 5 meses, anualizado
         metas = tuple((a, r, 202 * 12 / 5 / 377 if a == 2024 else x) for a, r, x in metas)
     ancora = tuple(s.get("ancora", ()))
     return Saida(float(s.get("risco_base", 0.0)), metas, int(s.get("inicio", 2006)), ancora,
