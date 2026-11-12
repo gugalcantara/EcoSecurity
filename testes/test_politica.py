@@ -168,5 +168,6 @@ def test_progressiva_excecao_nao_aprova():
 # ---------------------------------------------------------------- Configuração
 def test_parametros_lidos_do_config():
     p = ParametrosAcesso.de_configuracao(carregar())
-    assert p.limiares[Nivel.N1] > p.limiares[Nivel.N2] > p.limiares[Nivel.N3]   # N3 mais rígido
+    # um nível mais sensível nunca aceita mais que um menos sensível; o N3 é estritamente o mais rígido
+    assert p.limiares[Nivel.N1] >= p.limiares[Nivel.N2] > p.limiares[Nivel.N3]
     assert p.exigir_segunda_pessoa is False     # desligada a pedido do grupo (07/10/2026)

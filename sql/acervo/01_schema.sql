@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS motivo_permanencia (
 );
 
 -- Eventos regulatórios: anotações dos gráficos e efeitos do gerador.
--- "A CONFIRMAR" = número do pedido não conferido na fonte primária (parâmetro de simulação).
+-- Só CONFIRMADO (conferido na fonte citada) vira anotação: o serviço do acervo descarta os demais.
 CREATE TABLE IF NOT EXISTS evento_regulatorio (
     id          INT           PRIMARY KEY AUTO_INCREMENT,
     data_evento DATE          NOT NULL,

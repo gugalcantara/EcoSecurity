@@ -38,7 +38,7 @@ LINHAS = {
     "AREA": Linha(base=30, herdado=0.35),                                          # demais áreas contaminadas
     "CLASSE I": Linha(base=20, tendencia=0.01, degraus=((2011, 1.15),),            # PNRS (Lei 12.305/2010)
                       pulsos=((2020, 2020, 0.85),), herdado=0.25),                 # pandemia (parâmetro)
-    "ATERROS": Linha(base=5, degraus=((2022, 1.04 * 0.9952),),                     # proxy ABRELPE (A CONFIRMAR)
+    "ATERROS": Linha(base=5, degraus=((2022, 1.04 * 0.9952),),                     # parâmetro de simulação
                      pulsos=((2020, 2021, 1.04),), herdado=0.10),
     "MTR SEM BAIXA": Linha(base=10, tendencia=-0.25, pulsos=((2021, 2022, 2.0),), inicio=2021),
     "FONTES SELADAS": Linha(base=4, tendencia=0.06, degraus=((2022, 1.3),), herdado=0.05),  # Res. CNEN 293/2022

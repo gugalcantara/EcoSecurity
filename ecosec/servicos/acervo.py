@@ -580,7 +580,8 @@ class ServicoAcervo:
 
     # ------------------------------------------------------------ panorama agregado (N1 e N3)
     def eventos(self) -> list:
-        return list(self.repo.eventos())
+        """Os eventos que anotam os gráficos: só os conferidos na fonte (verificacao = CONFIRMADO)."""
+        return [e for e in self.repo.eventos() if e.verificacao == "CONFIRMADO"]
 
     def panorama(self, usuario: Usuario, nivel: int, ano: int | None = None, classe: str | None = None) -> Panorama:
         """Coroplético do N1: Índice de Pressão e totais por UF no fim de `ano`, série de estoque por classe e
@@ -648,7 +649,7 @@ class ServicoAcervo:
                               usuario_id=usuario.id, detalhe=(f"ano {ano}; classe {classe or 'TODAS'}; escopo "
                                                               f"{('UF ' + uf) if uf else 'NACIONAL'}")[:DETALHE_MAX])
         return Panorama(nivel, f"UF {uf}" if uf else "NACIONAL", ano, classe, pressao, por_classe, totais, serie,
-                        tuple(self.repo.eventos()), k, hoje, tuple(pesos.items()))
+                        tuple(self.eventos()), k, hoje, tuple(pesos.items()))
 
     def pesos_da_pressao(self, nivel) -> dict:
         """Pesos do Índice de pressão no nível: o N1 não usa o custo (volume, severidade e

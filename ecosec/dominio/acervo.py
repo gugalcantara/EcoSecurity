@@ -150,7 +150,8 @@ class Pendencia:
 
 @dataclass(frozen=True)
 class EventoRegulatorio:
-    """Anotação dos gráficos e efeito do gerador. `verificacao` = CONFIRMADO ou A CONFIRMAR."""
+    """Anotação dos gráficos. `verificacao` = CONFIRMADO: só fato conferido na fonte vira anotação (o serviço do
+    acervo descarta qualquer outro valor que tenha ficado gravado no banco)."""
     data_evento: date
     rotulo: str
     descricao: str

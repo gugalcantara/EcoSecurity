@@ -10,7 +10,7 @@ Três modos, cada grandeza no seu eixo (nenhum gráfico tem dois eixos verticais
   - Por classe (SMALL MULTIPLES): um gráfico pequeno por classe, cada um com o seu eixo Y: a classe
     pequena (rejeito) deixa de ser uma faixa ilegível no topo da pilha.
 Eventos: linha vertical pontilhada e um número no topo, dentro da área do gráfico e sem colisão; o
-texto vai para a dica e para a legenda de eventos abaixo. Evento "A CONFIRMAR" em itálico. Eixos de valor com passo redondo, 1, 2 ou 5 vezes 10^k.
+texto vai para a dica e para a legenda de eventos abaixo. Eixos de valor com passo redondo, 1, 2 ou 5 vezes 10^k.
 """
 import math
 
@@ -167,7 +167,6 @@ class VistaEstoque(QChartView):
                 continue
             r = QGraphicsSimpleTextItem(str(numero))
             fonte = QFont("Segoe UI", 7, QFont.Weight.DemiBold)
-            fonte.setItalic(e.verificacao != "CONFIRMADO")
             r.setFont(fonte)
             r.setBrush(cor)
             caixa = r.boundingRect()
@@ -568,7 +567,7 @@ class GraficoEstoque(QWidget):
         partes = []
         for _, n, e in self._eventos:
             texto = f"<b>{n}</b> {escape(e.rotulo)} ({_data(e.data_evento)})"
-            partes.append(texto if e.verificacao == "CONFIRMADO" else f"<i>{texto}, a confirmar</i>")
+            partes.append(texto)
         linhas = (["Eventos: " + " · ".join(partes)] if partes else []) + ([escape(suprimidas)] if suprimidas else [])
         self.legenda_eventos.setText("<br>".join(linhas))
         self.legenda_eventos.show()

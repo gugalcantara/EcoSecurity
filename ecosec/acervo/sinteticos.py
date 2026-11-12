@@ -500,18 +500,9 @@ EVENTOS = (
                       "CONFIRMADO"),
     EventoRegulatorio(date(2021, 1, 1), "MTR NACIONAL", "MANIFESTO DE TRANSPORTE DE RESIDUOS OBRIGATORIO EM TODO O "
                       "PAIS", (CLASSE_I,), "AMBOS", "PORTARIA MMA 280/2020", "CONFIRMADO"),
-    EventoRegulatorio(date(2021, 12, 31), "REMEDIACOES 2021 MENOS 10", "AREAS REMEDIADAS EM 2021: MENOS 10 POR "
-                      "CENTO FRENTE A 2019", (AREA,), "SAIDAS",
-                      None, "A CONFIRMAR"),
     EventoRegulatorio(date(2022, 4, 1), "RESOLUCAO CNEN 293", "VEDACAO DO ARMAZENAMENTO POR TEMPO INDETERMINADO DE "
                       "FONTE FORA DE USO NA INSTALACAO", (RADIOATIVO,), "AMBOS", "RESOLUCAO CNEN 293/2022",
                       "CONFIRMADO"),
-    EventoRegulatorio(date(2022, 12, 31), "REMEDIACOES 2022 MAIS 19", "AREAS REMEDIADAS EM 2022: MAIS 19 POR CENTO "
-                      "SOBRE 2021", (AREA,), "SAIDAS", None,
-                      "A CONFIRMAR"),
-    EventoRegulatorio(date(2023, 12, 31), "RECOLHIMENTO DE FONTES", "PICO DE RECOLHIMENTO DE FONTES SELADAS FORA DE "
-                      "USO", (RADIOATIVO,), "SAIDAS", None,
-                      "A CONFIRMAR"),
 )
 
 

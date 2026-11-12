@@ -22,7 +22,11 @@ def test_env_antigo_em_texto_puro_continua_lido_e_e_convertido(tmp_path):
     assert segredos.ler("A", env) == "um"
     assert segredos.proteger_existentes(env) == 2
     assert segredos.proteger_existentes(env) == 0                         # idempotente
-    assert "um" not in env.read_text(encoding="utf-8") and segredos.ler("B", env) == "dois"
+    # cada valor virou "dpapi:..." (procurar "um" no arquivo inteiro falharia por acaso: o texto cifrado é
+    # aleatório e às vezes contém essas duas letras)
+    linhas = dict(l.split("=", 1) for l in env.read_text(encoding="utf-8").splitlines() if "=" in l)
+    assert all(v.strip("'\"").startswith("dpapi:") for v in linhas.values()) and set(linhas) == {"A", "B"}
+    assert segredos.ler("A", env) == "um" and segredos.ler("B", env) == "dois"
 
 
 @DPAPI

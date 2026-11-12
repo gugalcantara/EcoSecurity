@@ -263,7 +263,7 @@ Todos os parâmetros ficam em [`config/ecosec.toml`](config/ecosec.toml), coment
 | `[contexto] verificacao_minutos` | `5` | Validade da última conferência do rosto para exportar dados nominais |
 | `[regras_negocio]` | ver arquivo | Prazo-limite por classe, escalonamento ao MP e orçamento da fila |
 | `[custos]` | rotas `PARAMETRO` | Custo de remediação por componente (fixos, por unidade, monitoramento) e rota de tratamento por classe e substância; área por m³ de solo (`densidade_solo_t_por_m3` documenta a conversão da referência antiga). No N3, "Custo por responsável" mostra a memória de cálculo. Calculado na hora: não precisa recriar o acervo |
-| `[geracao]` | 2400, estratificado | Tamanho do acervo gerado e calibração das saídas por linha (metas, âncoras e `latencia`, o tempo mínimo antes de poder encerrar; "A CONFIRMAR" = parâmetro de simulação até 2026-11-01). Mudou? `preparar_banco --recriar-acervo` |
+| `[geracao]` | 2400, estratificado | Tamanho do acervo gerado e calibração das saídas por linha (metas, âncoras e `latencia`, o tempo mínimo antes de poder encerrar; `PARAMETRO` = parâmetro de simulação, `CONFIRMADO` = conferido na fonte). Mudou? `preparar_banco --recriar-acervo` |
 | `[indice_pressao]` | 0,3/0,3/0,2/0,2; 3 | Pesos do Índice de Pressão (somam 1) e o k da supressão de célula pequena, que vale em todo agregado do N1 (panorama, resumo, exportação; as visões SQL usam o mesmo 3) |
 | `[documentos] bloquear_captura` | `false` | `true`: a janela do documento sai preta em capturas de tela (desligado para apresentações) |
 | `[interface] animacoes` | `true` | `false` desliga zoom e painéis animados |

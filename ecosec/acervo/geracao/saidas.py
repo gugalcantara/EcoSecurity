@@ -20,7 +20,7 @@ class Saida:
     metas: tuple[tuple[int, int, float], ...] = ()       # (ano, relativo a, razão entre fluxos de saída)
     inicio: int = 2006                                   # antes disso ninguém sai
     ancora: tuple = ()                                   # ("FRACAO", de, ate, alvo) ou ("NIVEL", ano, saídas/entradas)
-    verificacao: str = "PARAMETRO"                       # CONFIRMADO, A CONFIRMAR, PARAMETRO
+    verificacao: str = "PARAMETRO"                       # CONFIRMADO (conferido na fonte) ou PARAMETRO
     latencia: float = 1 / 12                             # anos de casa antes de poder sair
 
 
@@ -93,7 +93,7 @@ def calibrar_risco_base(entradas, saida: Saida, estoque_inicial: float) -> Saida
 
 
 # ---------------------------------------------------------------- parâmetros ([geracao.saidas.*] no ecosec.toml)
-METAS_AREA = ((2020, 2019, 0.95), (2021, 2019, 0.90), (2022, 2021, 1.19))     # CETESB/PERH (A CONFIRMAR)
+METAS_AREA = ((2020, 2019, 0.95), (2021, 2019, 0.90), (2022, 2021, 1.19))     # parâmetro de simulação
 CHAVES = {"POSTOS": "postos", "AREA": "area", "CLASSE I": "classe_i", "ATERROS": "aterros",
           "MTR SEM BAIXA": "mtr_sem_baixa", "FONTES SELADAS": "fontes_seladas", "NORM": "norm",
           "GARIMPO": "garimpo"}

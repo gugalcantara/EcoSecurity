@@ -459,6 +459,9 @@ def test_entrada_servidor_entra_com_matricula_senha_e_rosto(ambiente):
 
 
 def test_entrada_usa_o_limiar_do_nivel_2(ambiente):
+    # limiares próprios, com folga entre o N1 e o N2 (no config os dois podem ser iguais)
+    ambiente.p.acesso = dataclasses.replace(ambiente.p.acesso,
+                                            limiares={Nivel.N1: 70.0, Nivel.N2: 60.0, Nivel.N3: 50.0})
     ana = ambiente.criar("ana", 1, "servidor2026")
     limiares = ambiente.p.acesso.limiares
     entre = (limiares[Nivel.N1] + limiares[Nivel.N2]) / 2     # passaria no N1, não no N2

@@ -1,7 +1,7 @@
 """Mapa esquemático do Brasil para os relatórios A1-05 e A3-03.
 
 Projeção equirretangular (lon/lat -> pixel por regra de três): suficiente para
-um mapa ilustrativo dos pontos do acervo. O contorno é a malha do IBGE em
+o mapa dos pontos do acervo simulado. O contorno é a malha do IBGE em
 qualidade mínima: fiel na forma, sem pretensão de precisão cartográfica.
 
 O mapa também desenha as divisas das UFs (malha do IBGE, a mesma do mapa interativo), preenchidas por
