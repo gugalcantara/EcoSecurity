@@ -171,6 +171,15 @@ def test_revogar_consentimento_com_admins_exige_o_segundo(g):
     assert g.consentimentos.vigente_de(comum.id) is None
 
 
+def test_revogar_consentimento_de_admin_respeita_o_minimo_de_administradores(g):
+    a, b, c = trio(g)
+    assert g.remover_administrador(a.id, c.id, codigo(g, b)) is None        # ficam 2 admins
+    g.relogio_mut.andar()
+    assert "menos de 2" in g.revogar_consentimento(b.id, a.id, codigo(g, b))
+    assert g.eh_administrador(b.id) and g.usuarios.por_id(b.id).ativo
+    assert g.consentimentos.vigente_de(b.id) is not None
+
+
 def test_quem_nao_e_admin_nao_faz_acao_critica(g):
     a, b, _ = trio(g)
     comum, d = pessoa(g, "Fabio Ramos"), pessoa(g, "Duda Melo", perfil=Perfil.EXTERNO)

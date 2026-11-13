@@ -766,13 +766,16 @@ class ServicoAdministracao:
         usuario = self.usuarios.por_id(usuario_id)
         if usuario is None:
             return "Usuário não encontrado."
+        adm = self._admin_ativo(usuario_id)
+        if adm is not None and not self._sobram_administradores(usuario_id):
+            return (f"Este cadastro é de um administrador, e o sistema não pode ficar com menos de "
+                    f"{self.governanca.minimo_administradores}. Designe outro antes.")
         aprovador, como = None, "CONFIGURACAO"
         if self.administrador_vinculado:
             aprovador, recusa, como = self._autorizar(AcaoCritica.REVOGAR_CONSENTIMENTO, solicitante_id, codigo,
                                                       usuario)
             if recusa:
                 return recusa
-        adm = self._admin_ativo(usuario_id)
         self.usuarios.atualizar(replace(usuario, ativo=False))             # 1º desativa
         if adm is not None:                                                # sem cadastro ativo, sem papel
             self.administradores.salvar(replace(adm, ativo=False, removido_em=self.relogio()))
