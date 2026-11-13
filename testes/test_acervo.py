@@ -1,4 +1,5 @@
 """Acervo: dados fictícios, relatórios por nível, tarja/marca/trilha e exportação."""
+import re
 from datetime import date, datetime
 
 import cv2
@@ -9,7 +10,8 @@ from ecosec.acervo import sinteticos
 from ecosec.configuracao import carregar
 from ecosec.dominio.entidades import Usuario
 from ecosec.repositorios.memoria import RepositorioAcervoMemoria, RepositorioTrilhaMemoria
-from ecosec.servicos.acervo import ErroAcervo, ServicoAcervo
+from ecosec.seguranca.autorizacao import Operacao
+from ecosec.servicos.acervo import MENSAGENS, ErroAcervo, ServicoAcervo
 from ecosec.servicos.trilha import ServicoTrilha
 
 CFG = carregar()
@@ -294,7 +296,8 @@ def test_nivel_2_exporta_com_marca_recuperavel_do_arquivo(acervo, tmp_path):
 
 
 def test_nivel_3_nao_exporta(acervo, tmp_path):
-    with pytest.raises(ErroAcervo, match="não é exportado"):
+    bloqueio = MENSAGENS[("EXPORTACAO_BLOQUEADA", Operacao.EXPORTAR_RELATORIO)]
+    with pytest.raises(ErroAcervo, match=re.escape(bloqueio)):
         acervo.exportar(acervo.abrir("A3-01", CAIO_N3, 3), CAIO_N3, tmp_path / "x.png")
     assert not (tmp_path / "x.png").exists()
     assert ("EXPORTACAO", "NEGADO", "EXPORTACAO_BLOQUEADA") in eventos(acervo)

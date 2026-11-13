@@ -18,6 +18,13 @@ def qt():
     return QApplication.instance() or QApplication([])
 
 
+@pytest.fixture
+def modo_demonstracao():
+    """[interface] modo_demonstracao fixado nos testes de tela, sem ler o ecosec.toml da máquina.
+    O teste que precisa do outro valor parametriza: @pytest.mark.parametrize("modo_demonstracao", [True])."""
+    return False
+
+
 # ---------------------------------------------------------------- MySQL descartável
 @pytest.fixture(scope="session")
 def banco_mysql():

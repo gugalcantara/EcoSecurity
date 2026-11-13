@@ -9,6 +9,7 @@ Faces sintéticas de test_interface: todas têm a mesma estatística de textura 
 LBPH (medido), abaixo do limiar. O rosto de ninguém precisa de outro grão de textura (~135 de todas).
 """
 import dataclasses
+import re
 from datetime import datetime
 
 import cv2
@@ -197,8 +198,14 @@ def test_identificacao_mostra_a_decisao_sem_as_etapas_internas(janela):
     for etapa in ("Recorte do rosto", "Face normalizada", "Padrão LBP", "padrão LBP"):     # nada do pipeline
         assert not any(etapa in t for t in textos), etapa
     assert not hasattr(vista, "img_lbp") and not hasattr(vista, "img_recorte")
-    assert all(any(nome in t for t in textos) for nome in NOMES)
-    assert any("0,4 s" in t for t in textos)                               # o tempo medido, sem promessa
+    # fora do modo demonstração (fixado pela fixture): só a decisão, sem candidatos, distâncias nem tempo
+    assert vista.modo_demonstracao is False
+    assert vista.mensagem.text() == f"Identificado como {BIA}"
+    assert not [t for t in textos for nome in NOMES - {BIA} if nome in t]  # os outros cadastros não aparecem
+    assert not vista.titulo_candidatos.isVisibleTo(vista)
+    for detalhe in ("distância", "limiar", "Tempo"):
+        assert not [t for t in textos if detalhe in t], detalhe
+    assert not [t for t in textos if re.search(r"\d+,\d+ s\b", t)]           # nenhum tempo medido
     assert not [t for t in textos for u in (admin, bia, ana) if u.matricula in t]   # matrícula nunca
     # câmera da identificação ligada conta como uso para a inatividade
     vista.trabalhador = object()
@@ -211,6 +218,26 @@ def test_identificacao_mostra_a_decisao_sem_as_etapas_internas(janela):
     # o bloqueio por inatividade tranca o painel e desliga a identificação: a senha sozinha não a reabre
     janela._inatividade._venceu()
     assert pa.pilha.currentIndex() == 3 and vista.sessao is None
+
+
+@pytest.mark.parametrize("modo_demonstracao", [True])
+def test_identificacao_no_modo_demonstracao_mostra_os_candidatos_e_o_tempo(janela):
+    admin = vincular_admin(janela)
+    bia = cadastrar(janela.app, "Beatriz Souza", Nivel.N2, "SP", "diretor2026", 100)
+    ana = cadastrar(janela.app, "Ana Prado", Nivel.N1, None, "servidor2026", 300)
+    relogio = Relogio()
+    vista = _abrir_identificacao(janela, admin, SENHA_ADMIN_USUARIO, 700, relogio).identificacao
+    assert vista.modo_demonstracao is True
+    a = _alimentar_vista(vista, relogio, quadro(100), janela.app.cfg["reconhecimento.frames_confirmacao"])
+    assert a.identificado
+    textos = _textos(vista)
+    assert vista.mensagem.text() == f"Identificado como {BIA}"
+    assert vista.titulo_candidatos.isVisibleTo(vista)
+    assert all(any(nome in t for t in textos) for nome in NOMES)          # os 3 cadastros mais parecidos
+    assert any("0,4 s" in t for t in textos)                               # o tempo medido, sem promessa
+    for etapa in ("Recorte do rosto", "Face normalizada", "Padrão LBP", "padrão LBP"):     # nada do pipeline
+        assert not any(etapa in t for t in textos), etapa
+    assert not [t for t in textos for u in (admin, bia, ana) if u.matricula in t]   # matrícula nunca
 
 
 def test_video_congela_apos_decisao(janela):

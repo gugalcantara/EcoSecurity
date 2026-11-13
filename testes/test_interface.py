@@ -3,12 +3,15 @@
 A câmera é substituída: `_ligar_video` vira no-op e os quadros são entregues
 à mão, como a thread de vídeo faria.
 """
+import copy
+
 import cv2
 import numpy as np
 import pytest
 from PySide6.QtGui import QImage
 
 from ecosec.aplicacao import montar
+from ecosec.configuracao import Configuracao, carregar
 from ecosec.dominio.niveis import Nivel
 from ecosec.dominio.perfis import Perfil
 from ecosec.servicos.autenticacao import Etapa
@@ -31,11 +34,19 @@ def quadro(semente, boa=True):
                            recorte_cinza=np.zeros((10, 10), np.uint8))
 
 
+def cfg_com_modo_demonstracao(valor: bool) -> Configuracao:
+    """O config do projeto com [interface] modo_demonstracao fixado: o valor local não muda o resultado."""
+    base = carregar()
+    dados = copy.deepcopy(base._dados)
+    dados["interface"]["modo_demonstracao"] = valor
+    return Configuracao(dados, base.origem)
+
+
 @pytest.fixture
-def janela(qt, tmp_path):
+def janela(qt, tmp_path, modo_demonstracao):
     from ecosec.interface.estilo import aplicar_tema
     from ecosec.interface.janela import JanelaPrincipal
-    app = montar(caminho_env=tmp_path / ".env", modo="memoria")
+    app = montar(cfg_com_modo_demonstracao(modo_demonstracao), caminho_env=tmp_path / ".env", modo="memoria")
     # o risco de contexto depende do relógio real (fim de semana, noite): os testes de tela não podem
     # mudar de resultado conforme o dia. O MFA adaptativo tem testes próprios, com relógio controlado.
     app.autenticacao.contexto_parametros = None
@@ -503,8 +514,15 @@ def test_encerrar_sessao_volta_ao_login_e_fica_na_trilha(janela):
 
 def test_distancia_escondida_fora_do_modo_demonstracao(janela):
     tela = janela.pagina_entrada.autenticacao
-    assert tela.modo_demonstracao is False
+    assert tela.modo_demonstracao is False                  # fixado pela fixture, não pelo config local
     assert tela.prog_distancia.isHidden() and tela.prog_ajuda.isHidden()
+
+
+@pytest.mark.parametrize("modo_demonstracao", [True])
+def test_distancia_aparece_no_modo_demonstracao(janela):
+    tela = janela.pagina_entrada.autenticacao
+    assert tela.modo_demonstracao is True
+    assert not tela.prog_distancia.isHidden() and not tela.prog_ajuda.isHidden()
 
 
 def test_nivel_3_nao_mostra_botao_de_exportar(janela):

@@ -745,8 +745,12 @@ def test_matricula_bloqueada_informa_ate_quando(ambiente):
 def test_credenciais_comecam_destacando_a_s1(ambiente):
     from ecosec.dominio.camadas import CamadaSeguranca as C
     andamento = ambiente.servico.nova_entrada().andamento
-    assert andamento.atual is C.S1_CONTENCAO and "se a matrícula pode tentar entrar" in andamento.mensagem
+    assert andamento.etapa is Etapa.CREDENCIAIS and andamento.atual is C.S1_CONTENCAO   # a S1 vem primeiro
+    mensagem = andamento.mensagem.lower()
+    assert "matrícula" in mensagem and "senha" in mensagem         # pede as credenciais
     assert "(S1)" not in andamento.mensagem                       # sem a sigla da camada
+    for detalhe in ("primeiro", "depois", "confere"):              # nem a ordem das verificações
+        assert detalhe not in mensagem, detalhe
 
 
 def test_desbloquear_a_sessao_com_a_senha_do_logado(ambiente):
