@@ -4,14 +4,14 @@ r"""Experimento da curva DET: mede a FAR e a FRR e sugere os limiares de cada n�
     .venv\Scripts\python.exe -m ferramentas.experimento_det base --pasta <CroppedYale> --alvo MATRICULA
     .venv\Scripts\python.exe -m ferramentas.experimento_det analisar
 
-`coletar` e `base` leem o modelo facial, por isso pedem a matrícula, a senha e o código do celular de um
+coletar e base leem o modelo facial, por isso pedem a matrícula, a senha e o código do celular de um
 administrador e registram o início e o fim na trilha. Só participam cadastros que autorizaram a finalidade (b)
 do termo; `--ignorar` tira cadastros da mesma pessoa, que contariam como impostor.
 
-`coletar` mede o voluntário diante da câmera, contra o próprio cadastro (genuína) e contra os outros
-participantes (impostor). `base` mede a Extended Yale B recortada com o mesmo tratamento do sistema: a luz
+coletar mede o voluntário diante da câmera, contra o próprio cadastro (genuína) e contra os outros
+participantes (impostor). base mede a Extended Yale B recortada com o mesmo tratamento do sistema: a luz
 quase frontal forma o cadastro, a luz até 50 graus forma a curva, e a imagem recusada pela qualidade conta como
-falha de aquisição. `analisar` calcula a curva, a EER, os limiares sugeridos e a FAR e a FRR nos limiares do
+falha de aquisição. analisar calcula a curva, a EER, os limiares sugeridos e a FAR e a FRR nos limiares do
 config, e grava a figura em resultados/curva_det.png. Nenhuma imagem é gravada, só distâncias, e o config não é
 alterado.
 """
@@ -45,10 +45,10 @@ _LIMITES_SUBCONJUNTOS = (12, 25, 50, 77)
 SUBCONJUNTOS_CURVA = ("2", "3")
 
 
-# ------------------------------------------------------------------ participantes
+# participantes
 def elegiveis(usuarios, consentimentos, rotulos_modelo: set[int], ignorar=frozenset()) -> list:
     """Cadastros que podem participar: ativos, não excluídos, com rosto no modelo e com o consentimento vigente
-    autorizando a finalidade (b). As matrículas de `ignorar` ficam de fora."""
+    autorizando a finalidade (b). As matrículas de ignorar ficam de fora."""
     ignorar = {m.strip().upper() for m in ignorar}
     saida = []
     for u in usuarios.listar():
@@ -65,7 +65,7 @@ def codigo(sal: str, usuario_id: int) -> str:
     return "P" + hashlib.sha256(f"{sal}:{usuario_id}".encode()).hexdigest()[:8].upper()
 
 
-# ------------------------------------------------------------------ arquivo de dados
+# arquivo de dados
 def ler_dados(caminho: Path) -> dict:
     if caminho.exists():
         return json.loads(caminho.read_text(encoding="utf-8"))
@@ -80,10 +80,10 @@ def gravar_dados(caminho: Path, dados: dict) -> None:
     temporario.replace(caminho)
 
 
-# ------------------------------------------------------------------ análise
+# análise
 def _avaliar(genuinas: list[float], impostoras: list[float], falhas: int, ident_corretas: list[float],
              ident_erradas: list[float], far_nivel_2: float, avisos: list[str], atuais: dict | None = None) -> dict:
-    """Curva, EER, limiares sugeridos e limiar de identificação de um conjunto de pontuações. `atuais` são os
+    """Curva, EER, limiares sugeridos e limiar de identificação de um conjunto de pontuações. atuais são os
     limiares do config ({"1": 70.0, ...}): a saída também traz a FAR e a FRR medidas em cada um."""
     saida: dict = {}
     if not genuinas and not falhas or not impostoras:
@@ -156,7 +156,7 @@ def analisar(dados: dict, quadros: int, far_nivel_2: float = 0.01, atuais: dict 
 def analisar_base(base: dict, far_nivel_2: float = 0.01, subconjuntos=SUBCONJUNTOS_CURVA,
                   atuais: dict | None = None) -> dict:
     """Resumo da base pública: cada imagem é uma tentativa de um quadro. A curva usa os subconjuntos de iluminação
-    moderada (`subconjuntos`), e a imagem recusada pelo portão de qualidade conta como falha de aquisição, relatada
+    moderada (subconjuntos), e a imagem recusada pelo portão de qualidade conta como falha de aquisição, relatada
     à parte, como na ISO/IEC 19795-1: ela nem chega a ser comparada. Cada subconjunto também tem a sua EER."""
     por = base["por_subconjunto"]
     escolhidos = [s for s in subconjuntos if s in por]
@@ -239,7 +239,7 @@ def texto_resumo(resumo: dict) -> str:
     linhas += _texto_taxas(resumo)
     if "eer" in resumo:
         linhas.append("Para adotar: [s4_inerencia] limiar_nivel_1, limiar_nivel_2 e limiar_nivel_3, e "
-                      "[identificacao] limiar no config/ecosec.toml, com registro em ata.")
+                      "[identificacao] limiar no config/ecosec.toml.")
     return "\n".join(linhas)
 
 
@@ -266,7 +266,7 @@ def texto_sistema(resumo: dict) -> str:
     return "\n".join(linhas + _texto_taxas(resumo))
 
 
-# ------------------------------------------------------------------ figura
+# figura
 def _probit(taxa: float, piso: float) -> float:
     return NormalDist().inv_cdf(min(max(taxa, piso), 1 - piso))
 
@@ -274,7 +274,7 @@ def _probit(taxa: float, piso: float) -> float:
 def desenhar_curva(resumo: dict, caminho: Path, fonte_regular: str = "arial.ttf", titulo: str = "Curva DET",
                    rotulo: str | None = None, extras: tuple = ()) -> Path:
     """Curva DET em escala de desvio normal (Martin et al., 1997): FRR em função da FAR, com os limiares sugeridos
-    de `resumo`. `extras` são outras curvas, como (rótulo, pontos), desenhadas junto, com legenda."""
+    de resumo. extras são outras curvas, como (rótulo, pontos), desenhadas junto, com legenda."""
     from PIL import Image, ImageDraw, ImageFont
 
     def fonte(tamanho):
@@ -335,7 +335,7 @@ def desenhar_curva(resumo: dict, caminho: Path, fonte_regular: str = "arial.ttf"
     return caminho
 
 
-# ------------------------------------------------------------------ coleta com a câmera
+# coleta com a câmera
 def _medir_quadro(app, face, alvo_id: int, outros: dict[str, int], ignorados: set[int]) -> dict | None:
     genuina = app.reconhecedor.verificar(face, alvo_id)
     if genuina is None:
@@ -410,7 +410,7 @@ def _mostrar(cv2, janela, quadro, texto, face):
     cv2.imshow(janela, imagem)
 
 
-# ------------------------------------------------------------------ base pública (Extended Yale B recortada)
+# base pública
 def subconjunto_yale(nome: str) -> int | None:
     """O subconjunto de iluminação (1 a 5) pelo nome do arquivo, ou None se não é uma imagem de tentativa (a imagem
     ambiente e os arquivos de outro formato)."""
@@ -496,7 +496,7 @@ def medir_base(pessoas: dict[str, list[tuple[int, Path]]], preparar, novo_reconh
             "alvo_impostoras": alvo_impostoras}
 
 
-# ------------------------------------------------------------------ administrador
+# administrador
 def autorizar(app, ferramenta: str, entrada=input, ler_senha=getpass.getpass) -> int:
     """Matrícula, senha e código do celular de um administrador. Sai com erro se o serviço recusar."""
     print("Esta ferramenta lê o modelo facial e os consentimentos: entre com um administrador.")
@@ -509,7 +509,7 @@ def autorizar(app, ferramenta: str, entrada=input, ler_senha=getpass.getpass) ->
     return usuario_id
 
 
-# ------------------------------------------------------------------ linha de comando
+# linha de comando
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Experimento da curva DET.")
     sub = parser.add_subparsers(dest="comando", required=True)
@@ -615,7 +615,7 @@ def _analisar(cfg, pasta: Path, arquivo: Path, arquivo_base: Path) -> int:
                                 extras=extras)
         print(f"\nFigura: {figura}")
     print("\nPara adotar: [s4_inerencia] limiar_nivel_1, limiar_nivel_2 e limiar_nivel_3, e [identificacao] limiar "
-          "no config/ecosec.toml, com registro em ata.")
+          "no config/ecosec.toml.")
     return 0
 
 

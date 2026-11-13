@@ -73,7 +73,7 @@ def _celulas(titulos, linhas, coluna):
     return {tuple(l[:n]): l[list(titulos).index(coluna)] for l in linhas}
 
 
-# ================================================================ os dois indicadores, com nomes distintos
+# os dois indicadores, com nomes distintos
 def test_titulos_do_resumo_seguem_a_ata_3():
     assert "VENCIDAS" not in analise.TITULOS_MEDIDAS
     assert not any("VENCIDA" in t for t in analise.TITULOS_MEDIDAS)
@@ -101,7 +101,7 @@ def test_valores_do_resumo_batem_com_o_calculo_direto(ativas, acervo):
         assert valor["PERCENTUAL ALEM DO PRAZO LIMITE"] == round(100 * alem / len(ps), 1)
 
 
-# ================================================================ formatador único (só exibição)
+# formatador único (só exibição)
 def test_formatador_por_tipo_de_coluna():
     assert formatos.exibir("CUSTO ESTIMADO", 1_958_612_345.0) == "R$ 1.958,6 mi"
     assert formatos.exibir("CUSTO ESTIMADO", 20_000.0).startswith("< R$")             # pequeno não vira zero
@@ -170,7 +170,7 @@ def test_exportacao_do_resumo_continua_com_numeros_crus(acervo, tmp_path):
             assert "R$" not in valor and "%" not in valor and "mi" not in valor
 
 
-# ================================================================ a supressão do N1 com as colunas novas
+# a supressão do N1 com as colunas novas
 def test_resumo_n1_novas_colunas_nao_revelam_subcontagem(acervo):
     for agrupamento, (titulos, linhas) in acervo.resumo_agregado(ANA_N1, 1).tabelas.items():
         totais = _celulas(titulos, linhas, "PENDENCIAS")
@@ -209,7 +209,7 @@ def test_percentual_alem_do_prazo_cai_junto_com_a_subcontagem_pequena(acervo):
     assert all((pct[c] == analise.SUPRIMIDO) == (v == analise.SUPRIMIDO) for c, v in alem.items())
 
 
-# ================================================================ relatórios do N1 com os totais suprimidos
+# relatórios do N1 com os totais suprimidos
 @pytest.fixture(scope="module")
 def acervo_a_mao(ativas):
     """SP e RJ com 10 pendências de AG-01; MG com 2 de AG-02: MG e AG-02 têm de sair SUPRIMIDO no N1."""
@@ -245,7 +245,6 @@ def test_relatorio_n1_usa_as_mesmas_celulas_do_resumo(monkeypatch, acervo, ativa
     assert relatorios._coluna(relatorios._tabela_do_resumo(dados, "POR UF")) == resumo
 
 
-# ================================================================
 def test_a3_01_partes_do_custo_fecham_com_o_total(monkeypatch, ativas, acervo):
     dados = replace(_dados(ativas, nivel=3), regras=acervo.regras)
     total, partes = relatorios.custos_por_responsabilidade(ativas, dados)
@@ -284,7 +283,7 @@ def test_atraso_em_anos_com_uma_casa(monkeypatch, ativas):
     assert any(re.fullmatch(r"\d+,\d anos", t) for t in textos)
 
 
-# ================================================================ o resumo no N2
+# o resumo no N2
 @pytest.fixture
 def tela(qt, tmp_path):
     from ecosec.aplicacao import montar
@@ -306,7 +305,7 @@ def test_combo_do_resumo_no_n2_sem_por_uf_nem_por_regiao(tela, qt, usuario, nive
     pa.mostrar("agregado")
     qt.processEvents()
     combo = pa.agregado.combo
-    # O combo mostra o rótulo do vocabulário ("Por UF"); o código fica em `agrupamento`
+    # O combo mostra o rótulo do vocabulário ("Por UF"); o código fica em agrupamento
     itens = [combo.itemText(i) for i in range(combo.count())]
     assert ("Por UF" in itens) == com_uf and ("Por região" in itens) == com_uf
     assert pa.agregado.agrupamento in pa.agregado.resumo.tabelas and pa.agregado.modelo.rowCount() > 0

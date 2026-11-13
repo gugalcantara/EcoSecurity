@@ -1,7 +1,7 @@
 """Núcleo do filtro único (Filtro puro, EstadoFiltro e BarraFiltros).
 
 A equivalência com os predicados de hoje é o que garante que a ligação nas telas (etapa seguinte) não muda
-nenhum número: o mesmo recorte no `Filtro` dá exatamente os pontos do mapa e as linhas da planilha.
+nenhum número: o mesmo recorte no Filtro dá exatamente os pontos do mapa e as linhas da planilha.
 """
 import random
 from dataclasses import replace
@@ -32,9 +32,9 @@ def _codigos(ps):
     return {p.codigo for p in ps}
 
 
-# ================================================================ aceita, por dimensão
+# aceita, por dimensão
 def test_filtro_vazio_aceita_todos_e_ativas_so_as_ativas(acervo, r):
-    # O padrão passou a ser TODAS (antes, ATIVAS)
+    # o padrão é TODAS
     assert Filtro().vazio() and Filtro().situacao == "TODAS"
     assert len(Filtro().aplicar(acervo, HOJE, r)) == len(acervo)
     assert _codigos(Filtro(situacao="ATIVAS").aplicar(acervo, HOJE, r)) == {p.codigo for p in acervo if p.ativa(HOJE)}
@@ -94,7 +94,7 @@ def test_busca_olha_os_campos_da_planilha_e_a_classe(acervo, r):
     assert Filtro(busca="   ").vazio()
 
 
-# ================================================================ chips, sem, com, contar
+# chips, sem, com, contar
 def test_chips_rotulos_legiveis_e_ordem():
     f = Filtro(ufs={"SP", "RJ"}, classes={sinteticos.RADIOATIVO}, riscos={"CRITICO", "BAIXO"},
                municipios={("SP", "CAMPINAS")}, situacao="ENCERRADAS", ano=2015, busca=" ab ")
@@ -130,7 +130,7 @@ def test_contar_dentro_mais_fora_igual_total(acervo, r):
         assert dentro + fora == total == len(acervo) and dentro == len(f.aplicar(acervo, HOJE, r))
 
 
-# ================================================================ equivalência com o mapa e a planilha de hoje
+# equivalência com o mapa e a planilha de hoje
 @pytest.fixture(scope="module")
 def painel_n3(qt, tmp_path_factory):
     from ecosec.aplicacao import montar
@@ -185,7 +185,7 @@ def _na_planilha(pa, uf=None, risco=None, atividade=None, motivo=None, acao=None
 
 def _pelo_filtro(pa, **dimensoes) -> set:
     """O recorte pelo Filtro. Estes testes comparam com o mapa nas ATIVAS: sem situação
-    explícita, ATIVAS (o padrão do Filtro passou a ser TODAS)."""
+    explícita, ATIVAS (o padrão do Filtro é TODAS)."""
     dimensoes.setdefault("situacao", "ATIVAS")
     painel = pa.painel
     return _codigos(Filtro(**dimensoes).aplicar(painel.pendencias, painel.hoje, painel.regras))
@@ -245,7 +245,7 @@ def test_busca_igual_a_planilha_e_mais_a_classe(painel_n3):
     pelo_filtro = _pelo_filtro(painel_n3, busca="REJEITO")
     radioativas = {q.codigo for q in painel_n3.painel.pendencias
                    if q.classe_risco == sinteticos.RADIOATIVO and q.ativa(painel_n3.painel.hoje)}
-    # A planilha passou a usar o Filtro, então também acha pela classe (antes: radioativas - planilha)
+    # a planilha usa o Filtro, então também acha pela classe
     assert hoje_planilha == pelo_filtro and radioativas <= pelo_filtro
 
 
@@ -259,7 +259,7 @@ def test_ano_igual_a_linha_do_tempo_do_mapa(painel_n3):
         painel_n3.mapa.definir_ano(painel_n3.painel.hoje.year)
 
 
-# ================================================================ EstadoFiltro
+# EstadoFiltro
 def test_estado_so_emite_quando_muda(qt):
     from ecosec.interface.estado_filtro import EstadoFiltro
     estado, recebidos = EstadoFiltro(), []
@@ -275,7 +275,7 @@ def test_estado_so_emite_quando_muda(qt):
     assert not estado.substituir(Filtro()) and estado.substituir(Filtro(ano=2015))
 
 
-# ================================================================ BarraFiltros
+# BarraFiltros
 def test_barra_chips_remover_contagem_e_limpar(qt):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest

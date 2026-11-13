@@ -15,7 +15,7 @@
 -- longas aceitam também , . ; : ( ) / - (padrão próprio, mais largo).
 -- =============================================================================
 
--- ---------------------------------------------------------------- camada causal
+-- camada causal
 -- Catálogo: nenhum código aparece sem nome e descrição.
 CREATE TABLE IF NOT EXISTS atividade_geradora (
     id                    INT          PRIMARY KEY AUTO_INCREMENT,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS evento_regulatorio (
     CONSTRAINT ck_evento_verificacao CHECK (verificacao IN ('CONFIRMADO', 'A CONFIRMAR'))
 );
 
--- ---------------------------------------------------------------- pendências
+-- pendências
 CREATE TABLE IF NOT EXISTS pendencia (
     id                 INT           PRIMARY KEY AUTO_INCREMENT,
     codigo             VARCHAR(20)   NOT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS pendencia (
     -- ciclo de vida: a data de encerramento é a da etapa final (etapa_gerenciamento.final)
     data_encerramento  DATE          NULL,
     etapa_atual        VARCHAR(40)   NOT NULL,
-    atividade_id       INT           NOT NULL,              -- RF-19: nenhuma pendência sem causa
+    atividade_id       INT           NOT NULL,              -- nenhuma pendência sem causa
     motivo_id          INT           NOT NULL,
     sintetico          BOOLEAN       NOT NULL DEFAULT TRUE, -- TRUE = gerado por sinteticos.py
     fonte              VARCHAR(300),
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS etapa_gerenciamento (
     CONSTRAINT fk_etapa_pendencia FOREIGN KEY (pendencia_id) REFERENCES pendencia (id)
 );
 
--- Cadeia de responsabilidade: nomeia empresas e pessoas, só a partir do N2 (RF-21).
+-- Cadeia de responsabilidade: nomeia empresas e pessoas, só a partir do N2.
 -- O nível mínimo mora NA LINHA: a consulta já devolve só o que o nível autoriza,
 -- em vez de buscar tudo e filtrar na aplicação.
 CREATE TABLE IF NOT EXISTS responsavel (
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS responsavel (
     CONSTRAINT fk_responsavel_pendencia FOREIGN KEY (pendencia_id) REFERENCES pendencia (id)
 );
 
--- ---------------------------------------------------------------- itens (imagens)
+-- itens (imagens)
 CREATE TABLE IF NOT EXISTS item_acervo (
     id                INT          PRIMARY KEY AUTO_INCREMENT,
     codigo            VARCHAR(20)  NOT NULL,                -- A1-01, A2-04...
@@ -183,8 +183,8 @@ CREATE TABLE IF NOT EXISTS regiao_sensivel (
     CONSTRAINT fk_regiao_item FOREIGN KEY (item_id) REFERENCES item_acervo (id)
 );
 
--- ---------------------------------------------------------------- visões do nível 1
--- Agregadas: sem endereço, coordenada nem responsável (RF-20). Só pendências ATIVAS.
+-- visões do nível 1
+-- Agregadas: sem endereço, coordenada nem responsável. Só pendências ATIVAS.
 -- Supressão de célula pequena: some a linha com menos de 3 pendências e, se no grupo de
 -- margem conhecida sobrar uma só escondida, some também a menor visível (senão sairia por subtração).
 -- O 3 acompanha [indice_pressao] supressao_minima (conferido em testes/test_regras_acervo.py). Aqui a

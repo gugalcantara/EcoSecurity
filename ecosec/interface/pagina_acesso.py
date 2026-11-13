@@ -270,7 +270,7 @@ class PaginaNivel(QWidget):
         self.encerrar()
         self.sessao = sessao
 
-    # ------------------------------------------------------------ abrir
+    # abrir
     def showEvent(self, evento):
         super().showEvent(evento)
         if self.sessao is not None and self.pilha.currentIndex() != 2 and self.autenticacao.sessao is None:
@@ -312,7 +312,7 @@ class PaginaNivel(QWidget):
             self.pilha.setCurrentIndex(0)
             self.voltar_inicio.emit()
 
-    # ------------------------------------------------------------ sair
+    # sair
     def encerrar(self):
         self._saindo = True
         try:

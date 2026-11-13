@@ -1,5 +1,5 @@
 """Governança no modelo "papel × dado × operação", MFA adaptativo, step-up, alertas, regras de negócio,
-cobertura nacional e mapa vetorial (17/10/2026)."""
+cobertura nacional e mapa vetorial."""
 import dataclasses
 from datetime import date, datetime, timedelta
 
@@ -24,6 +24,7 @@ from ecosec.servicos.trilha import ServicoTrilha
 from test_servico_autenticacao import SENHA_N2, SENHA_N3, alimentar, ambiente  # noqa: F401
 
 CFG = carregar()
+MONITOR = monitor.ParametrosMonitor.de_configuracao(CFG)
 CONTEXTO = ParametrosContexto(True)
 TERCA_14H, SABADO_14H = datetime(2026, 10, 6, 14, 0), datetime(2026, 10, 10, 14, 0)
 SABADO_3H = datetime(2026, 10, 10, 3, 0)
@@ -45,7 +46,7 @@ def ultimo(servico):
     return servico.trilha.recentes(1)[0].evento
 
 
-# ================================================================ matriz papel × dado × operação
+# matriz papel × dado × operação
 def test_matriz_nega_o_que_nao_esta_nela():
     assert all(autorizacao.decidir(p, c, o).efeito in Efeito for p in Papel for c in Classificacao for o in Operacao)
     assert autorizacao.decidir(Papel.SERVIDOR, Classificacao.RESERVADO, Operacao.VISUALIZAR).efeito is Efeito.NEGADO
@@ -96,7 +97,7 @@ def test_matriz_concorda_com_a_regra_de_exportacao_dos_niveis():
         assert (efeito is Efeito.NEGADO) == (nivel.exportacao is Exportacao.BLOQUEADA)
 
 
-# ================================================================ contexto (função pura)
+# contexto (função pura)
 @pytest.mark.parametrize("momento, conhecida, falhas, nivel", [
     (TERCA_14H, True, 0, "BAIXO"), (TERCA_14H, None, 0, "BAIXO"),     # 1ª estação da pessoa: só registra
     (SABADO_14H, True, 0, "BAIXO"), (SABADO_3H, True, 0, "BAIXO"),    # horário nunca é sinal
@@ -110,7 +111,7 @@ def test_sinais_de_contexto(momento, conhecida, falhas, nivel):
 @pytest.mark.parametrize("hora", range(24))
 @pytest.mark.parametrize("dia", range(7))
 def test_horario_nunca_e_sinal_de_risco(dia, hora):
-    """(2026-10-19): não há expediente. Qualquer dia e hora dão o mesmo risco."""
+    """Não há expediente: qualquer dia e hora dão o mesmo risco."""
     momento = datetime(2026, 10, 5 + dia, hora, 30)                   # 05/10/2026 é segunda-feira
     risco = contexto.avaliar(momento, CONTEXTO, True, 0)
     assert risco.nivel == "BAIXO" and not risco.sinais
@@ -138,7 +139,7 @@ def test_politica_inclui_a_s6_quando_o_contexto_pede():
     assert Evidencias(nivel_solicitado=2).exigir_vivacidade is False
 
 
-# ================================================================ contexto no login (ponta a ponta)
+# contexto no login
 def _com_contexto(amb, estacao="ESTACAO-A"):
     amb.servico.estacoes = RepositorioEstacoesMemoria()
     amb.servico.contexto_parametros = CONTEXTO
@@ -228,7 +229,7 @@ def test_verificacao_de_operacao_confere_o_rosto_e_tem_contencao_propria(ambient
     assert operacao._chaves[0] == f"{bia.matricula}#OPR"
 
 
-# ================================================================ step-up e matriz no serviço
+# step-up e matriz no serviço
 def test_exportar_dados_nominais_pede_rosto_recente(acervo, tmp_path):
     painel = acervo.painel(BIA_N2, 2)
     codigos = [p.codigo for p in painel.pendencias[:3]]
@@ -265,7 +266,7 @@ def test_sessao_guarda_a_ultima_conferencia_do_rosto():
     assert dataclasses.replace(sessao, administrador=True).verificacao is sessao.verificacao
 
 
-# ================================================================ regras de negócio
+# regras de negócio
 @pytest.fixture(scope="module")
 def base():
     return sinteticos.gerar()
@@ -317,7 +318,7 @@ def test_priorizacao_e_decisao_do_n3(acervo):
     assert fila.custo_total <= 2_000_000
 
 
-# ================================================================ cobertura nacional
+# cobertura nacional
 def test_todas_as_27_ufs_e_todas_as_regioes(base):
     assert {p.uf for p in base[0]} == set(sinteticos.PESO_UF) and len(sinteticos.PESO_UF) == 27
     assert {analise.REGIAO_DA_UF[p.uf] for p in base[0]} == set(analise.REGIOES)
@@ -333,7 +334,7 @@ def test_divisas_das_27_ufs():
     assert set(sinteticos.divisas_uf()) == set(sinteticos.PESO_UF)
 
 
-# ================================================================ monitor de anomalias
+# monitor de anomalias
 def _registro(momento, evento, resultado, motivo, **kw):
     return RegistroTrilha(EventoTrilha(momento=momento, evento=evento, resultado=resultado, motivo=motivo, **kw),
                           "0" * 64, "1" * 64)
@@ -345,7 +346,7 @@ def test_varredura_de_matriculas_e_rajada_de_exportacoes():
                            matricula_informada=f"M{i}") for i in range(4)]
     registros += [_registro(t0 + timedelta(minutes=i), "EXPORTACAO", "CONCEDIDO", "EXPORTACAO_PLANILHA", usuario_id=7)
                   for i in range(3)]
-    regras_ = {a.regra for a in monitor.detectar(registros) if a.gravidade == "ALTO"}
+    regras_ = {a.regra for a in monitor.detectar(registros, MONITOR) if a.gravidade == "ALTO"}
     assert {"VARREDURA_DE_MATRICULAS", "RAJADA_DE_EXPORTACOES"} <= regras_
 
 
@@ -354,12 +355,12 @@ def test_acesso_de_madrugada_e_no_fim_de_semana_nao_gera_alerta():
     registros = [_registro(SABADO_3H, "ENTRADA", "CONCEDIDO", "CONCEDIDO", usuario_id=1)]
     registros += [_registro(SABADO_3H + timedelta(minutes=i), "CONSULTA", "CONCEDIDO", "CONSULTA_ACERVO",
                             nivel_solicitado=3, usuario_id=1) for i in range(12)]
-    assert monitor.detectar(registros) == []
+    assert monitor.detectar(registros, MONITOR) == []
 
 
 def test_sem_padrao_nao_alerta():
     registros = [_registro(TERCA_14H, "ENTRADA", "CONCEDIDO", "CONCEDIDO", usuario_id=1)]
-    assert monitor.detectar(registros) == []
+    assert monitor.detectar(registros, MONITOR) == []
 
 
 def test_relatorios_s08_e_s09_no_painel_do_administrador(tmp_path):
@@ -372,7 +373,7 @@ def test_relatorios_s08_e_s09_no_painel_do_administrador(tmp_path):
     assert app.relatorios_sistema.gerar("S-08").colunas[0] == "Gravidade"
 
 
-# ================================================================ mapa vetorial e priorização na tela
+# mapa vetorial e priorização na tela
 @pytest.fixture
 def tela(qt, tmp_path):
     from ecosec.aplicacao import montar
@@ -402,8 +403,8 @@ def test_mapa_vetorial_aproxima_ate_o_municipio(tela):
     assert vetorial.aumento == pytest.approx(1.0, abs=0.05) and not any(r.isVisible() for r in vetorial.municipios.values())
     mapa.combo_uf.setCurrentText("PA")
     mapa.combo_municipio.setCurrentIndex(1)
-    # O mapa passou a ser a primeira aba do N3 (os Painéis temáticos saíram): visível, o enquadramento
-    # é animado. Espera a animação terminar (sondando, com teto)
+    # o mapa é a primeira aba do N3: visível, o enquadramento é animado. Espera a animação terminar
+    # (sondando, com teto)
     from PySide6.QtCore import QAbstractAnimation
     from PySide6.QtTest import QTest
     animando = lambda: getattr(vetorial, "_animacao_enquadramento", None) is not None and         vetorial._animacao_enquadramento.state() == QAbstractAnimation.State.Running  # noqa: E731

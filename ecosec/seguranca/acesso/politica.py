@@ -12,10 +12,10 @@ Três princípios:
    para quem errou a senha, nem se pede o gesto a quem o rosto não confere.
 3. Exceção não concede: qualquer erro inesperado vira ERRO_INTERNO.
 
-A mesma composição serve à avaliação progressiva (`primeira_falha`): o serviço
+A mesma composição serve à avaliação progressiva (primeira_falha): o serviço
 de autenticação pergunta "até a S2, tudo certo?" antes de ligar a câmera.
 
-LOGIN DE ENTRADA (`Evidencias.entrada`): antes de qualquer tela, a pessoa
+LOGIN DE ENTRADA (Evidencias.entrada): antes de qualquer tela, a pessoa
 prova quem é com os fatores do NÍVEL 2 (matrícula, senha, rosto 1:1 com o
 limiar do N2). A única diferença está na S5: na entrada, basta ter um perfil com
 camada ou o papel de administrador (um Externo sem esse papel não entra). Não há uma política paralela para o
@@ -121,7 +121,7 @@ def camadas_exigidas(nivel: Nivel, exigir_segunda_pessoa: bool = True, exigir_vi
 
     Com a regra dos dois desligada, a S7 sai da lista: não vira uma camada
     "aprovada" que não foi avaliada. A auditoria leria "duas pessoas
-    conferiram" onde houve uma só. Com `exigir_vivacidade` (contexto de risco),
+    conferiram" onde houve uma só. Com exigir_vivacidade (contexto de risco),
     a S6 entra mesmo onde o nível não a pede, no seu lugar na ordem.
     """
     camadas = tuple(c for c in camadas_do_anel(Anel.ACESSO)
@@ -183,8 +183,8 @@ def decidir(ev: Evidencias, parametros: ParametrosAcesso) -> Decisao:
 
 
 def primeira_falha(ev: Evidencias, parametros: ParametrosAcesso, ate: C) -> Veredito | None:
-    """Avaliação progressiva: a primeira camada que nega até `ate` (inclusive),
-    ou None se todas passaram. Se `ate` não vale para o nível, avalia todas."""
+    """Avaliação progressiva: a primeira camada que nega até ate (inclusive),
+    ou None se todas passaram. Se ate não vale para o nível, avalia todas."""
     try:
         nivel = Nivel(ev.nivel_solicitado)
     except ValueError:

@@ -25,7 +25,7 @@ def modo_demonstracao():
     return False
 
 
-# ---------------------------------------------------------------- MySQL descartável
+# MySQL descartável
 @pytest.fixture(scope="session")
 def banco_mysql():
     """Um banco ecosec_teste_<aleatório> criado com a conta de testes e apagado no fim.

@@ -33,7 +33,7 @@ def dez():
     return cadeia([evento(i) for i in range(1, 11)])
 
 
-# ------------------------------------------------------------------ a linha de texto
+# a linha de texto
 def test_ancora_do_ultimo_registro_e_ida_e_volta_pelo_texto():
     registros = dez()
     a = s10_trilha.ancora(registros)
@@ -55,7 +55,7 @@ def test_linha_invalida_e_recusada(linha):
         Ancora.de_texto(linha)
 
 
-# ------------------------------------------------------------------ conferência
+# conferência
 def test_ancora_confere_e_conta_os_registros_depois_dela():
     registros = dez()
     a = s10_trilha.ancora(registros[:7])
@@ -108,7 +108,7 @@ def test_servico_gera_e_confere_a_ancora():
     assert a.id == 3 and c.valida and c.registros_depois == 1
 
 
-# ------------------------------------------------------------------ a ferramenta, com o sistema em memória
+# a ferramenta, com o sistema em memória
 @pytest.fixture
 def app(tmp_path):
     from ecosec.aplicacao import montar

@@ -57,7 +57,7 @@ def coleta_completa(servico, semente=0, aceite=None):
 DADOS_N2 = DadosCadastro("Bia Souza", Nivel.N2, "SP", "diretor2026", "diretor2026")
 
 
-# ================================================================ termo
+# termo
 def test_termo_inclui_o_nome_e_o_hash_muda_com_ele():
     texto = termo.renderizar("Ana  Lima ", "grupo@exemplo.edu")
     assert "eu, Ana Lima," in texto and "art. 11" in texto
@@ -105,7 +105,7 @@ def test_aceite_exige_assinatura(cadastro):
         cadastro.registrar_aceite("  ")
 
 
-# ================================================================ dados
+# dados
 def test_validacao_aceita_dados_corretos(cadastro):
     assert cadastro.validar(DADOS_N2) == []
 
@@ -127,7 +127,7 @@ def test_n3_exige_senha_forte(cadastro):
     assert any("maiúscula" in e for e in erros)
 
 
-# ================================================================ coleta
+# coleta
 def test_coleta_recusa_quadro_sem_face_boa_com_a_orientacao():
     coleta = ColetaFacial(1, 3, 3.0)
     vazio = ResultadoQuadro(faces=(), fonte="HAAR", largura=640, altura=480)
@@ -163,7 +163,7 @@ def test_descartar_apaga_as_faces():
     assert coleta.faces() == [] and not guardada.any()          # sobrescrita com zeros
 
 
-# ================================================================ conclusão
+# conclusão
 def test_cadastro_completo(cadastro):
     aceite = cadastro.registrar_aceite("Bia Souza")
     coleta = coleta_completa(cadastro, aceite=aceite)
@@ -211,7 +211,7 @@ def test_segunda_pessoa_entra_no_modelo_sem_retreinar(cadastro):
     assert cadastro.reconhecedor.rotulos() == {a.id, b.id}
 
 
-# ================================================================ administração
+# administração
 @pytest.fixture
 def admin(tmp_path, cadastro):
     env = tmp_path / ".env"
@@ -272,7 +272,7 @@ def test_desativar_e_reativar(admin, cadastro):
     assert linha.usuario.ativo and linha.consentimento_vigente and linha.amostras == 6
 
 
-# ================================================================ segredos
+# segredos
 def test_chave_de_cifragem_nunca_e_trocada(tmp_path):
     env = tmp_path / ".env"
     primeira = segredos.garantir_chave_cifragem(env)
@@ -306,7 +306,7 @@ def test_falha_ao_eliminar_ainda_deixa_o_acesso_bloqueado(admin, cadastro):
     assert cadastro.consentimentos.vigente_de(u.id) is None
 
 
-# ---------------------------------------------------------------- termo: finalidades separadas
+# termo: finalidades separadas
 def test_termo_tem_resumo_e_duas_finalidades():
     texto = termo.renderizar("Ana", "c@x", None)
     assert "Quadro-resumo" in texto and "Finalidade obrigatória" in texto and "Finalidade opcional" in texto
@@ -322,7 +322,7 @@ def test_a_escolha_da_finalidade_b_entra_no_hash(cadastro):
     assert "Finalidade (b): NÃO AUTORIZO." in cadastro.texto_termo("Bia Souza", False)
 
 
-# ---------------------------------------------------------------- termo: versões e prova
+# termo: versões e prova
 # hashes do termo 2.0 calculados antes de a versão 3.0 existir: se o arquivo da
 # 2.0 mudar um caractere, os consentimentos já gravados deixam de ser prováveis
 HASHES_V2 = {None: "3d240f407a66ddbbe809823d940faccb65327bf65f8c70afe03bee691b4c20ec",
@@ -378,7 +378,7 @@ def test_escolha_aparece_no_relatorio_do_titular(admin, cadastro):
     assert linha.autoriza_pesquisa is True
 
 
-# ---------------------------------------------------------------- primeiro administrador
+# primeiro administrador
 def _pessoa_com_rosto(admin, cadastro, nome="Bia Souza", perfil=Perfil.EXTERNO):
     aceite = cadastro.registrar_aceite(nome)
     usuario = cadastro.concluir(DadosCadastro(nome, None, None, "Ministro#2026x", "Ministro#2026x", perfil=perfil),
@@ -431,7 +431,7 @@ def test_so_o_perfil_de_administrador_vira_o_primeiro_admin(admin, cadastro):
     assert not admin.administrador_vinculado
 
 
-# ---------------------------------------------------------------- recadastro do rosto (acesso de emergência)
+# recadastro do rosto
 def test_substituir_rosto_troca_o_modelo_da_pessoa_e_descarta_as_faces(cadastro):
     import numpy as np
     bia = cadastro.concluir(DADOS_N2, cadastro.registrar_aceite("Bia"), coleta_completa(cadastro, 1))

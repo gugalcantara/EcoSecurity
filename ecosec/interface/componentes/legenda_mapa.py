@@ -1,7 +1,7 @@
 """Legenda dinâmica do mapa, sobreposta à vista.
 
 Uma seção por camada visível, na ordem de desenho (a camada de cima primeiro), cada entrada com o mesmo
-símbolo do mapa (cor, tamanho e anel vêm de `simbologia`, que o ponto também usa). O texto é sempre na cor
+símbolo do mapa (cor, tamanho e anel vêm de simbologia, que o ponto também usa). O texto é sempre na cor
 de texto (17:1 sobre o branco), nunca na cor da faixa (2,44:1).
 
 É um QWidget filho da QGraphicsView (não da viewport, que rola junto com a cena): transparente ao mouse,
@@ -25,7 +25,7 @@ MARGEM = 8
 @dataclass(frozen=True)
 class Entrada:
     camada: str                    # chave da camada no mapa ("" = cabeçalho geral)
-    chave: str                     # rótulo estável (compatível com `linhas_legenda`, ex.: "● CRITICO")
+    chave: str                     # rótulo estável (compatível com linhas_legenda, ex.: "● CRITICO")
     rotulo: str                    # texto desenhado
     valor: str = ""
     simbolo: Simbolo | None = None
@@ -103,6 +103,6 @@ class LegendaMapa(QWidget):
         self.move(round(area.left() + 10), round(max(area.top() + 4, area.bottom() - self.height() - 10)))
 
     def ponto_do_simbolo(self, indice: int) -> QPointF:
-        """Centro do símbolo da entrada `indice` (em coordenadas do widget), para conferência nos testes."""
+        """Centro do símbolo da entrada indice (em coordenadas do widget), para conferência nos testes."""
         topo = MARGEM - 2 + indice * ALTURA_LINHA
         return QPointF(MARGEM + LARGURA_SIMBOLO / 2, topo + ALTURA_LINHA / 2)

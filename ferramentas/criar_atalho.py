@@ -8,8 +8,8 @@ leva a mesma identidade de aplicativo da janela (AppUserModelID). Com ela, o
 Windows agrupa a janela aberta com o atalho e, ao fixar na barra de tarefas,
 fixa o EcoSecurity, e não o Python.
 
-Por padrão o atalho vai só para o Menu Iniciar: a Área de Trabalho, nesta
-máquina, fica dentro do OneDrive (sincronizada).
+Por padrão o atalho vai só para o Menu Iniciar, porque a Área de Trabalho pode
+estar dentro do OneDrive (sincronizada).
 """
 import argparse
 import sys

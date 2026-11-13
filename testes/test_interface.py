@@ -1,6 +1,6 @@
 """Interface: as telas montam e os fluxos funcionam, sem câmera, sem janela visível.
 
-A câmera é substituída: `_ligar_video` vira no-op e os quadros são entregues
+A câmera é substituída: _ligar_video vira no-op e os quadros são entregues
 à mão, como a thread de vídeo faria.
 """
 import copy
@@ -58,7 +58,7 @@ def janela(qt, tmp_path, modo_demonstracao):
     j.show()
     yield j
     # close() só esconde: sem destruir, as janelas se acumulam e a troca de
-    # tema do teste seguinte reestiliza TODAS (cada teste ficava ~1 s mais lento)
+    # tema do teste seguinte reestiliza todas (cada teste ficava ~1 s mais lento)
     j.close()
     # o roteador do qfluentwidgets é global e guarda o StackedWidget de toda FluentWindow: destruída a janela, a
     # entrada ficava, e o próximo Pivot.clear() de outro arquivo estourava "already deleted" (falha 7)
@@ -92,7 +92,7 @@ def destravar_admin(j):
     return pa
 
 
-# ---------------------------------------------------------------- administração
+# administração
 def test_primeira_execucao_pede_para_definir_a_senha(janela):
     assert janela.pagina_admin.pilha.currentIndex() == 0
 
@@ -122,7 +122,7 @@ def test_sair_da_pagina_tranca_o_painel_e_descarta_o_cadastro(janela):
     assert coleta.faces() == []                    # biometria apagada
 
 
-# ---------------------------------------------------------------- assistente
+# assistente
 def test_preparacao_exige_os_tres_requisitos(janela):
     pa = destravar_admin(janela)
     pa._novo_cadastro()
@@ -277,7 +277,7 @@ def test_camadas_todas_implementadas_e_s7_conforme_a_configuracao(janela):
     assert estados.count(DESLIGADA) == (0 if s7_ligada else 1)
 
 
-# ---------------------------------------------------------------- trilha e modo demonstração
+# trilha e modo demonstração
 def test_aba_da_trilha_lista_eventos_e_verifica(janela):
     pa = destravar_admin(janela)
     pa._abrir_trilha()
@@ -294,7 +294,7 @@ def test_aba_de_relatorios_do_sistema(janela):
         assert pa.tabela_relatorio.columnCount() > 0 and pa.explicacao_relatorio.text()
 
 
-# ---------------------------------------------------------------- responsividade
+# responsividade
 def test_tabela_de_usuarios_mostra_o_perfil_e_se_adapta_a_largura(janela, qt):
     cadastrar(janela.app, "Beatriz Souza", Nivel.N2, "SP", "diretor2026", 100)
     pa = destravar_admin(janela)
@@ -308,7 +308,7 @@ def test_tabela_de_usuarios_mostra_o_perfil_e_se_adapta_a_largura(janela, qt):
     assert pa.tabela.columnWidth(1) >= 220 or pa.tabela.isColumnHidden(6)
 
 
-# ---------------------------------------------------------------- login de entrada e papéis
+# login de entrada e papéis
 SENHA_ADMIN_USUARIO = "Ministro#2026x"
 
 
@@ -326,7 +326,7 @@ SENHA_MINISTRO = "Custodia#2026"
 
 
 def cadastrar_ministro(janela):
-    """O ministro (camada 3) dos testes do step-up do N3: o administrador não tem camada."""
+    """O ministro (camada 3) usado nos testes do step-up do N3."""
     return cadastrar(janela.app, "Caio Mendes", Nivel.N3, None, SENHA_MINISTRO, 900)
 
 
@@ -449,7 +449,7 @@ def test_diretor_abre_o_nivel_2_direto_pelo_step_up(janela):
 
 
 def test_ministro_ve_so_a_aba_do_nivel_3_e_ela_comeca_no_rosto(janela):
-    """O administrador não tem camada: quem abre o N3 é o ministro, e o step-up começa no rosto."""
+    """Quem abre o N3 é o ministro, e o step-up começa no rosto."""
     vincular_admin(janela)
     caio = cadastrar_ministro(janela)
     sessao = fazer_login(janela, caio, SENHA_MINISTRO, 900)
@@ -546,7 +546,7 @@ def _textos_visiveis(widget):
 @pytest.mark.parametrize("nivel, codigo", [(Nivel.N1, "A1-01"), (Nivel.N2, "A2-01"), (Nivel.N3, "A3-01")],
                          ids=["N1", "N2", "N3"])
 def test_painel_do_acervo_sem_avisos_de_marca_nem_exportacao(janela, nivel, codigo):
-    """(01/11/2026): a tela fica simples. O painel à direita diz só o que foi
+    """A tela fica simples. O painel à direita diz só o que foi
     ocultado; nada sobre marca d'água (visível ou invisível) nem sobre a exportação, antes ou depois de abrir."""
     from ecosec.dominio.entidades import Usuario
     usuario = Usuario(matricula="K7QX2PM", nome="Ana", nivel=nivel.value, uf="SP" if nivel is Nivel.N2 else None,
@@ -562,7 +562,7 @@ def test_painel_do_acervo_sem_avisos_de_marca_nem_exportacao(janela, nivel, codi
 
 
 def test_cartao_do_nivel_sem_a_secao_de_protecao(janela):
-    """(01/11/2026): o cartão de cada nível na página inicial mostra o nível,
+    """O cartão de cada nível na página inicial mostra o nível,
     para quem é, o que mostra e o botão; sai "Como o conteúdo é protegido" (tarja, marca d'água, exportação)."""
     vincular_admin(janela)
     ana = cadastrar(janela.app, "Ana Prado", Nivel.N1, None, "servidor2026", 300)
@@ -574,7 +574,7 @@ def test_cartao_do_nivel_sem_a_secao_de_protecao(janela):
 
 
 def test_tela_do_acervo_sem_a_faixa_de_regras_do_nivel(janela):
-    """(01/11/2026): a faixa "O que mostra · Tarja · Marca d'água · Exportação"
+    """A faixa "O que mostra · Tarja · Marca d'água · Exportação"
     sai da tela do acervo, nos três níveis. Quem consulta não precisa saber que a marca é invisível nem que a
     exportação está bloqueada."""
     from PySide6.QtWidgets import QLabel
@@ -604,7 +604,7 @@ def test_inicio_rola_e_o_cartao_do_nivel_nao_encolhe(janela, qt):
     assert inicio.cartoes[0].botao.height() == ALTURA_BOTAO
 
 
-# ---------------------------------------------------------------- login único (usuário e administrador)
+# login único
 def test_configuracao_inicial_so_existe_antes_do_primeiro_administrador(janela):
     """A configuração inicial termina quando o primeiro cadastro, com perfil de administrador, é concluído."""
     from ecosec.interface.janela import Estado
@@ -620,7 +620,7 @@ def test_configuracao_inicial_so_existe_antes_do_primeiro_administrador(janela):
 
 
 def test_cadastro_sem_perfil_de_administrador_nao_vira_o_primeiro_admin(janela):
-    """O vínculo no login ("Você é o administrador?") saiu. Na configuração inicial, um cadastro que não é
+    """Na configuração inicial, um cadastro que não é
     de administrador não encerra a configuração."""
     from ecosec.interface.janela import Estado
     pa = destravar_admin(janela)
@@ -687,7 +687,7 @@ def test_painel_pede_rosto_e_celular_e_no_primeiro_acesso_cadastra_o_celular(jan
 
 
 def test_administrador_nunca_tem_aba_do_acervo_com_o_painel_aberto_ou_trancado(janela):
-    """O administrador não tem camada. Antes, as abas do acervo só sumiam com o painel aberto."""
+    """Com o painel aberto ou trancado, o administrador nunca tem aba do acervo."""
     admin = vincular_admin(janela)
     fazer_login(janela, admin, SENHA_ADMIN_USUARIO, 700)
     def nenhuma():
@@ -757,7 +757,7 @@ def test_ancora_da_trilha_pelo_painel_com_o_codigo_do_proprio_celular(janela):
     assert "confere" in pa.resultado_trilha.text()
 
 
-# ---------------------------------------------------------------- acesso de emergência
+# acesso de emergência
 def trio_de_admins(janela):
     """Rafael (configuração inicial), Bruno e Caio: os três administradores, com celular. Devolve os segredos."""
     from ecosec.dominio.entidades import Administrador
@@ -826,7 +826,7 @@ def test_quorum_abre_a_emergencia_so_com_a_administracao_restrita(janela):
     assert janela.sessao is None and janela.pagina_admin.assistente is None
 
 
-# ---------------------------------------------------------------- inatividade: bloqueia, nunca fecha no meio do uso
+# inatividade: bloqueia, nunca fecha no meio do uso
 def logar_diretora(janela):
     vincular_admin(janela)
     bia = cadastrar(janela.app, "Beatriz Souza", Nivel.N2, "SP", "diretor2026", 100)

@@ -25,8 +25,8 @@ Quatro escolhas de projeto:
 
 Regra de manutenção: o termo descreve só o que o sistema de fato faz. Mudou o
 tratamento ou a redação, sobe a versão, e a versão anterior é arquivada sem
-nenhuma alteração (ver `termo_v2.py`, `termo_v3_0.py`, `termo_v3_1.py`,
-`termo_v3_2.py` e `termo_v3_3.py`): sem ela, os hashes já gravados não poderiam mais ser conferidos.
+nenhuma alteração (ver termo_v2.py, termo_v3_0.py, termo_v3_1.py,
+termo_v3_2.py e termo_v3_3.py): sem ela, os hashes já gravados não poderiam mais ser conferidos.
 """
 import hashlib
 from datetime import datetime
@@ -39,9 +39,9 @@ VERSAO = "3.4"
 # 1.1 -> 2.0: resumo em camadas e consentimento separado por finalidade (art. 8º, §4º).
 # 2.0 -> 3.0: redação formal (preâmbulo, cláusulas, assinatura eletrônica descrita, revisão
 #             humana com base no art. 20); conteúdo do tratamento inalterado.
-#             Ajuste na 3.0 (07/10/2026, sem subir versão porque nenhum aceite 3.0 tinha sido
-#             registrado): a Cláusula 7ª deixa de afirmar que a segunda pessoa é sempre exigida.
-#             Ajuste na 3.0 (07/10/2026, mesmo motivo): o sistema passa a se chamar EcoSecurity.
+#             Ajustes na 3.0, sem subir versão porque nenhum aceite 3.0 tinha sido registrado:
+#             a Cláusula 7ª deixa de afirmar que a segunda pessoa é sempre exigida, e o sistema
+#             passa a se chamar EcoSecurity.
 # 3.0 -> 3.1: contato do controlador preenchido (endereço SIMULADO, sem caixa postal real) e rodapé de
 #             documento simulado (premissa formal do projeto acadêmico). A 3.0 foi
 #             arquivada em termo_v3_0.py, com o contato não preenchido com que sempre foi apresentada.
@@ -175,7 +175,7 @@ def renderizar(nome: str, contato: str, autoriza_pesquisa: bool | None = None) -
     return "\n".join(partes)
 
 
-# ------------------------------------------------------------------ apresentação (tela e PDF)
+# apresentação
 _PARAGRAFO = "<p align='justify' style='margin-top:4px; margin-bottom:4px'>{}</p>"
 
 
@@ -247,7 +247,7 @@ def via_do_titular_html(nome: str, contato: str, autoriza_pesquisa: bool, moment
         "do texto do termo com o nome e as autorizações acima e o compara com o registro.</td></tr></table>")
 
 
-# ------------------------------------------------------------------ prova do consentimento
+# prova do consentimento
 VERSOES = {termo_v2.VERSAO: termo_v2.renderizar, termo_v3_0.VERSAO: termo_v3_0.renderizar,
            termo_v3_1.VERSAO: termo_v3_1.renderizar, termo_v3_2.VERSAO: termo_v3_2.renderizar,
            termo_v3_3.VERSAO: termo_v3_3.renderizar, VERSAO: renderizar}

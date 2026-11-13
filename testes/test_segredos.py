@@ -56,6 +56,15 @@ def test_backup_exige_frase_minima_e_recusa_arquivo_estranho(tmp_path):
         segredos.importar_backup(b"qualquer coisa", "frase longa o bastante")
 
 
+def test_sem_a_protecao_do_windows_o_segredo_nao_e_gravado(tmp_path, monkeypatch):
+    env = tmp_path / ".env"
+    monkeypatch.setattr(segredos, "dpapi_disponivel", lambda: False)
+    with pytest.raises(segredos.ErroSegredo, match="pywin32"):
+        segredos.gravar("DB_SENHA", "s3gr3do", env)
+    assert not env.exists()
+
+
+@DPAPI
 def test_apagar_remove_so_a_chave_pedida(tmp_path):
     env = tmp_path / ".env"
     segredos.gravar("A", "1", env)
@@ -65,6 +74,7 @@ def test_apagar_remove_so_a_chave_pedida(tmp_path):
     assert segredos.nomes(env) == ["B"]
 
 
+@DPAPI
 def test_chave_totp_e_propria_e_nunca_e_trocada(tmp_path):
     env = tmp_path / ".env"
     totp = segredos.garantir_chave_totp(env)

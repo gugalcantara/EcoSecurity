@@ -1,18 +1,17 @@
 """S5 Habilitação: "Tem direito?"
 
-Provar quem se é (S2, S4) não basta: a identidade confirmada ainda precisa
-estar AUTORIZADA. Três condições, todas obrigatórias:
+Depois de confirmada a identidade (S2 e S4), o cadastro ainda precisa estar
+autorizado. São três condições, todas obrigatórias:
 
-1. Cadastro ativo: desativar é a forma de suspender alguém sem apagar a
-   história (amostras e trilha continuam íntegras).
-2. Consentimento vigente: sem termo aceito e não revogado não há base legal
-   para tratar a face (LGPD art. 11, I). É verificado a cada acesso, não só no
-   cadastro: o rosto continua no modelo depois da revogação, e só esta
-   checagem impede que ele siga abrindo a porta.
-3. Acesso habilitado: no LOGIN, ter um perfil com camada (servidor, diretor,
-   ministro) ou o papel de administrador (um Externo sem esse papel não entra); ao
-   abrir uma camada, ser a camada do perfil. Escopo exclusivo: o ministro não
-   abre a camada 1 nem a 2, e o administrador (Externo) não abre camada nenhuma.
+1. Cadastro ativo. Desativar suspende alguém sem apagar o histórico (amostras e
+   trilha continuam íntegras).
+2. Consentimento vigente, conferido a cada acesso (LGPD art. 11, I). Depois de uma
+   revogação, o rosto ainda pode estar no modelo, e é esta checagem que o impede de
+   continuar abrindo o sistema.
+3. Acesso habilitado. No login, a pessoa precisa ter um perfil com camada (servidor,
+   diretor ou ministro) ou o papel de administrador; ao abrir uma camada, ela
+   precisa ser a do perfil. O ministro não abre as camadas 1 e 2, e o administrador
+   não abre nenhuma.
 """
 from ecosec.dominio.camadas import CamadaSeguranca
 from ecosec.dominio.entidades import Usuario

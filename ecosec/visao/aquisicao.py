@@ -1,6 +1,6 @@
 """Fase 1, Aquisição: quadros da webcam em tempo real.
 
-Thread dedicada + fila de tamanho 1. Por quê:
+Thread dedicada e fila de tamanho 1:
 
     câmera  ──30 fps -> [fila]  ──?? fps -> reconhecimento
 
@@ -53,7 +53,7 @@ class Camera:
     def de_configuracao(cls, cfg) -> "Camera":
         c = cfg.secao("captura")
         return cls(c["indice_camera"], c["largura"], c["altura"], c["timeout_leitura"],
-                   c["frames_aquecimento"], backend=c.get("backend", "auto"))
+                   c["frames_aquecimento"], backend=c["backend"])
 
     def _abrir_webcam(self, indice: int):
         captura = cv2.VideoCapture(indice, self._backend)

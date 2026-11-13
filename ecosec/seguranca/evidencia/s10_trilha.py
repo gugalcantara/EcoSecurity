@@ -4,7 +4,7 @@ Cada evento é encadeado ao anterior por SHA-256:
 
     hash_n = SHA-256( hash_(n-1) + conteúdo_n )
 
-Por que isso detecta adulteração:
+Adulterações detectadas:
 - alterar o conteúdo de uma linha muda o hash calculado, que deixa de bater
   com o gravado -> REGISTRO_ALTERADO, na própria linha;
 - alterar o conteúdo e recalcular o hash daquela linha quebra a seguinte, cujo
@@ -20,8 +20,8 @@ prova que tudo até aquele registro continua igual: se ele sumiu, a cauda foi
 apagada; se o hash mudou, a cauda foi recalculada. O que veio depois da âncora
 só fica protegido pela âncora seguinte, por isso ela é periódica.
 
-Por que SHA-256 aqui e bcrypt nas senhas: aqui se quer integridade, rápido e
-determinístico é o certo. Para senha, rápido é o problema.
+SHA-256 aqui e bcrypt nas senhas: aqui se quer integridade, e um hash rápido e
+determinístico serve. Para senha, a rapidez é o problema.
 
 O conteúdo é serializado em JSON (lista em ordem fixa), não concatenado com um
 separador: com "|" como separador, os campos ("a|b", "c") e ("a", "b|c")
@@ -93,7 +93,7 @@ def verificar(registros: Iterable[RegistroTrilha]) -> Verificacao:
     return Verificacao(True, total)
 
 
-# ------------------------------------------------------------------ âncora fora do banco
+# âncora fora do banco
 PREFIXO_ANCORA = "ECOSEC-TRILHA"
 _HEX = set("0123456789abcdef")
 

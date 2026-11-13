@@ -13,10 +13,12 @@ from ecosec.repositorios.memoria import (RepositorioAdministradoresMemoria, Repo
                                          RepositorioConsentimentosMemoria, RepositorioTentativasMemoria,
                                          RepositorioTrilhaMemoria, RepositorioUsuariosMemoria)
 from ecosec.seguranca.acesso import totp
+from ecosec.seguranca.evidencia.monitor import ParametrosMonitor
 from ecosec.servicos.administracao import ServicoAdministracao
 from ecosec.servicos.trilha import ServicoTrilha
 
 CFG = carregar()
+MONITOR = ParametrosMonitor.de_configuracao(CFG)
 INICIO = datetime(2026, 11, 2, 14, 0, 0)
 
 
@@ -47,7 +49,7 @@ def g():
 
 
 def pessoa(g, nome, nivel=Nivel.N3, perfil=None):
-    """Um cadastro com rosto e consentimento. `perfil` manda sobre o nível: o administrador não tem camada."""
+    """Um cadastro com rosto e consentimento. perfil manda sobre o nível: o administrador não tem camada."""
     u = g.usuarios.adicionar(Usuario(matricula=nome[:3].upper() + "X2", nome=nome, nivel=None if perfil else nivel,
                                      perfil=perfil, senha_hash="$2b$x", uf="SP" if nivel is Nivel.N2 else None))
     c = g.consentimentos.registrar(Consentimento(nome, "3.1", "a" * 64, INICIO))
@@ -57,7 +59,7 @@ def pessoa(g, nome, nivel=Nivel.N3, perfil=None):
 
 
 def celular(g, u):
-    """Cadastra o celular de `u` e guarda o segredo para o teste gerar os códigos."""
+    """Cadastra o celular de u e guarda o segredo para o teste gerar os códigos."""
     novo = g.novo_celular(u.id)
     codigos = g.confirmar_celular(u.id, novo, totp.codigo(novo.segredo, g.relogio()))
     g.segredos[u.id] = novo.segredo
@@ -90,7 +92,7 @@ def eventos(g):
             for r in g.trilha.recentes(500)]
 
 
-# ---------------------------------------------------------------- papéis e implantação
+# papéis e implantação
 def test_implantacao_deixa_o_primeiro_agir_sozinho_e_a_trilha_marca(g):
     a, b, _ = trio(g)
     designacao_b = next(e for e in eventos(g) if e[0] == "TORNAR_ADMINISTRADOR" and "IMPLANTACAO" in e[3])
@@ -201,7 +203,7 @@ def test_so_externo_ativo_com_rosto_e_consentimento_vira_admin(g):
     assert sem_rosto.id not in {u.id for u in g.candidatos_a_administrador()}
 
 
-# ---------------------------------------------------------------- celular do próprio admin
+# celular do próprio admin
 def test_celular_so_vale_depois_do_primeiro_codigo_e_entrega_os_codigos_de_recuperacao(g):
     a = pessoa(g, "Ana Lima", perfil=Perfil.EXTERNO)
     from ecosec.dominio.entidades import Administrador
@@ -245,7 +247,7 @@ def test_refazer_celular_apaga_segredo_e_codigos_e_exige_aprovacao(g):
     assert g.novo_celular(c.id) is not None                                 # C cadastra um novo
 
 
-# ---------------------------------------------------------------- acesso de emergência
+# acesso de emergência
 def test_emergencia_so_para_admin_e_so_com_quorum_possivel(g):
     a = pessoa(g, "Ana Lima", perfil=Perfil.EXTERNO)
     from ecosec.dominio.entidades import Administrador
@@ -323,7 +325,7 @@ def test_codigo_de_recuperacao_conta_como_voto_no_quorum(g):
     assert sessao.informar(codigos_b[0]).concedida is not None
 
 
-# ---------------------------------------------------------------- migração e sessão
+# migração e sessão
 def test_admin_do_env_antigo_passa_para_o_banco_uma_vez(g):
     a = pessoa(g, "Ana Lima")
     assert g.migrar_administrador_legado(a.matricula) and g.eh_administrador(a.id)
@@ -332,7 +334,7 @@ def test_admin_do_env_antigo_passa_para_o_banco_uma_vez(g):
 
 
 def test_admin_nao_tem_aba_de_nivel_e_a_emergencia_nenhuma(g):
-    """O administrador não tem camada (antes via a aba do N3, porque era ministro também)."""
+    """O administrador não tem aba de nível, e a sessão de emergência também não."""
     from ecosec.servicos.sessao import SessaoAplicacao
     a, _, _ = trio(g)
     normal = SessaoAplicacao(g.usuarios.por_id(a.id), None, True, INICIO)
@@ -350,12 +352,12 @@ def test_emergencia_e_codigos_recusados_viram_alerta_no_monitor(g):
     sessao.informar("111111")                                               # código errado na emergência
     sessao.informar(codigo(g, b))
     sessao.informar(codigo(g, c))
-    regras = {(al.gravidade, al.regra) for al in monitor.detectar(g.trilha.recentes(500))}
+    regras = {(al.gravidade, al.regra) for al in monitor.detectar(g.trilha.recentes(500), MONITOR)}
     assert ("ALTO", "ACESSO_DE_EMERGENCIA") in regras
     assert ("MEDIO", "APROVACAO_RECUSADA") in regras and ("MEDIO", "EMERGENCIA_RECUSADA") in regras
 
 
-# ---------------------------------------------------------------- âncora da trilha pelo painel
+# âncora da trilha pelo painel
 def ultimo(g):
     return g.trilha.repo.todos()[-1]
 
@@ -421,7 +423,7 @@ def test_conferir_ancora_pelo_painel_registra_e_pega_a_cauda_apagada(g):
     assert not conferencia.valida and conferencia.problema == "ANCORA_AUSENTE"
 
 
-# ---------------------------------------------------------------- ferramentas de terminal (experimento)
+# ferramentas de terminal (experimento)
 def com_senha(g, u, senha="Admin#2026abc"):
     from ecosec.seguranca.acesso import s2_conhecimento
     g.usuarios.atualizar(replace(g.usuarios.por_id(u.id), senha_hash=s2_conhecimento.gerar_hash(senha, 4)))

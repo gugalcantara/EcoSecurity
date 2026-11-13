@@ -1,7 +1,7 @@
 """Fase do processo derivada 100% da etapa.
 
 O que se confere:
-- toda etapa de todo ciclo de `CICLOS` tem uma das quatro fases; a tabela não tem etapa a mais;
+- toda etapa de todo ciclo de CICLOS tem uma das quatro fases; a tabela não tem etapa a mais;
 - ao longo da ordem das etapas de cada ciclo, a fase nunca volta;
 - ENCERRADA é exatamente a etapa final de cada ciclo;
 - etapa desconhecida falha com erro claro (sem chute);

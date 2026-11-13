@@ -82,7 +82,7 @@ def _textos_visiveis(raiz) -> list[str]:
     return textos
 
 
-# ================================================================ 1. planilha: filtros em grupos, um só "Limpar"
+# 1. planilha: filtros em grupos, um só "Limpar"
 @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
 def test_um_unico_limpar_filtros_e_grupos_rotulados(tela, qt, nivel):
     from ecosec.interface.fluent import PushButton
@@ -158,7 +158,7 @@ def test_colunas_da_planilha_sem_redundancia_e_com_rotulos(tela, qt):
 
 
 def test_faixa_mostra_o_score_na_dica_e_ordena_pelo_score(tela, qt):
-    """O score saiu da grade (só na dica da faixa, como em "Casos para agir"); ordenar pela
+    """O score não aparece na grade (só na dica da faixa, como em "Casos para agir"); ordenar pela
     faixa ordena pelo score, a ordem do risco (o código da faixa em ordem alfabética não é)."""
     from PySide6.QtCore import Qt
     pa = _abrir(tela, qt, Nivel.N3, "planilha")
@@ -242,7 +242,7 @@ def test_aviso_de_exportacao_ao_lado_do_por_que(tela, qt, nivel):
     assert pl.tabela.mapTo(pl, QPoint(0, 0)).y() >= g.y() + grupo.height()           # a tabela logo abaixo
 
 
-# ---------------------------------------------------------------- detalhes do caso na gaveta
+# detalhes do caso na gaveta
 def _linha_com_rodovia(pl):
     """A primeira linha da página com endereço em rodovia ("RODOVIA SP 330 KM 83")."""
     linhas = pl.modelo._visiveis()
@@ -423,7 +423,7 @@ def test_gaveta_fica_sobre_a_grade_sem_mudar_as_colunas_e_fecha_com_esc(tela, qt
     assert not pl.gaveta.aberto
 
 
-# ================================================================ 2. N3: precisão
+# 2. N3: precisão
 def test_n3_priorizacao_com_curva_que_fecha(tela, qt):
     pa = _abrir(tela, qt, Nivel.N3, "orcamento")
     o = pa.orcamento
@@ -493,7 +493,7 @@ def test_resumo_do_n1_sem_linha_total(tela, qt):
     assert pa.agregado.modelo.total is None                                        # k=3: a soma não é o total
 
 
-# ================================================================ 3. legenda do mapa com Todos
+# 3. legenda do mapa com Todos
 def test_legenda_com_todos_separa_os_encerrados_das_faixas(tela, qt):
     from ecosec.interface.componentes import simbologia as sb
     pa = _abrir(tela, qt, Nivel.N3, "mapa")
@@ -517,9 +517,9 @@ def test_legenda_com_todos_separa_os_encerrados_das_faixas(tela, qt):
 
 
 def test_n3_ano_em_lista_com_todos_e_marcos_do_ano(tela, qt):
-    """No N3 a linha de baixo do mapa tem a lista "Ano" no lugar do slider: "Todos" primeiro e escolhido (a
+    """No N3 a linha de baixo do mapa tem a lista "Ano": "Todos" primeiro e escolhido (a
     situação atual), depois os anos anteriores em ordem decrescente, sem o ano corrente. À direita,
-    na mesma linha, os marcos regulatórios do ano escolhido (C-2), só quando o ano tem marco; os rótulos ficam como no
+    na mesma linha, os marcos regulatórios do ano escolhido, só quando o ano tem marco; os rótulos ficam como no
     acervo. A semântica não muda: o ano é a data de corte. No N2 a linha não aparece."""
     from PySide6.QtCore import QPoint
 
@@ -559,7 +559,7 @@ def test_n3_ano_em_lista_com_todos_e_marcos_do_ano(tela, qt):
     assert pa.mapa.linha_tempo.isHidden()
 
 
-# ================================================================ 3b. navegação do mapa
+# 3b. navegação do mapa
 def _esperar_enquadramento(m):
     from PySide6.QtCore import QAbstractAnimation
     from PySide6.QtTest import QTest
@@ -576,7 +576,7 @@ def _barras(m) -> tuple[int, int]:
 
 
 def _arrastar(m, inicio, delta, passos=10):
-    """Aperta em `inicio`, move em passos até `inicio + delta` e solta (o arrasto real, com o botão apertado)."""
+    """Aperta em inicio, move em passos até `inicio + delta` e solta (o arrasto real, com o botão apertado)."""
     from PySide6.QtCore import QPoint, Qt
     from PySide6.QtTest import QTest
     QTest.mousePress(m.viewport(), Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, inicio)
@@ -694,7 +694,7 @@ def test_no_zoom_do_pais_ha_folga_para_arrastar_na_horizontal(tela, qt, aumento)
 
 
 def test_botao_uf_do_n2_volta_a_uf_do_diretor_e_o_n3_continua_com_brasil(tela, qt):
-    """No N2 o botão de vista base é "UF" e leva à UF do diretor (o enquadramento de `ir_para_uf`, no
+    """No N2 o botão de vista base é "UF" e leva à UF do diretor (o enquadramento de ir_para_uf, no
     tamanho atual da vista); só a vista muda, o filtro fica. No N3, sem UF própria, o botão continua "Brasil"."""
     pa = _abrir(tela, qt, Nivel.N2, "mapa")
     mi, m = pa.mapa, pa.mapa.mapa
@@ -763,7 +763,7 @@ def _sobrepostos(g) -> list[tuple[str, str]]:
 @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
 def test_faixa_de_listas_do_mapa_numa_linha_sem_sobreposicao_em_1500(tela, qt, nivel):
     """Em 1500×950 (a resolução de referência), as 6 listas e − + Brasil/UF numa linha só, nenhuma por
-    cima da outra, e a seta de cada lista clicável (antes, a de atividades ficava sob o "−")."""
+    cima da outra, e a seta de cada lista clicável."""
     from PySide6.QtTest import QTest
     mi = _abrir(tela, qt, nivel, "mapa").mapa
     QTest.qWait(100)
@@ -795,7 +795,7 @@ def test_faixa_de_listas_do_mapa_quebra_em_duas_linhas_em_1366(tela, qt, nivel):
 
 
 def _corte_embaixo(w) -> int:
-    """Quantos pixels do fim de `w` ficam fora de algum widget acima dele (0 = inteiro à vista)."""
+    """Quantos pixels do fim de w ficam fora de algum widget acima dele (0 = inteiro à vista)."""
     from PySide6.QtCore import QPoint
     corte, pai = 0, w.parentWidget()
     while pai is not None:
@@ -818,9 +818,8 @@ def _rolagem_da_coluna_n3(mi):
 @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
 @pytest.mark.parametrize("largura, altura", [(1500, 950), (1366, 768)])
 def test_mapa_inteiro_a_vista_em_1500_e_em_1366(tela, qt, nivel, largura, altura):
-    """opção 3: em 1500×950 o mapa continua com pelo menos 380 px; em 1366×768 o espaço do mapa é de
-    291 px (N2) e 279 (N3), então o mínimo cai para 270 e o mapa cabe inteiro, sem o fim cortado (antes, com o
-    mínimo de 380, sumiam 89 e 101 px)."""
+    """Em 1500×950 o mapa continua com pelo menos 380 px; em 1366×768 o espaço do mapa é de 291 px (N2) e
+    279 (N3), então o mínimo cai para 270 e o mapa cabe inteiro, sem o fim cortado."""
     from PySide6.QtTest import QTest
     tela.resize(largura, altura)
     qt.processEvents()
@@ -851,7 +850,7 @@ def test_coluna_de_camadas_do_n3_rola_quando_falta_altura(tela, qt, largura, alt
     assert all(l.height() >= l.minimumSizeHint().height() for l in pc.linhas.values())
 
 
-# ================================================================ 4. nada de "escore", "KPI-0" ou "pendência"
+# 4. nada de "escore", "KPI-0" ou "pendência"
 @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
 def test_nenhum_escore_kpi_ou_pendencia_visivel(tela, qt, nivel):
     pa = _abrir(tela, qt, nivel)
@@ -867,7 +866,7 @@ def test_nenhum_escore_kpi_ou_pendencia_visivel(tela, qt, nivel):
 
 
 def test_capturas_n23(tela, qt, tmp_path):
-    """Capturas rápidas das abas novas (conferência visual; as definitivas ficam em r5cap/n23)."""
+    """Capturas das abas do N2, gravadas na pasta temporária do teste."""
     pa = _abrir(tela, qt, Nivel.N2, "paineis_uf")
     assert pa.paineis_uf.grab().save(str(tmp_path / "paineis_uf.png"))
     tela.encerrar()

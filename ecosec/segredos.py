@@ -97,10 +97,13 @@ def ler(nome: str, caminho: Path = CAMINHO_PADRAO) -> str | None:
 
 
 def gravar(nome: str, valor: str, caminho: Path = CAMINHO_PADRAO) -> None:
+    if not dpapi_disponivel():
+        raise ErroSegredo(f"O segredo {nome} não foi gravado: a proteção do Windows (pacote pywin32) não está "
+                          "disponível. Instale as dependências com:  .venv\\Scripts\\python.exe -m pip install "
+                          "-r requirements.txt")
     caminho = Path(caminho)
     caminho.touch(exist_ok=True)
-    guardado = _proteger(valor) if dpapi_disponivel() else valor
-    set_key(caminho, nome, guardado, quote_mode="always", encoding="utf-8")
+    set_key(caminho, nome, _proteger(valor), quote_mode="always", encoding="utf-8")
 
 
 def apagar(nome: str, caminho: Path = CAMINHO_PADRAO) -> None:
@@ -124,10 +127,10 @@ def proteger_existentes(caminho: Path = CAMINHO_PADRAO) -> int:
     return convertidos
 
 
-# ---------------------------------------------------------------- backup (o "envelope" fora do PC)
+# backup
 # O backup precisa abrir em outro computador, então não pode usar DPAPI: os
-# segredos são cifrados com uma chave derivada de uma FRASE-SENHA (scrypt, que é
-# lento de propósito, para encarecer a adivinhação) e guardados num arquivo.
+# segredos são cifrados com uma chave derivada de uma frase-senha (scrypt, lento
+# para encarecer a adivinhação) e guardados num arquivo.
 _SCRYPT = {"n": 2 ** 15, "r": 8, "p": 1}
 FRASE_MINIMA = 12
 
@@ -161,7 +164,7 @@ def importar_backup(conteudo: bytes, frase: str) -> dict[str, str]:
         raise ErroSegredo("Este arquivo não é um backup de segredos do EcoSecurity.") from None
 
 
-# ---------------------------------------------------------------- chaves
+# chaves
 def _garantir_fernet(nome: str, caminho: Path) -> bytes:
     existente = ler(nome, caminho)
     if existente:

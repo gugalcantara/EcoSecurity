@@ -7,7 +7,7 @@ InOutCubic. `[interface] animacoes = false` desliga (acessibilidade, máquina le
 Uma animação por vista, criada uma vez e reaproveitada (sem DeleteWhenStopped): com
 a política de apagar ao parar, o Qt destruía o objeto C++ no fim da 1ª animação e a
 referência guardada na vista ficava pendurada; o 2º enquadramento levantava
-"Internal C++ object already deleted" e derrubava filtro e navegação (/).
+"Internal C++ object already deleted" e derrubava filtro e navegação.
 """
 from functools import lru_cache
 from math import exp, log
@@ -43,14 +43,14 @@ def _animacao_da_vista(vista) -> QVariantAnimation:
 
 
 def parar_enquadramento(vista) -> None:
-    """Interrompe o enquadramento em curso (se houver), sem chamar o `ao_terminar` dele."""
+    """Interrompe o enquadramento em curso (se houver), sem chamar o ao_terminar dele."""
     anim = getattr(vista, "_animacao_enquadramento", None)
     if anim is not None and isValid(anim) and anim.state() != QAbstractAnimation.State.Stopped:
         anim.stop()
 
 
 def animar_enquadramento(vista, destino: QRectF, ms: int = 380, ao_terminar=None, ao_passo=None):
-    """Leva a vista até `destino`. Devolve a animação (ou None, se as animações estão desligadas)."""
+    """Leva a vista até destino. Devolve a animação (ou None, se as animações estão desligadas)."""
     parar_enquadramento(vista)                    # um enquadramento novo sempre vence o anterior
     origem = vista.mapToScene(vista.viewport().rect()).boundingRect()
     if not animacoes_ligadas() or origem.width() <= 0 or destino.width() <= 0 or not vista.isVisible():

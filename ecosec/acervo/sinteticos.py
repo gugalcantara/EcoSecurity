@@ -1,7 +1,6 @@
 """Base do acervo de passivos perigosos: determinística (semente fixa).
 
-Todas as execuções geram exatamente o mesmo acervo: os testes dependem disso,
-e o documento pode citar números estáveis.
+Todas as execuções geram exatamente o mesmo acervo, e os testes dependem disso.
 
 A forma segue os cadastros oficiais:
   - tipologia das atividades e contaminantes: Relação de Áreas Contaminadas da
@@ -70,8 +69,8 @@ AFINIDADE_EXCLUSIVA = {"AG-13"}
 # Cidades de cada UF: (nome, porte, perfis), a capital primeiro; os nomes são os de
 # dados/geografia.json. A cidade é sorteada depois da atividade, com peso porte × AFINIDADE_PERFIL quando a atividade
 # é do perfil da cidade (porte × 1 nas demais): 295 cidades, proporcionais aos casos da UF (casos / 8, de 6
-# a 30; saíram as que o sorteio deixava sem caso), as novas com porte 1, em ordem de prioridade depois das 90
-# Campina Grande e Imperatriz, polos regionais, passaram a porte 2 (com 1 ficavam sem caso).
+# a 30, sem as que o sorteio deixaria sem caso), as novas com porte 1, em ordem de prioridade depois das 90
+# Campina Grande e Imperatriz, polos regionais, têm porte 2 (com 1 ficariam sem caso).
 # O porte da capital está calibrado para ela ficar com cerca de 40% dos casos esperados da UF (era 45%;
 # de 30% a 60%; participacao_esperada). Sem perfil biológico (não há essa atividade) nem nuclear de operador único: as
 # fontes seladas ficam no perfil urbano, onde estão os hospitais.
@@ -427,7 +426,7 @@ QUANTIDADE_POR_PAR = {
 
 
 def quantidade_de(atividade: str, classe: str, u: float) -> float:
-    """Quantil `u` (0..1) da log-normal do par, truncada no intervalo. Recebe o sorteio pronto: consome
+    """Quantil u (0..1) da log-normal do par, truncada no intervalo. Recebe o sorteio pronto: consome
     exatamente um número da sequência, como o uniform de antes, e o resto do acervo não muda."""
     mediana, sigma, minimo, maximo = QUANTIDADE_POR_PAR[(atividade, classe)]
     z = NormalDist().inv_cdf(min(max(u, 1e-9), 1 - 1e-9))
@@ -504,7 +503,7 @@ EVENTOS = (
 )
 
 
-# ---------------------------------------------------------------- geografia
+# geografia
 @dataclass(frozen=True)
 class Municipio:
     nome: str
@@ -562,7 +561,7 @@ def ponto_no_municipio(rng: random.Random, m: Municipio) -> tuple[float, float]:
     raise RuntimeError(f"Não foi possível sortear um ponto em {m.nome}/{m.uf}.")
 
 
-# ---------------------------------------------------------------- composição
+# composição
 def _peso_na_uf(atividade: str, uf: str) -> float:
     afinidade = AFINIDADE.get(atividade, {})
     if atividade in AFINIDADE_EXCLUSIVA:
@@ -792,7 +791,7 @@ def custodia_de(p: Pendencia) -> Custodia | None:
 
 
 def ocupacao_em(c: Custodia, ano: int, pendencias) -> float:
-    """Ocupação da custódia no fim de `ano`: a da data-base, proporcional ao que já tinha entrado até lá.
+    """Ocupação da custódia no fim de ano: a da data-base, proporcional ao que já tinha entrado até lá.
     O depósito definitivo (estoque herdado de Goiânia, 1987) não muda."""
     if c.tipo == "DEFINITIVO":
         return c.ocupacao

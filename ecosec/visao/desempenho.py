@@ -44,7 +44,7 @@ def pontuacao_tentativa(distancias: list[float], quadros: int) -> float | None:
 
 
 def taxas(genuinas: list[float], impostoras: list[float], limiar: float, falhas_captura: int = 0) -> Ponto:
-    """FAR e FRR num limiar. `genuinas` e `impostoras` são pontuações de tentativa."""
+    """FAR e FRR num limiar. genuinas e impostoras são pontuações de tentativa."""
     n_gen = len(genuinas) + falhas_captura
     if not n_gen or not impostoras:
         raise ValueError("são precisas tentativas genuínas e de impostor")
@@ -72,7 +72,7 @@ def eer(pontos: list[Ponto]) -> Ponto:
 
 
 def maior_limiar_com_far(pontos: list[Ponto], far_maxima: float) -> Ponto:
-    """O maior limiar (o mais tolerante, logo a menor FRR) cuja FAR não passa de `far_maxima`."""
+    """O maior limiar (o mais tolerante, logo a menor FRR) cuja FAR não passa de far_maxima."""
     candidatos = [p for p in pontos if p.far <= far_maxima]
     if not candidatos:
         raise ValueError("nenhum limiar atinge essa FAR")
@@ -82,7 +82,7 @@ def maior_limiar_com_far(pontos: list[Ponto], far_maxima: float) -> Ponto:
 def sugerir_limiares(genuinas: list[float], impostoras: list[float], falhas_captura: int = 0,
                      far_nivel_2: float = 0.01) -> dict[int, Sugestao]:
     """Os três limiares da política de calibração: nível 1 no ponto de taxa de erro igual, nível 2 com a FAR até
-    `far_nivel_2` (1%) e nível 3 com a menor FAR alcançável. Cada um é limitado pelo do nível anterior: um nível
+    far_nivel_2 (1%) e nível 3 com a menor FAR alcançável. Cada um é limitado pelo do nível anterior: um nível
     mais sensível nunca aceita mais que um menos sensível."""
     pontos = curva(genuinas, impostoras, falhas_captura)
     n1 = eer(pontos)
@@ -100,9 +100,9 @@ def sugerir_limiares(genuinas: list[float], impostoras: list[float], falhas_capt
 
 
 def limiar_identificacao(corretas: list[float], erradas: list[float], teto: float | None = None) -> Ponto | None:
-    """Identificação 1:N. `corretas` são as distâncias dos quadros em que o mais parecido da galeria era a própria
-    pessoa; `erradas`, as dos quadros em que era outra pessoa. O limiar sugerido é o maior que ainda recusa toda
-    identificação errada (abaixo da menor distância errada), limitado por `teto`: sem nenhuma identificação errada
+    """Identificação 1:N. corretas são as distâncias dos quadros em que o mais parecido da galeria era a própria
+    pessoa; erradas, as dos quadros em que era outra pessoa. O limiar sugerido é o maior que ainda recusa toda
+    identificação errada (abaixo da menor distância errada), limitado por teto: sem nenhuma identificação errada
     medida, os dados não mostram até onde é seguro afrouxar, e no 1:N cada cadastro a mais é mais uma chance de
     erro. Devolve o ponto com far = fração das erradas aceitas (0) e frr = fração das corretas recusadas, ou None
     sem quadros corretos."""

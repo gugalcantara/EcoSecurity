@@ -7,7 +7,7 @@ valores da mesma dimensão em ou.
 
 A semântica reproduz os predicados que já existiam (para a ligação nas telas não mudar nenhum número):
   - UF e atividade: igualdade exata (MapaVetorial.filtrar; PlanilhaAnalitica.filtrar);
-  - risco: a faixa de `regras.categoria(p, hoje)`, sempre avaliada em `hoje` (o mapa calcula a faixa uma
+  - risco: a faixa de `regras.categoria(p, hoje)`, sempre avaliada em hoje (o mapa calcula a faixa uma
     vez, na montagem, com painel.hoje; a planilha também, em analise.linhas). O corte por ano não muda a faixa;
   - motivo e ação recomendada: igualdade com o código do motivo e com `regras.acao_recomendada(p, hoje, r)`
     (a planilha compara os rótulos "código · nome", que correspondem 1 para 1 aos códigos);
@@ -19,10 +19,10 @@ A semântica reproduz os predicados que já existiam (para a ligação nas telas
     bairro, logradouro ou CEP, como na planilha, e também na classe ("REJEITO" acha os rejeitos
     radioativos).
 Dimensões só desta vista: município (par UF, município: há nomes repetidos entre
-UFs), classe e etapa (`etapa_atual`).
+UFs), classe e etapa (etapa_atual).
 
 A situação aparece como "Situação do caso" com os rótulos Ativos, Encerrados e
-Todos (`acervo/vocabulario.py`), e o PADRÃO passou a ser TODAS (antes, ATIVAS). Os valores internos não mudaram.
+Todos (`acervo/vocabulario.py`); o padrão é TODAS.
 Os chips usam os rótulos do vocabulário (classe, atividade e motivo pelo nome simples, sem o código).
 """
 from dataclasses import dataclass, fields, replace
@@ -80,7 +80,7 @@ class Filtro:
             object.__setattr__(self, "ano", int(self.ano))
         object.__setattr__(self, "busca", self.busca or "")
 
-    # ------------------------------------------------------------ predicado
+    # predicado
     def corte(self, hoje: date) -> date:
         """Data em que a situação é avaliada: fim do ano escolhido (até hoje) ou hoje."""
         return hoje if self.ano is None else min(date(self.ano, 12, 31), hoje)
@@ -131,7 +131,7 @@ class Filtro:
         dentro = len(self.aplicar(pendencias, hoje, regras))
         return dentro, len(pendencias) - dentro, len(pendencias)
 
-    # ------------------------------------------------------------ edição (sempre devolve outro Filtro)
+    # edição
     def com(self, **mudancas) -> "Filtro":
         desconhecidas = set(mudancas) - set(DIMENSOES)
         if desconhecidas:
@@ -139,7 +139,7 @@ class Filtro:
         return replace(self, **mudancas)
 
     def sem(self, dimensao: str, valor=None) -> "Filtro":
-        """Tira a restrição da dimensão (toda, ou só `valor` numa dimensão de conjunto)."""
+        """Tira a restrição da dimensão (toda, ou só valor numa dimensão de conjunto)."""
         if dimensao in CONJUNTOS:
             if valor is None:
                 return replace(self, **{dimensao: frozenset()})
@@ -150,10 +150,10 @@ class Filtro:
         return replace(self, **{dimensao: padrao[dimensao]})
 
     def vazio(self) -> bool:
-        """Sem nenhuma restrição além do padrão (todos os casos até hoje). O filtro vazio é `Filtro()`."""
+        """Sem nenhuma restrição além do padrão (todos os casos até hoje). O filtro vazio é Filtro()."""
         return not self.chips()
 
-    # ------------------------------------------------------------ chips
+    # chips
     def chips(self, atividades: dict | None = None, motivos: dict | None = None) -> list[tuple]:
         """[(dimensão, valor, rótulo)], um por restrição ativa. Classe, atividade e motivo saem pelo nome simples
         do vocabulário (o código fica no glossário); os catálogos ficam para o código que o vocabulário não tem."""

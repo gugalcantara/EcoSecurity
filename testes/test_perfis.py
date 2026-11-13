@@ -21,7 +21,7 @@ def _usuario(perfil, uf=None, id_=1, ativo=True):
                    id=id_, ativo=ativo)
 
 
-# ================================================================ domínio
+# domínio
 def test_quatro_perfis_cada_um_com_no_maximo_uma_camada():
     Perfil = _perfis()
     assert {p.name: p.camada for p in Perfil} == {"EXTERNO": None, "SERVIDOR": Nivel.N1, "DIRETOR": Nivel.N2,
@@ -33,7 +33,7 @@ def test_quatro_perfis_cada_um_com_no_maximo_uma_camada():
 def test_escopo_exclusivo_cada_perfil_ve_so_a_propria_camada():
     """Substitui test_hierarquia_cada_nivel_alcanca_os_de_baixo (test_dominio.py)."""
     Perfil = _perfis()
-    assert not hasattr(Nivel, "alcanca")                         # a regra de hierarquia saiu do domínio
+    assert not hasattr(Nivel, "alcanca")                         # o domínio não tem regra de hierarquia
     assert Perfil.MINISTRO.ve(Nivel.N3) and not Perfil.MINISTRO.ve(Nivel.N1) and not Perfil.MINISTRO.ve(Nivel.N2)
     assert Perfil.DIRETOR.ve(Nivel.N2) and not Perfil.DIRETOR.ve(Nivel.N1)
     assert Perfil.SERVIDOR.ve(Nivel.N1) and not Perfil.SERVIDOR.ve(Nivel.N2)
@@ -73,7 +73,7 @@ def test_motivos_novos_falam_de_acesso_e_de_perfil():
     assert Motivo.SEM_ACESSO not in FALHAS_DE_IDENTIDADE           # não é ataque: não conta na S1
 
 
-# ================================================================ S5
+# S5
 @pytest.mark.parametrize("perfil, administrador, entra", [
     ("EXTERNO", False, False), ("EXTERNO", True, True), ("SERVIDOR", False, True), ("DIRETOR", False, True),
     ("MINISTRO", False, True)])
@@ -113,7 +113,7 @@ def test_s7_segunda_pessoa_da_camada_3_vale_e_externo_nao():
     assert s7_custodia.avaliar(ministro, externo, True, 10, 120).motivo is Motivo.SEGUNDA_PESSOA_INVALIDA
 
 
-# ================================================================ matriz (S-09)
+# matriz (S-09)
 def test_papeis_e_camadas():
     from ecosec.seguranca.autorizacao import Papel, papel_de
     Perfil = _perfis()
@@ -140,7 +140,7 @@ def test_matriz_o_administrador_nao_le_dado_nenhum():
 
 @pytest.mark.parametrize("papel, propria", [("SERVIDOR", 1), ("DIRETOR", 2), ("MINISTRO", 3)])
 def test_matriz_escopo_exclusivo_fora_da_camada_e_negado(papel, propria):
-    """Substitui os casos USO INTERNO e RESERVADO de test_matriz_para_o_ministro (test_modelo_chines.py)."""
+    """Cada papel só vê a própria camada: as classificações das outras camadas são negadas."""
     from ecosec.seguranca import autorizacao
     from ecosec.seguranca.autorizacao import Classificacao, Efeito, Operacao, Papel
     for classificacao in Classificacao:
@@ -166,7 +166,7 @@ def test_s09_tem_os_tres_perfis_e_o_admin_sem_dado():
     assert all(e == "NEGADO" for c, o, e in admin if o != "ADMINISTRAR")
 
 
-# ================================================================ termo
+# termo
 CONTATO = "controlador@ecosecurity.sim.br"
 HASHES_V3_1 = {True: "1c7f2ff9388dd015bd5ffb59bd41522fc9601316f2c14e4c684508019326b3d5",
                False: "88a92c54377f3b06716d4badda7506f3c6adcacc4658648d7f8e14f2945ea491"}

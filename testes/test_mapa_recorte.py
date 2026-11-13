@@ -40,7 +40,7 @@ def mapa(tela, qt):
     # Este teste conta pontos desenhados (isVisible) na escala país; sem a agregação por zoom, que
     # esconde os pontos dentro dos agregados (a agregação tem os próprios testes)
     pa.mapa.caixa_agrupar.setChecked(False)
-    # O padrão do filtro passou a Todos; estes testes medem o mapa nas ativas
+    # o padrão do filtro é Todos; estes testes medem o mapa nas ativas
     pa.estado.definir(situacao="ATIVAS")
     return pa.mapa.mapa
 

@@ -40,7 +40,7 @@ def acervo():
     return servico
 
 
-# ================================================================ a regra
+# a regra
 def test_suprimir_primaria_e_complementar_numa_tabela():
     escondidas = analise.suprimir({("A",): 1, ("B",): 5, ("C",): 7}, 3)
     assert escondidas == {("A",), ("B",)}           # A < 3; B sai junto, senão A = total - B - C
@@ -64,7 +64,7 @@ def test_suprimir_em_duas_margens_ate_estabilizar():
             assert sum(c in escondidas for c in celulas if c[margem] == grupo) != 1
 
 
-# ================================================================ o resumo do N1
+# o resumo do N1
 def _contagem(titulos, linha):
     return linha[list(titulos).index("PENDENCIAS")]
 
@@ -120,7 +120,7 @@ def test_trilha_registra_quantas_celulas_foram_suprimidas(acervo):
     assert "CELULAS SUPRIMIDAS" in acervo.trilha.recentes(1)[0].evento.detalhe.upper()
 
 
-# ================================================================ o panorama do N1
+# o panorama do N1
 def test_panorama_filtrado_por_classe_suprime_uf_sem_deixar_numero(acervo):
     p = acervo.panorama(ANA_N1, 1, classe=RADIOATIVO)
     suprimidas = [item for item in p.pressao.values() if item.suprimida]
@@ -165,7 +165,7 @@ def test_visoes_sql_do_n1_suprimem_no_mysql(acervo_mysql):
         assert len(escondidas) != 1, uf
 
 
-# ================================================================ pessoa física e custo por responsável
+# pessoa física e custo por responsável
 def test_pessoa_fisica_nunca_chega_ao_n2(acervo):
     painel = acervo.painel(BIA_N2, 2)
     vistos = [r for p in painel.pendencias for r in acervo.responsaveis_da_pendencia(painel, BIA_N2, p.codigo)]
@@ -230,7 +230,7 @@ def test_resumo_agregado_nao_agrupa_por_nome_de_responsavel():
     assert not any("RESPONSAVEL" in g and "RESPONSABILIDADE" not in g for g in analise.AGRUPAMENTOS)
 
 
-# ================================================================ volume coerente
+# volume coerente
 @pytest.fixture(scope="module")
 def gerado():
     return sinteticos.gerar()
@@ -290,7 +290,7 @@ def test_volume_do_banco_real_de_teste_e_coerente(acervo_mysql):
     assert linhas and incoerencias_de_volume(linhas) == []
 
 
-# ================================================================ custo por componente
+# custo por componente
 from ecosec.acervo import custos, regras  # noqa: E402
 
 R = regras.ParametrosRegras.de_configuracao(CFG)
@@ -305,7 +305,7 @@ def test_transicao_variaveis_da_rota_padrao_somam_o_custo_unitario_antigo():
     assert R.custos.densidade_solo == pytest.approx(1.8)
 
 
-# ================================================================ regra: nenhum total soma unidades diferentes
+# regra: nenhum total soma unidades diferentes
 def test_somar_recusa_unidades_ou_classes_misturadas(gerado):
     from ecosec.acervo import quantidades
     classe_i = next(p for p in gerado[0] if p.classe_risco == "CLASSE I NBR 10004")
@@ -319,7 +319,7 @@ def test_somar_recusa_unidades_ou_classes_misturadas(gerado):
 
 
 def test_relatorios_e_analises_nao_somam_quantidade_por_conta_propria():
-    """Toda soma de `p.quantidade` passa por acervo/quantidades.py, que recusa a mistura de unidades."""
+    """Toda soma de p.quantidade passa por acervo/quantidades.py, que recusa a mistura de unidades."""
     import ast
     from pathlib import Path
     raiz = Path(__file__).resolve().parent.parent / "ecosec"
@@ -396,7 +396,7 @@ def test_toda_substancia_gerada_tem_rota(gerado):
         assert custos.rota_de(p, R.custos).nome in R.custos.rotas
 
 
-# ================================================================ latência mínima
+# latência mínima
 def test_nenhuma_encerrada_antes_da_latencia_da_sua_linha(gerado):
     from ecosec.acervo.geracao import saidas, series
     latencia = {linha: s.latencia for linha, s in saidas.configuradas().items()}
@@ -440,7 +440,7 @@ def test_latencia_nao_muda_quantos_saem(gerado):
     assert encerradas == 1372                           # Era 1.345
 
 
-# ================================================================ KPI-01 por Kaplan-Meier
+# KPI-01 por Kaplan-Meier
 def test_kaplan_meier_conta_as_censuradas():
     # eventos em 1 e 2 anos; duas ainda ativas há 5. Mediana só das encerradas = 1,5; com censura = 2.
     curva = analise.kaplan_meier([(1, True, 0), (2, True, 0), (5, False, 0), (5, False, 0)])
@@ -470,7 +470,7 @@ def test_kpi01_p90_nao_atingido_vira_none(gerado):
     assert km.p90 is None                                          # a curva não chega a 90% encerradas
 
 
-# ================================================================ série anual sem ano fixo
+# série anual sem ano fixo
 def _sql_da_serie():
     from pathlib import Path
     sql = (Path(__file__).resolve().parent.parent / "sql" / "acervo" / "01_schema.sql").read_text(encoding="utf-8")
@@ -493,7 +493,7 @@ def test_serie_anual_no_mysql_termina_no_ano_corrente(acervo_mysql):
     assert (linha["primeiro"], linha["ultimo"]) == (2006, date.today().year)
 
 
-# ================================================================ termo 3.1 e a 3.0 arquivada
+# termo 3.1 e a 3.0 arquivada
 # hashes da 3.0 calculados pelo código antes de a 3.1 existir (contato não preenchido com que a 3.0 sempre saiu)
 HASHES_V3_0 = {None: "3f39c3262a49428cfe68f9b0539918ce45cac6c52d95806273b007ae11bf02f0",
                True: "2dbe748462dec89212c2c006d19815d16d74b46e773b0870b47edda13440943e",
@@ -535,7 +535,7 @@ def test_3_1_e_3_0_tem_hashes_diferentes_para_o_mesmo_aceite():
     assert termo.confere("3.1", "Ana Lima", termo_v3_0.CONTATO, True, HASHES_V3_0[True]) is False
 
 
-# ================================================================ tela de custo por responsável (N3)
+# tela de custo por responsável (N3)
 @pytest.fixture
 def tela(qt, tmp_path):
     from ecosec.aplicacao import montar

@@ -1,7 +1,7 @@
 """Botão Exportar com cadeado: informa se a exportação vai pedir o rosto de novo.
 
 A interface nunca decide permissão: o cadeado é só informativo. Quem decide é o
-serviço (matriz de autorização + step-up). `janela_min` vem de
+serviço (matriz de autorização + step-up). janela_min vem de
 [contexto] verificacao_minutos, a mesma chave do serviço, para os dois não divergirem.
 
 A biblioteca Fluent instalada não tem FluentIcon.LOCK: o ícone vem do glifo da
@@ -41,7 +41,7 @@ def icone_glifo(glifo: str, cor: str = "#5c5c5c", tamanho: int = 16) -> QIcon:
 
 
 class BotaoExportar(PushButton):
-    """`sessao` precisa ter `verificacao.momento` (SessaoAplicacao). Sem sessão: cadeado fechado."""
+    """sessao precisa ter verificacao.momento (SessaoAplicacao). Sem sessão: cadeado fechado."""
 
     def __init__(self, texto: str = "", sessao=None, janela_min: float = 5.0, relogio=datetime.now, parent=None):
         # o PushButton do Fluent sobrecarrega __init__ (singledispatch): a versão com texto chama de volta

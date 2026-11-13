@@ -3,15 +3,15 @@
 O LBPH compara texturas; uma foto impressa ou na tela do celular tem a mesma
 textura do rosto. A S6 pede um gesto que uma imagem parada não faz.
 
-O desafio é sorteado com `secrets` (gerador criptográfico), não com `random`.
-O `random` é previsível: quem conhece alguns valores pode antecipar os
+O desafio é sorteado com secrets (gerador criptográfico), não com random.
+O random é previsível: quem conhece alguns valores pode antecipar os
 próximos e gravar o vídeo certo. Sorteando uma sequência de gestos, um vídeo
 pré-gravado precisa acertar todas: com 3 gestos, 2 por sequência e a piscada
 garantida, o melhor chute acerta 2 em 9 (sem a piscada garantida seria 1 em 9;
 só com os 2 deslizes, 1 em 4).
 
-Limitação declarada (EXC-06): um vídeo da pessoa fazendo o gesto pedido, ao
-vivo, passaria. Detecção de profundidade e textura está fora do escopo.
+Limitação: um vídeo da pessoa fazendo o gesto pedido, ao vivo, passaria.
+Detecção de profundidade e de textura está fora do escopo.
 
 A detecção do gesto (piscada, giro) é trabalho da camada de visão; aqui
 ficam o sorteio e a decisão.
@@ -43,7 +43,7 @@ class Desafio(str, Enum):
 def sortear(disponiveis, quantidade: int, gerador=None, exigir: str | None = None) -> list[Desafio]:
     """Sequência imprevisível de desafios (pode repetir gestos).
 
-    `exigir`: um gesto que precisa aparecer ao menos uma vez, em posição
+    exigir: um gesto que precisa aparecer ao menos uma vez, em posição
     sorteada. Usado para a PISCADA: deslizar uma foto impressa para o lado
     cumpre "mover o rosto", mas uma foto não pisca. Sem a piscada garantida, o
     sorteio poderia sair só com movimentos: e uma foto passaria.

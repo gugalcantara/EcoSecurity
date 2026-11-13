@@ -75,7 +75,7 @@ def campo_codigo(dica: str = "6 dígitos do aplicativo") -> LineEdit:
     return campo
 
 
-# ============================================================ abrir o painel: o código do celular
+# abrir o painel: o código do celular
 class PainelCodigoCelular(QWidget):
     confirmado = Signal()
     voltar = Signal()
@@ -127,7 +127,7 @@ class PainelCodigoCelular(QWidget):
             self.mensagem.setText(motivo.mensagem)
 
 
-# ============================================================ primeiro acesso: cadastrar o celular
+# primeiro acesso: cadastrar o celular
 class PainelCadastroCelular(QWidget):
     concluido = Signal()
     voltar = Signal()
@@ -248,7 +248,7 @@ class PainelCadastroCelular(QWidget):
         self._limpar()
 
 
-# ============================================================ aprovação por outro administrador
+# aprovação por outro administrador
 class DialogoAprovacao(MessageBoxBase):
     def __init__(self, acao: str, alvo: str | None, parent=None):
         super().__init__(parent)
@@ -278,7 +278,7 @@ def pedir_aprovacao(parent, servico, acao: str, alvo: str | None) -> str | None:
     return dialogo.campo.text() if dialogo.exec() else None
 
 
-# ============================================================ código do próprio celular e âncora da trilha
+# código do próprio celular e âncora da trilha
 class DialogoCodigoProprio(MessageBoxBase):
     def __init__(self, acao: str, explicacao: str, parent=None):
         super().__init__(parent)
@@ -338,7 +338,7 @@ def pedir_linha_ancora(parent) -> str | None:
     return dialogo.campo.text() if dialogo.exec() else None
 
 
-# ============================================================ acesso de emergência: no login
+# acesso de emergência: no login
 class PaginaEmergencia(QWidget):
     concedida = Signal(object)                       # servicos.administracao.Emergencia
     voltar = Signal()
@@ -393,7 +393,7 @@ class PaginaEmergencia(QWidget):
         self.voltar.emit()
 
 
-# ============================================================ acesso de emergência: a Administração restrita
+# acesso de emergência: a Administração restrita
 class PainelEmergencia(QWidget):
     recadastrar_rosto = Signal(int)                  # usuario_id
     sair = Signal()

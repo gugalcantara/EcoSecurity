@@ -54,7 +54,7 @@ def dividir(texto: str) -> list[str]:
 
 
 def executar_scripts(conexao, qual: str) -> int:
-    """Executa os scripts do banco `qual` na conexão (já no banco certo). Devolve nº de comandos."""
+    """Executa os scripts do banco qual na conexão (já no banco certo). Devolve nº de comandos."""
     total = 0
     cursor = conexao.cursor()
     try:

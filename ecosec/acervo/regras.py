@@ -37,7 +37,6 @@ ACAO_GRUPO = {"Carga em local desconhecido": "rastrear a carga e autuar quem nã
 
 CATEGORIAS = ("BAIXO", "MEDIO", "ALTO", "CRITICO")
 LIMITES = (5.0, 20.0, 60.0)           # limite superior exclusivo de cada faixa; acima do último, CRITICO
-#                                       Era (3, 6, 10), com 60,5% dos ativos críticos
 
 COBRAVEL, PUBLICO, INFRAESTRUTURA, FISCALIZACAO = ("COBRAVEL DO RESPONSAVEL", "ORCAMENTO PUBLICO",
                                                    "INVESTIMENTO EM INFRAESTRUTURA", "FISCALIZACAO E RASTREIO")
@@ -76,9 +75,9 @@ def _padrao() -> ParametrosRegras:
     return ParametrosRegras.de_configuracao(carregar())
 
 
-# ---------------------------------------------------------------- ciclo de vida
+# ciclo de vida
 def ativa(p: Pendencia, em: date) -> bool:
-    """Identificada até `em` e não encerrada até lá. Toda contagem de "pendências"
+    """Identificada até em e não encerrada até lá. Toda contagem de "pendências"
     usa só as ativas; as encerradas ficam no cadastro como histórico (a curva pode cair)."""
     return p.ativa(em)
 
@@ -87,13 +86,13 @@ def ativas(pendencias, em: date) -> list[Pendencia]:
     return [p for p in pendencias if p.ativa(em)]
 
 
-# ---------------------------------------------------------------- criticidade
+# criticidade
 def fator_atraso(p: Pendencia, hoje: date) -> float:
     return 1 + p.dias_de_atraso(hoje) / 365
 
 
 def criticidade(p: Pendencia, hoje: date) -> float:
-    return RISCO_CLASSE.get(p.classe_risco, 1) * PESO_GRUPO[grupo_do_motivo(p.motivo)] * fator_atraso(p, hoje)
+    return RISCO_CLASSE[p.classe_risco] * PESO_GRUPO[grupo_do_motivo(p.motivo)] * fator_atraso(p, hoje)
 
 
 def faixa_do_score(valor: float) -> str:
@@ -107,9 +106,9 @@ def categoria(p: Pendencia, hoje: date) -> str:
     return faixa_do_score(criticidade(p, hoje))
 
 
-# ---------------------------------------------------------------- prazo, custo, responsabilidade
+# prazo, custo, responsabilidade
 def prazo_limite(p: Pendencia, r: ParametrosRegras) -> date:
-    return p.data_identificacao + timedelta(days=r.sla_dias.get(p.classe_risco, 365))
+    return p.data_identificacao + timedelta(days=r.sla_dias[p.classe_risco])
 
 
 def dias_alem_do_prazo_limite(p: Pendencia, hoje: date, r: ParametrosRegras) -> int:
@@ -145,7 +144,7 @@ def acao_recomendada(p: Pendencia, hoje: date, r: ParametrosRegras) -> str:
     return "BUSCAR DESTINO TECNICO"
 
 
-# ---------------------------------------------------------------- fila do orçamento público
+# fila do orçamento público
 CRITERIOS = ("MAIOR REDUCAO DE RISCO POR REAL", "MAIOR RISCO PRIMEIRO")
 
 

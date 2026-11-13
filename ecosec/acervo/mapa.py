@@ -76,8 +76,8 @@ class Mapa:
 
     def desenhar_ufs(self, tela: Tela, cores: dict, padrao=(236, 238, 241), contorno=(255, 255, 255),
                      espessura: int = 1, hachura=frozenset(), cor_hachura=(150, 150, 150)):
-        """Cada UF preenchida pela sua cor (`cores[uf]`, ou `padrao`), com divisas finas, recortada no quadro do
-        mapa (uma camada do tamanho do quadro, colada por cima). `hachura`: UFs riscadas em diagonal (no N1, a UF
+        """Cada UF preenchida pela sua cor (`cores[uf]`, ou padrao), com divisas finas, recortada no quadro do
+        mapa (uma camada do tamanho do quadro, colada por cima). hachura: UFs riscadas em diagonal (no N1, a UF
         cujo total sai SUPRIMIDO; a hachura não depende só da cor)."""
         camada = Image.new("RGBA", (self.largura, self.altura), (0, 0, 0, 0))
         d = ImageDraw.Draw(camada)

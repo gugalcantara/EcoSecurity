@@ -58,7 +58,7 @@ def pa(tela, qt):
 
 
 def _textos_visiveis(pu, todos: bool = False) -> list[str]:
-    """Texto que a pessoa lê: os rótulos visíveis e a tabela "Casos para agir já". Com `todos` (a varredura de
+    """Texto que a pessoa lê: os rótulos visíveis e a tabela "Casos para agir já". Com todos (a varredura de
     sigilo), também os rótulos escondidos, os botões, os itens de combo e as outras tabelas."""
     from PySide6.QtCore import QAbstractListModel, Qt
     from PySide6.QtWidgets import QAbstractButton, QAbstractItemView, QComboBox, QLabel
@@ -89,7 +89,7 @@ def _remontar_lista(pu, qt, pendencias):
     qt.processEvents()
 
 
-# ================================================================ O que fazer agora
+# O que fazer agora
 def test_proximo_passo_aponta_a_acao_mais_urgente_com_casos(pa):
     pu = pa.paineis_uf
     titulos, linhas = pu._tabela("POR ACAO RECOMENDADA")
@@ -126,8 +126,7 @@ def test_proximo_passo_sem_acao_e_sem_caso_atrasado_comeca_pela_distancia_do_pai
     zeradas = [[a, 0, 0] for a in regras.ACOES]
     pu._proximo_passo(zeradas, TITULOS, [], pu.comparacoes, "29/10/2026")
     assert len(pu.frases_agora) == 1
-    # SP passou a pior que o Brasil em casos críticos; antes, "A UF está melhor ou igual
-    # ao Brasil" (SP melhor nos 4)
+    # SP está pior que o Brasil em casos críticos
     assert pu.texto_agora.text() == ("1. Maior distância do Brasil: <b>Casos críticos</b>, 6,5 p.p. pior "
                                      "(UF 19,0%, Brasil 12,5%).")
 
@@ -149,10 +148,10 @@ def test_proximo_passo_sem_nada_mostra_aviso_e_nenhuma_frase_vazia(pa):
     assert pu.texto_agora.text() == "Sem casos ativos e sem comparação com o Brasil: nada a priorizar."
 
 
-# ================================================================ UF × Brasil: melhor ou pior, no sentido certo
+# UF × Brasil: melhor ou pior, no sentido certo
 def _comparar(pu, indicador=None, sentido=None):
     """UF montada: 100 ativos, 50 críticos, 60 além do prazo legal, 70 com prazo previsto vencido e taxa de
-    encerramento de 10%. Brasil igual em tudo, exceto `indicador`, deslocado 5 p.p. (2,5 p.p. na taxa) no sentido
+    encerramento de 10%. Brasil igual em tudo, exceto indicador, deslocado 5 p.p. (2,5 p.p. na taxa) no sentido
     pedido."""
     real = pu.dados["referencia"]
     br = {"criticos": 500, "alem": 600, "vencidos": 700, "taxa": 10.0}
@@ -212,7 +211,7 @@ def test_dados_reais_de_sp_pior_que_o_brasil_so_em_criticos(pa):
     assert "<b>UF SP × Brasil:</b> melhor em 3 e pior em 1 dos 4 indicadores." in pu.texto_comparacao.text()
 
 
-# ================================================================ cartões com referência
+# cartões com referência
 def test_cartoes_comparam_com_o_ano_anterior_e_com_o_pais(pa):
     pu = pa.paineis_uf
     hoje = pa.painel.hoje
@@ -228,7 +227,7 @@ def test_cartoes_comparam_com_o_ano_anterior_e_com_o_pais(pa):
     assert pu.cartoes["custo"].valor.text().startswith("R$")            # O custo fica no N2
 
 
-# ================================================================ lista vazia e ordem
+# lista vazia e ordem
 def test_lista_vazia_sem_casos_ativos(pa, qt):
     pu = pa.paineis_uf
     _remontar_lista(pu, qt, [p for p in pa.painel.pendencias if not p.ativa(pa.painel.hoje)])
@@ -269,7 +268,7 @@ def test_lista_desempata_pelo_codigo(pa, qt, monkeypatch):
     assert codigos == sorted(codigos) and len(codigos) == n23_paineis_uf.MAX_CASOS
 
 
-# ================================================================ legibilidade
+# legibilidade
 def test_acao_recomendada_inteira_e_municipio_estreito(pa, qt):
     pu = pa.paineis_uf
     t = pu.tabela_casos
@@ -317,7 +316,7 @@ def test_textos_sem_travessao_sem_codigo_e_com_unidade(pa):
         assert "%" in pu.cartoes[chave].contexto.text()
 
 
-# ================================================================ recarga
+# recarga
 def test_carregar_duas_vezes_nao_acumula_linhas_nem_widgets(pa, qt):
     from PySide6.QtCore import QCoreApplication, QEvent
     from PySide6.QtWidgets import QLabel, QWidget
@@ -334,7 +333,7 @@ def test_carregar_duas_vezes_nao_acumula_linhas_nem_widgets(pa, qt):
     assert antes == depois
 
 
-# ================================================================ números que fecham com o serviço
+# números que fecham com o serviço
 def test_secoes_e_numeros_que_fecham_com_o_servico(tela, pa, qt):
     pu = pa.paineis_uf
     servico = tela.app.acervo
@@ -379,7 +378,7 @@ def test_secoes_e_numeros_que_fecham_com_o_servico(tela, pa, qt):
     assert pa.pilha.currentWidget() is pa.mapa.property("cartao") and pa.mapa._p_atual is pu._casos[0]
 
 
-# ================================================================ sigilo do N2
+# sigilo do N2
 def test_n2_sem_pessoa_fisica_sem_custo_por_responsavel_e_pais_sem_outras_ufs(tela, pa):
     servico = tela.app.acervo
     assert "responsaveis" not in pa.abas.items and "orcamento" not in pa.abas.items

@@ -53,7 +53,7 @@ class TelaAutenticacao(QWidget):
         self.faixa.setVisible(self.modo_demonstracao)
         self.res_detalhe.setVisible(self.modo_demonstracao)
 
-    # ============================================================ layout
+    # layout
     def _montar(self):
         raiz = QVBoxLayout(self)
         raiz.setContentsMargins(24, 16, 24, 16)
@@ -172,9 +172,9 @@ class TelaAutenticacao(QWidget):
         v.addStretch(1)
         return w
 
-    # ============================================================ fluxo
+    # fluxo
     def iniciar(self, fabrica, titulo: str, subtitulo: str, cor: str | None = None):
-        """`fabrica()` cria a SessaoAutenticacao (de novo a cada "Tentar novamente")."""
+        """fabrica() cria a SessaoAutenticacao (de novo a cada "Tentar novamente")."""
         self._parar_video()
         self._fabrica, self._cabecalho = fabrica, (titulo, subtitulo, cor)
         self.sessao = fabrica()
@@ -194,7 +194,7 @@ class TelaAutenticacao(QWidget):
         self._exibir(self.sessao.andamento)
 
     def iniciar_nivel(self, nivel: int, identidade=None):
-        """Acesso a um nível (com `identidade`, step-up a partir do login de entrada)."""
+        """Acesso a um nível (com identidade, step-up a partir do login de entrada)."""
         nivel = Nivel(nivel)
         self.iniciar(lambda: self.app.autenticacao.nova_sessao(nivel, identidade=identidade),
                      f"Nível {nivel.value} · {nivel.titulo}",
@@ -299,7 +299,7 @@ class TelaAutenticacao(QWidget):
         self.botao_repetir.setVisible(not concedido)
         self.visor.limpar("Acesso concedido" if concedido else "Câmera desligada")
 
-    # ============================================================ vídeo
+    # vídeo
     def _ligar_video(self):
         if self.trabalhador is not None:
             return
@@ -316,7 +316,7 @@ class TelaAutenticacao(QWidget):
             trabalhador.parar()
             trabalhador.deleteLater()
 
-    # ============================================================ saídas
+    # saídas
     def cancelar(self):
         if self.sessao is not None and self.sessao.andamento.etapa is not Etapa.CONCLUIDA:
             self._exibir(self.sessao.cancelar())

@@ -10,8 +10,8 @@ Puro, sem Qt: `acervo/` não importa a interface, os serviços nem a segurança 
 REGRA DO SUBSTANTIVO
     O objeto do cadastro, nos textos visíveis, é o CASO: "caso" / "casos" ("1.055 casos ativos", "Casos além do
     prazo legal"). "Pendência" continua só no código, nos nomes internos (Pendencia, pendencias, PENDENCIAS) e nos
-    títulos de coluna da exportação crua. Texto novo ou reescrito usa `SUBSTANTIVO` / `casos(n)`. O título das
-    colunas na tela sai de `titulo_coluna`, que já troca PENDENCIAS por "Casos".
+    títulos de coluna da exportação crua. Texto novo ou reescrito usa SUBSTANTIVO / `casos(n)`. O título das
+    colunas na tela sai de titulo_coluna, que já troca PENDENCIAS por "Casos".
 
 SITUAÇÃO
     O filtro único tem três valores internos (ATIVAS, ENCERRADAS, TODAS, em `acervo/filtro.py`) com os rótulos
@@ -31,9 +31,9 @@ API (o que as telas usam)
     buscar(texto)                    as seções do glossário só com os termos que contêm o texto (sem acento)
     Dicionários prontos: ROTULO_CLASSE, ROTULO_SITUACAO, ROTULO_KPI, ROTULO_FAIXA, ROTULO_FASE, ROTULO_ETAPA,
     ROTULO_ACAO, ROTULO_RESPONSABILIDADE, ROTULO_MOTIVO, ROTULO_ATIVIDADE, ROTULO_NIVEL.
-    `tipo` é um de TIPOS. Sem tipo, o código é procurado na ordem de TIPOS (o mesmo código pode existir em mais de
+    tipo é um de TIPOS. Sem tipo, o código é procurado na ordem de TIPOS (o mesmo código pode existir em mais de
     um tipo: REMEDIACAO é fase, etapa e categoria de custo). Código desconhecido: o rótulo é o próprio código
-    (nunca um erro na tela); o teste `test_vocabulario.py` garante que todo código do acervo tem rótulo.
+    (nunca um erro na tela); o teste test_vocabulario.py garante que todo código do acervo tem rótulo.
 
 Nenhum travessão em texto visível.
 """
@@ -91,7 +91,7 @@ def _num(valor: float) -> str:
     return f"{valor:g}".replace(".", ",")
 
 
-# ================================================================ classes
+# classes
 CLASSES = (
     _t("classe", AREA, "Área contaminada",
        "Terreno onde o solo, a água subterrânea ou o sedimento tem substância perigosa acima do valor de investigação "
@@ -110,7 +110,7 @@ CLASSES = (
                                                              "Lei 10.308/2001"),
 )
 
-# ================================================================ situação (filtro único)
+# situação (filtro único)
 SITUACOES = (
     _t("situacao", "ATIVAS", "Ativos",
        "Casos identificados até a data de corte e ainda sem solução nessa data (não chegaram à etapa final do "
@@ -124,7 +124,7 @@ SITUACOES = (
 )
 
 
-# ================================================================ risco e score
+# risco e score
 def _texto_score() -> str:
     classe = "; ".join(f"{ROTULO_CLASSE[c].lower()} {_num(p)}" for c, p in
                        sorted(_regras.RISCO_CLASSE.items(), key=lambda cp: -cp[1]))
@@ -159,7 +159,7 @@ RISCO = (
        "volume 0,375, fração crítica 0,375 e fração além do prazo legal 0,25."),
 )
 
-# ================================================================ KPIs
+# KPIs
 KPIS = (
     _t("kpi", "KPI-01", "Tempo típico até o encerramento",
        "Quanto tempo um caso costuma levar, da identificação até o encerramento. Metade dos casos encerra antes "
@@ -187,7 +187,7 @@ KPIS = (
        unidade="reais (em milhões)"),
 )
 
-# ================================================================ fases e etapas
+# fases e etapas
 FASES = (
     _t("fase", _fase.IDENTIFICACAO, "Identificação",
        "O caso foi registrado e a autoridade começou a agir (avaliação preliminar, notificação, declaração de fonte "
@@ -256,7 +256,7 @@ _SITUACOES_CASO = {
 }
 SITUACOES_CASO = tuple(_t("situacao_caso", c, r, d) for c, (r, d) in _SITUACOES_CASO.items())
 
-# ================================================================ ação recomendada e responsabilidade financeira
+# ação recomendada e responsabilidade financeira
 _ACOES = {
     _regras.ESCALAR_MP: ("Levar ao Ministério Público", "Cobrança administrativa esgotada: caso crítico de "
                                                         "responsável cobrável com atraso maior que o limite de "
@@ -293,7 +293,7 @@ _RESPONSABILIDADES = {
 RESPONSABILIDADES = tuple(_t("responsabilidade", c, r, d, referencia=ref) for c, (r, d, ref) in
                           _RESPONSABILIDADES.items())
 
-# ================================================================ motivos (MP-xx) e atividades (AG-xx)
+# motivos (MP-xx) e atividades (AG-xx)
 _MOTIVOS = {
     "MP-01": ("Empresa responsável fechou ou faliu", "A empresa que gerou o problema deixou de existir ou está em "
                                                      "falência. A obrigação passa a sucessores e a quem compra o "
@@ -341,7 +341,7 @@ _ATIVIDADES = {
 }
 ATIVIDADES = tuple(_t("atividade", c, r, d) for c, (r, d) in _ATIVIDADES.items())
 
-# ================================================================ campos da ficha e categorias de custo
+# campos da ficha e categorias de custo
 CAMPOS = (
     _t("campo", "CODIGO", "Código do caso", "Identificador do caso no cadastro: as letras PD e um número de quatro dígitos."),
     _t("campo", "SUBSTANCIA", "Substância", "O que contamina ou o que está guardado, como registrado no caso."),
@@ -389,7 +389,7 @@ CATEGORIAS_CUSTO = (
 )
 
 
-# ================================================================ prazos
+# prazos
 def _texto_prazo_legal() -> str:
     try:
         sla = _regras.ParametrosRegras.padrao().sla_dias
@@ -416,10 +416,10 @@ PRAZOS = (
        "referem a ela."),
 )
 
-# ================================================================ níveis de acesso e sigilo
+# níveis de acesso e sigilo
 NIVEIS = (
     _t("nivel", "N1", "Nível 1 · Uso interno",
-       "Servidores com permissão geral. Só totais agregados que ajudam a entender o quadro: nenhum endereço, "
+       "Servidores com acesso básico. Só totais agregados que ajudam a entender o quadro: nenhum endereço, "
        "coordenada, CNPJ, nome de pessoa ou empresa, e nenhum valor em reais. Todo total passa pela supressão de "
        "grupos pequenos."),
     _t("nivel", "N2", "Nível 2 · Reservado",
@@ -443,7 +443,7 @@ SIGILO = (
        "Identificação de quem abriu o documento e quando, gravada na imagem. Permite rastrear um vazamento."),
 )
 
-# ================================================================ índices
+# índices
 TODOS_OS_TERMOS = (*CLASSES, *SITUACOES, *KPIS, *FAIXAS, *RISCO, *FASES, *ETAPAS, *SITUACOES_CASO, *ACOES,
                    *RESPONSABILIDADES, *MOTIVOS, *ATIVIDADES, *CAMPOS, *CATEGORIAS_CUSTO, *PRAZOS, *NIVEIS, *SIGILO)
 _INDICE = {(t.tipo, t.codigo): t for t in TODOS_OS_TERMOS}
@@ -477,7 +477,7 @@ def rotulo(codigo: str, tipo: str | None = None) -> str:
 
 
 def codigo(rotulo_exibido: str, tipo: str) -> str | None:
-    """O código interno de um rótulo de exibição do tipo (o inverso de `rotulo`): os combos mostram o rótulo e
+    """O código interno de um rótulo de exibição do tipo (o inverso de rotulo): os combos mostram o rótulo e
     filtram pelo código. None quando o rótulo não é de nenhum termo do tipo."""
     return next((t.codigo for t in TODOS_OS_TERMOS if t.tipo == tipo and t.rotulo == rotulo_exibido), None)
 
@@ -520,7 +520,7 @@ def casos(n: int | None, adjetivo: str = "") -> str:
 
 
 def itens_ano(inicio: int, hoje) -> list[str]:
-    """A lista "Ano" do N1 e do N3: "Todos" e os anos anteriores ao corrente, do mais recente a `inicio`.
+    """A lista "Ano" do N1 e do N3: "Todos" e os anos anteriores ao corrente, do mais recente a inicio.
     O ano corrente não entra: o corte dele é hoje, o mesmo de "Todos"."""
     return [TODOS_OS_ANOS, *(str(a) for a in range(hoje.year - 1, inicio - 1, -1))]
 
@@ -533,7 +533,7 @@ def dica_ano(ano: int | None, hoje) -> str:
     return f"{ano}: situação em 31/12/{ano} (o ano é a data de corte). Todos: {atual}."
 
 
-# ================================================================ títulos de coluna (só exibição; a exportação é crua)
+# títulos de coluna
 _TITULOS = {
     "CODIGO": "Código", "SUBSTANCIA": "Substância", "CLASSE DE RISCO": "Classe", "QUANTIDADE": "Quantidade",
     "UNIDADE": "Unidade", "ATIVIDADE": "Atividade de origem", "MOTIVO": "Motivo da permanência",
@@ -600,7 +600,7 @@ def celula(titulo: str, valor):
     return valor
 
 
-# ================================================================ glossário
+# glossário
 _SECOES = (
     ("Classes", "As três classes de passivo do cadastro. O nome técnico e a norma de origem ficam na referência.",
      CLASSES),
@@ -625,7 +625,7 @@ SECOES_GLOSSARIO = tuple(titulo for titulo, _, _ in _SECOES)
 
 def glossario(camada=None) -> list[Secao]:
     """As seções da aba Glossário, na ordem. Só definições: nenhum dado do acervo (seguro para o N1). Com
-    `camada`, o termo de nível é só o da própria camada (escopo exclusivo): as outras nem são citadas."""
+    camada, o termo de nível é só o da própria camada (escopo exclusivo): as outras nem são citadas."""
     secoes = []
     for titulo, descricao, termos in _SECOES:
         if camada is not None:
@@ -643,7 +643,7 @@ def texto_de_busca(t: Termo) -> str:
 
 
 def buscar(texto: str, camada=None) -> list[Secao]:
-    """As seções com os termos cujo rótulo, definição, código ou norma contêm `texto` (sem acento, sem caixa)."""
+    """As seções com os termos cujo rótulo, definição, código ou norma contêm texto (sem acento, sem caixa)."""
     alvo = sem_acento(texto.strip())
     if not alvo:
         return glossario(camada)
@@ -655,7 +655,7 @@ def buscar(texto: str, camada=None) -> list[Secao]:
     return resultado
 
 
-# ================================================================ (analítico N2 e N3): rótulos extras
+# (analítico N2 e N3): rótulos extras
 # Só exibição. Os códigos continuam nos dados e na exportação crua.
 ROTULO_AGRUPAMENTO = {
     "POR UF": "Por UF", "POR REGIAO": "Por região", "POR ATIVIDADE GERADORA": "Por atividade de origem",

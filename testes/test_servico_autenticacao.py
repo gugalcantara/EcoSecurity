@@ -115,7 +115,7 @@ def esgotar_prazo(amb, sessao, **kw):
     return sessao.processar(quadro(**kw))
 
 
-# ================================================================ Nível 1 (1:N)
+# Nível 1 (1:N)
 def test_n1_reconhece_e_concede(ambiente):
     ana = ambiente.criar("ana", 1, "senha1234")
     ambiente.rec.distancias = {ana.id: 30.0}
@@ -166,7 +166,7 @@ def test_n1_pedindo_nivel_2_nega_por_nivel(ambiente):
     assert alimentar(sessao, 5).decisao.motivo is Motivo.NIVEL_INSUFICIENTE
 
 
-# ================================================================ Nível 2 (senha + 1:1)
+# Nível 2
 def test_n2_concede(ambiente):
     bia = ambiente.criar("bia", 2, SENHA_N2)
     ambiente.rec.distancias = {bia.id: 40.0}
@@ -257,7 +257,7 @@ def test_n2_inativo_nega(ambiente):
     assert alimentar(sessao, 5).decisao.motivo is Motivo.USUARIO_INATIVO
 
 
-# ================================================================ Nível 3
+# Nível 3
 def autenticar_pessoa_n3(amb, sessao, usuario, senha=SENHA_N3):
     sessao.informar_credenciais(usuario.matricula, senha)
     alimentar(sessao, amb.p.frames_confirmacao)                # rosto
@@ -431,7 +431,7 @@ def test_matricula_gigante_nega_como_inexistente_sem_erro_interno(ambiente):
     assert ambiente.tentativas.obter("A" * 20) is None                # nada gravado
 
 
-# ================================================================ login de entrada e step-up
+# login de entrada e step-up
 class TrilhaFalsa:
     def __init__(self):
         self.eventos = []
@@ -593,10 +593,10 @@ def test_n3_sem_regra_dos_dois_conclui_com_rosto_senha_e_vivacidade(ambiente):
     assert andamento.decisao.fatores_avaliados == "S1,S2,S3,S4,S5,S6"      # a S7 não vira "aprovada" sem avaliar
 
 
-# ================================================================ piscada no step-up do N3
+# piscada no step-up do N3
 class OlhosGravados:
     """A abertura do olho (EAR) que a câmera "vê" agora. Só a medida do olho é falsa:
-    o detector do gesto é o real (`DetectorGesto`), o mesmo do N3."""
+    o detector do gesto é o real (DetectorGesto), o mesmo do N3."""
 
     def __init__(self):
         self.ear = 0.30
@@ -626,7 +626,7 @@ def detector_real(amb):
 
 def fazer_o_que_a_tela_pede(amb, sessao, olhos, aberturas, quadros=400):
     """Quadro a quadro (15 por segundo): desliza o rosto 10 px por quadro quando a tela
-    pede deslizar; os olhos seguem `aberturas` quando ela pede piscar.
+    pede deslizar; os olhos seguem aberturas quando ela pede piscar.
     Devolve o andamento final e os gestos pedidos, na ordem."""
     pedidos, atual, passo = [], None, 0
     for _ in range(quadros):
@@ -699,7 +699,7 @@ def test_step_up_n3_exige_piscada_quando_configurada(ambiente):
 
 
 def test_step_up_n3_aceita_apenas_deslizar_quando_configurado(ambiente):
-    """Proteção (verde de propósito): a chave continua valendo. Com só os deslizes e sem gesto
+    """Com só os deslizes e sem gesto
     obrigatório (o config), o N3 conclui deslizando o rosto, sem piscar."""
     ambiente.p.desafios, ambiente.p.gesto_obrigatorio = ("MOVER_ESQUERDA", "MOVER_DIREITA"), None
     sessao, olhos = step_up_n3_com_detector_real(ambiente)
@@ -709,7 +709,7 @@ def test_step_up_n3_aceita_apenas_deslizar_quando_configurado(ambiente):
     assert andamento.decisao.concedido, str(andamento.decisao)
 
 
-# ================================================================ contenção do step-up e tela de bloqueio
+# contenção do step-up e tela de bloqueio
 def falhar_gesto_n3(amb, identidade, usuario):
     amb.rec.distancias = {usuario.id: 30.0}
     sessao = amb.servico.nova_sessao(3, identidade=identidade)
@@ -720,7 +720,7 @@ def falhar_gesto_n3(amb, identidade, usuario):
 
 
 def test_falhar_o_gesto_do_n3_tranca_so_o_n3_e_nao_o_login(ambiente):
-    """Regressão (07/10/2026): três gestos não detectados no N3 trancavam o login inteiro."""
+    """Regressão: três gestos não detectados no N3 trancavam o login inteiro."""
     caio = ambiente.criar("caio", 3, SENHA_N3)
     _, identidade = entrar(ambiente, caio, SENHA_N3)
     for _ in range(ambiente.p.contencao.tentativas_maximas):

@@ -4,10 +4,10 @@ A senha prova o que a pessoa sabe e o rosto, o que ela É. O código de 6 dígit
 prova o que ela tem: o celular onde o segredo foi cadastrado (Google
 Authenticator, Microsoft Authenticator e similares).
 
-Como funciona (RFC 4226 + RFC 6238):
+Cálculo (RFC 4226 + RFC 6238):
     contador = segundos desde 1970 // 30           (muda a cada 30 s)
     mac      = HMAC-SHA1(segredo, contador em 8 bytes)
-    corte    = 4 bytes de `mac`, a partir da posição dada pelo último meio-byte
+    corte    = 4 bytes de mac, a partir da posição dada pelo último meio-byte
     código   = (corte sem o bit de sinal) mod 10^6
 O celular e o sistema guardam o mesmo segredo e calculam o mesmo número sem
 conversar: por isso funciona sem internet, só precisa do relógio certo.
@@ -54,7 +54,7 @@ def _chave(segredo_b32: str) -> bytes:
 
 
 def passo(instante: datetime, passo_segundos: int = PASSO_SEGUNDOS) -> int:
-    """Número do intervalo de 30 s em que `instante` cai (o 'contador' da RFC 6238)."""
+    """Número do intervalo de 30 s em que instante cai (o 'contador' da RFC 6238)."""
     return int(instante.timestamp()) // passo_segundos
 
 
@@ -67,7 +67,7 @@ def hotp(chave: bytes, contador: int, digitos: int = DIGITOS) -> str:
 
 
 def codigo(segredo_b32: str, instante: datetime, digitos: int = DIGITOS) -> str:
-    """O código que o celular mostra em `instante`."""
+    """O código que o celular mostra em instante."""
     return hotp(_chave(segredo_b32), passo(instante), digitos)
 
 
@@ -100,7 +100,7 @@ def uri_provisionamento(segredo_b32: str, conta: str, emissor: str = "EcoSecurit
     return f"otpauth://totp/{rotulo}?{parametros}"
 
 
-# ---------------------------------------------------------------- códigos de recuperação
+# códigos de recuperação
 def gerar_codigos_recuperacao(quantidade: int) -> list[str]:
     """Códigos no formato XXXX-XXXX-XXXX-XXXX. Mostrados UMA vez; só o hash é guardado."""
     def um() -> str:

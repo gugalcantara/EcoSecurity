@@ -46,7 +46,7 @@ def ev_n3(**ajustes):
     return Evidencias(**{**base, **ajustes})
 
 
-# ---------------------------------------------------------------- Camadas por nível
+# Camadas por nível
 def test_camadas_exigidas_por_nivel():
     codigos = lambda n, regra=True: [c.codigo for c in camadas_exigidas(Nivel(n), regra)]
     assert codigos(1) == ["S3", "S4", "S5"]
@@ -55,7 +55,7 @@ def test_camadas_exigidas_por_nivel():
     assert codigos(3, regra=False) == ["S1", "S2", "S3", "S4", "S5", "S6"]
 
 
-# ---------------------------------------------------------------- Caminho feliz
+# Caminho feliz
 @pytest.mark.parametrize("ev", [ev_n1(), ev_n2(), ev_n3()], ids=["N1", "N2", "N3"])
 def test_concede_com_todas_as_evidencias(ev):
     decisao = decidir(ev, PARAMS)
@@ -75,7 +75,7 @@ def test_usuario_n3_nao_abre_o_nivel_1():
     assert decisao.motivo is Motivo.NIVEL_INSUFICIENTE and decisao.camada_que_negou is C.S5_HABILITACAO
 
 
-# ---------------------------------------------------------------- Falha segura
+# Falha segura
 def test_evidencias_vazias_negam_em_todos_os_niveis():
     for nivel in (1, 2, 3):
         decisao = decidir(Evidencias(nivel_solicitado=nivel), PARAMS)
@@ -104,7 +104,7 @@ def test_distancia_nan_nega():
     assert not decidir(ev_n2(distancia=math.nan), PARAMS).concedido
 
 
-# ---------------------------------------------------------------- Ordem e motivo
+# Ordem e motivo
 @pytest.mark.parametrize("ev, motivo, camada", [
     (ev_n2(bloqueado=True), Motivo.BLOQUEADO, C.S1_CONTENCAO),
     (ev_n2(senha_confere=False), Motivo.SENHA_INCORRETA, C.S2_CONHECIMENTO),
@@ -142,7 +142,7 @@ def test_resumo_legivel():
         "S1 ✓  S2 ✓  S3 ✓  S4 ✗ CREDENCIAL_ALHEIA  →  CREDENCIAL_ALHEIA")
 
 
-# ---------------------------------------------------------------- Avaliação progressiva
+# Avaliação progressiva
 def test_progressiva_ate_s2_antes_de_abrir_a_camera():
     # só senha coletada: até a S2 está tudo certo, mesmo sem nenhuma evidência facial
     ev = Evidencias(nivel_solicitado=2, bloqueado=False, usuario_alegado=BIA_N2, senha_confere=True)
@@ -165,7 +165,7 @@ def test_progressiva_excecao_nao_aprova():
     assert primeira_falha(ev, PARAMS, C.S5_HABILITACAO).motivo is Motivo.ERRO_INTERNO
 
 
-# ---------------------------------------------------------------- Configuração
+# Configuração
 def test_parametros_lidos_do_config():
     p = ParametrosAcesso.de_configuracao(carregar())
     # um nível mais sensível nunca aceita mais que um menos sensível; o N3 é estritamente o mais rígido

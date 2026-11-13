@@ -1,16 +1,15 @@
 """A régua da criticidade.
 
-(01/11/2026): opção B, só a régua muda e a fórmula do score fica intacta (peso da classe
-× peso do motivo × (1 + anos de atraso)). Baixo abaixo de 5, médio de 5 a menos de 20, alto de 20 a menos de 60,
-crítico de 60 ou mais. Com a régua de antes (3, 6, 10), 60,5% dos casos ativos eram críticos na data-base.
+Score = peso da classe × peso do motivo × (1 + anos de atraso). Baixo abaixo de 5, médio de 5 a menos de 20,
+alto de 20 a menos de 60, crítico de 60 ou mais.
 
-A distribuição-alvo vale para os casos ativos na data-base (`sinteticos.DATA_BASE`): crítico de 5% a 15%, alto de 20% a
+A distribuição-alvo vale para os casos ativos na data-base (sinteticos.DATA_BASE): crítico de 5% a 15%, alto de 20% a
 30%, médio de 35% a 50%, baixo de 15% a 25%. Os relatórios que citam o limiar da faixa crítica leem a régua de
-`regras.LIMITES`, em vez de "score 10 ou mais" escrito no texto.
+regras.LIMITES, em vez de "score 10 ou mais" escrito no texto.
 
 O score não muda: o topo de "Casos para agir" (N3) é o mesmo de antes, nos mesmos 20 casos e na mesma ordem
-(teste de proteção, verde antes e depois). O hash do acervo também não muda (o gerador não usa `regras.py`): a proteção
-é o teste de hash de `test_ficha.py`.
+(teste de proteção, verde antes e depois). O hash do acervo também não muda (o gerador não usa regras.py): a proteção
+é o teste de hash de test_ficha.py.
 """
 import re
 from collections import Counter
@@ -33,7 +32,7 @@ ANA_N1 = Usuario(matricula="ANA", nome="Ana", nivel=1, senha_hash="$2b$x", id=1)
 CAIO_N3 = Usuario(matricula="CAIO", nome="Caio", nivel=3, senha_hash="$2b$x", id=3)
 # % dos casos ativos na data-base, por faixa
 ALVO = {"CRITICO": (5, 15), "ALTO": (20, 30), "MEDIO": (35, 50), "BAIXO": (15, 25)}
-# "Casos para agir" (N3) na data-base: os 20 primeiros com a régua de antes (calculados antes de 01/11/2026)
+# "Casos para agir" (N3) na data-base: os 20 primeiros com a régua de antes
 TOPO_N3 = ("PD-1611", "PD-1791", "PD-0599", "PD-2131", "PD-2363", "PD-0074", "PD-1931", "PD-0308", "PD-1364",
            "PD-1157", "PD-1511", "PD-1253", "PD-0780", "PD-0326", "PD-2213", "PD-2390", "PD-0192", "PD-1783",
            "PD-2309", "PD-2123")
@@ -53,7 +52,7 @@ def _confere(faixas, faixa):
     assert minimo <= faixas[faixa] <= maximo, f"{faixa.lower()} fora de {minimo}% a {maximo}% ({resumo})"
 
 
-# ================================================================ distribuição das faixas
+# distribuição das faixas
 def test_distribuicao_de_criticos_entre_5_e_15_por_cento(faixas):
     _confere(faixas, "CRITICO")
 
@@ -70,7 +69,7 @@ def test_distribuicao_de_baixo_entre_15_e_25_por_cento(faixas):
     _confere(faixas, "BAIXO")
 
 
-# ================================================================ os relatórios citam a régua
+# os relatórios citam a régua
 @pytest.fixture
 def acervo():
     servico = ServicoAcervo.de_configuracao(CFG, RepositorioAcervoMemoria(), ServicoTrilha(RepositorioTrilhaMemoria()),
@@ -115,7 +114,7 @@ def test_relatorios_citam_o_limiar_critico_da_regua(monkeypatch, acervo, regua, 
         assert "score 10 ou mais" not in texto
 
 
-# ================================================================ proteção: o score não muda
+# proteção: o score não muda
 def test_top_20_do_n3_continua_ordenado_por_score():
     """A régua muda a faixa, não o score: os 20 primeiros de "Casos para agir" continuam os mesmos, na mesma ordem,
     todos críticos e além do prazo legal, todos de material radioativo (19 públicos e 1 de infraestrutura)."""

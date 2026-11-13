@@ -1,6 +1,6 @@
 """Contratos dos repositórios: o que se guarda e se consulta, sem dizer como.
 
-`Protocol` (tipagem estrutural): qualquer classe com estes métodos cumpre o
+Protocol (tipagem estrutural): qualquer classe com estes métodos cumpre o
 contrato, sem precisar herdar de nada. O serviço de autenticação recebe "algo
 que cumpra RepositorioUsuarios": hoje a versão em memória, depois a MySQL.
 
@@ -41,7 +41,7 @@ class PermissaoNegada(ErroRepositorio):
 
 class RepositorioUsuarios(Protocol):
     def adicionar(self, usuario: Usuario) -> Usuario:
-        """Grava e devolve o usuário com `id` e `criado_em` preenchidos."""
+        """Grava e devolve o usuário com id e criado_em preenchidos."""
         ...
 
     def por_id(self, usuario_id: int) -> Usuario | None: ...
@@ -51,7 +51,7 @@ class RepositorioUsuarios(Protocol):
     def listar(self) -> list[Usuario]: ...
 
     def atualizar(self, usuario: Usuario) -> None:
-        """Substitui o registro de mesmo `id`. A matrícula não muda."""
+        """Substitui o registro de mesmo id. A matrícula não muda."""
         ...
 
 
@@ -63,7 +63,7 @@ class RepositorioTentativas(Protocol):
     def salvar(self, registro: RegistroTentativas) -> None: ...
 
     def bloqueadas(self, agora: datetime) -> list[RegistroTentativas]:
-        """Matrículas com bloqueio ainda vigente em `agora` (relatório S-03)."""
+        """Matrículas com bloqueio ainda vigente em agora (relatório S-03)."""
         ...
 
 
@@ -111,15 +111,15 @@ class RepositorioTrilha(Protocol):
         ...
 
     def recentes(self, limite: int) -> list[RegistroTrilha]:
-        """Os últimos `limite`, do mais novo para o mais antigo."""
+        """Os últimos limite, do mais novo para o mais antigo."""
         ...
 
 
 class RepositorioAdministradores(Protocol):
     """O papel de administrador de cada cadastro, e os códigos de recuperação.
 
-    Não há apagar: tirar o papel é marcar `ativo = False` e `removido_em`, e um
-    código usado fica marcado com `usado_em`. A história fica (e a trilha a conta).
+    Não há apagar: tirar o papel é marcar `ativo = False` e removido_em, e um
+    código usado fica marcado com usado_em. A história fica (e a trilha a conta).
     """
 
     def listar(self) -> list[Administrador]:
@@ -129,7 +129,7 @@ class RepositorioAdministradores(Protocol):
     def obter(self, usuario_id: int) -> Administrador | None: ...
 
     def salvar(self, administrador: Administrador) -> None:
-        """Grava ou substitui o registro do mesmo `usuario_id`."""
+        """Grava ou substitui o registro do mesmo usuario_id."""
         ...
 
     def registrar_passo(self, usuario_id: int, passo: int) -> bool:
@@ -159,8 +159,8 @@ class RepositorioEstacoes(Protocol):
 class RepositorioAcervo(Protocol):
     """O cofre: só leitura. No MySQL, a conta usada nem tem permissão de escrita.
 
-    `responsaveis` recebe o NÍVEL de quem consulta e devolve só os responsáveis
-    com nivel_minimo <= nível (RF-21). O filtro acontece NA CONSULTA: o que o
+    responsaveis recebe o NÍVEL de quem consulta e devolve só os responsáveis
+    com nivel_minimo <= nível. O filtro acontece NA CONSULTA: o que o
     nível não autoriza nem sai do banco.
     """
 

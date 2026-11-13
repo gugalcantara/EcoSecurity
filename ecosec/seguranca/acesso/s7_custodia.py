@@ -1,16 +1,15 @@
 """S7 Custódia: "Outra pessoa confirma?"
 
-A regra dos dois vem da guarda de material perigoso: nenhuma pessoa abre o
-cofre sozinha. Mesmo que uma identidade de nível 3 seja inteiramente
-comprometida (senha vazada e rosto falsificado), ela não basta.
+A regra dos dois vem da guarda de material perigoso: nenhuma pessoa abre o cofre
+sozinha. Uma identidade de nível 3 comprometida (senha vazada e rosto falsificado)
+continua sem bastar.
 
 Condições:
-- a segunda pessoa passou por toda a autenticação (S1 a S6) por conta própria;
+- a segunda pessoa passou sozinha por toda a autenticação (S1 a S6);
 - é outra identidade, também de nível 3 e ativa;
-- chegou dentro da janela: a confirmação vale para este acesso, não para um
-  acesso de horas atrás.
+- chegou dentro da janela de tempo deste acesso.
 
-É sequencial, não simultânea (EXC-02): uma pessoa por vez diante da câmera.
+As duas pessoas se autenticam uma depois da outra, cada uma sozinha diante da câmera.
 """
 from ecosec.dominio.camadas import CamadaSeguranca
 from ecosec.dominio.entidades import Usuario

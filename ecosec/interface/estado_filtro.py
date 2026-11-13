@@ -1,6 +1,6 @@
 """Estado compartilhado do filtro único: o mediador entre as vistas.
 
-Guarda o `Filtro` corrente (ecosec.acervo.filtro) e avisa por `mudou` quem desenha (mapa, planilha,
+Guarda o Filtro corrente (ecosec.acervo.filtro) e avisa por mudou quem desenha (mapa, planilha,
 gráfico, barra de chips). As vistas não conversam entre si: mudam o estado e reagem ao sinal. Como em
 EstadoN1, só emite quando o filtro de fato muda (sem eco entre vistas que se atualizam mutuamente).
 """

@@ -49,15 +49,15 @@ def eventos(servico):
     return [(r.evento.evento, r.evento.resultado, r.evento.motivo) for r in reversed(servico.trilha.recentes(50))]
 
 
-# ================================================================ dados fictícios
+# dados fictícios
 def test_gerador_e_deterministico():
     assert sinteticos.gerar() == sinteticos.gerar()
 
 
-def test_toda_pendencia_tem_atividade_e_motivo():          # RF-19
+def test_toda_pendencia_tem_atividade_e_motivo():
     pendencias, _ = sinteticos.gerar()
     assert all(p.atividade.startswith("AG-") and p.motivo.startswith("MP-") for p in pendencias)
-    assert all(p.sintetico for p in pendencias)             # RF-18
+    assert all(p.sintetico for p in pendencias)
 
 
 def test_ha_casos_de_todos_os_tipos_para_os_relatorios():
@@ -68,7 +68,7 @@ def test_ha_casos_de_todos_os_tipos_para_os_relatorios():
     assert any(r.nivel_minimo == 3 for r in responsaveis)   # há quem só a custódia veja
 
 
-# ================================================================ catálogo e escopo
+# catálogo e escopo
 def test_catalogo_por_nivel(acervo):
     """Escopo exclusivo. Antes o N2 listava 6 (A1 e A2) e o N3, 9."""
     assert [r.codigo for r in acervo.catalogo(1)] == ["A1-01", "A1-02", "A1-05"]
@@ -76,7 +76,7 @@ def test_catalogo_por_nivel(acervo):
     assert [r.codigo for r in acervo.catalogo(3)] == ["A3-01", "A3-02", "A3-03"]
 
 
-def test_nivel_1_nunca_recebe_a_cadeia_de_responsaveis(acervo):     # RF-21
+def test_nivel_1_nunca_recebe_a_cadeia_de_responsaveis(acervo):
     acervo.abrir("A1-05", ANA_N1, 1)
     assert not any(p[0] == "responsaveis" for p in acervo.repo.pedidos)
 
@@ -104,7 +104,7 @@ def test_usuario_nao_pode_pedir_nivel_acima_do_seu(acervo):
         acervo.abrir("A3-02", BIA_N2, 3)
 
 
-# ================================================================ mapas: omissão no N1 (RF-09, RF-10)
+# mapas: omissão no N1
 def _rotulos(entrega):
     return sorted({r.rotulo for r in entrega.suprimidas})
 
@@ -126,9 +126,9 @@ def _pixels_azuis(imagem):
 
 
 def test_custodia_nem_e_desenhada_abaixo_do_nivel_3(acervo, monkeypatch):
-    """Suprimir a instalação no lugar desenhava a tarja exatamente onde
-    ela estava. Quando a posição é o segredo, a regra é omitir: o mapa de densidade é só do N1, cujo
-    coroplético já tem azul (os pixels não servem de prova); a prova é que nenhuma instalação é desenhada nele.
+    """Uma tarja no lugar da instalação revelaria onde ela está, então a instalação é omitida. O mapa de
+    densidade é só do N1, cujo coroplético já tem azul (os pixels não servem de prova); a prova é que nenhuma
+    instalação é desenhada nele.
     O A3-03 (N3) é o controle: lá as instalações e os quadrados azuis existem."""
     from ecosec.acervo.desenho import Tela
     desenhados, original = [], Tela.texto
@@ -182,7 +182,7 @@ def test_a2_01_traz_os_atributos_da_ficha_da_tela(acervo, monkeypatch):
     assert "—" not in texto and "–" not in texto and "DOCUMENTO SIMULADO" not in texto
 
 
-# ================================================================ marca d'água (RF-11)
+# marca d'água
 def test_niveis_2_e_3_recebem_marca_com_quem_e_quando(acervo):
     entrega = acervo.abrir("A2-02", BIA_N2, 2)
     marca = acervo.identificar_marca(entrega.imagem)
@@ -205,7 +205,7 @@ def test_nivel_1_nao_e_marcado(acervo):
     assert not entrega.marcada and acervo.identificar_marca(entrega.imagem) is None
 
 
-# ---------------------------------------------------------------- marca VISÍVEL
+# marca VISÍVEL
 CINZA_DA_MARCA = 120
 
 
@@ -256,7 +256,7 @@ def test_marca_dagua_nao_cobre_conteudo_sensivel(acervo, monkeypatch):
 
 
 def test_marca_dagua_invisivel_continua_funcionando(acervo, tmp_path):
-    """Proteção (verde de propósito): a visível entra antes da S9. O arquivo exportado no N2 ainda diz
+    """A marca visível entra antes da S9, e o arquivo exportado no N2 continua dizendo
     quem consultou e em que minuto."""
     entrega = acervo.abrir("A2-04", BIA_N2, 2)
     destino = acervo.exportar(entrega, BIA_N2, tmp_path / "s9.png", verificado_em=datetime(2026, 10, 7, 10, 29))
@@ -265,7 +265,7 @@ def test_marca_dagua_invisivel_continua_funcionando(acervo, tmp_path):
     assert marca.momento.astimezone().replace(tzinfo=None) == datetime(2026, 10, 7, 10, 30)
 
 
-# ================================================================ trilha
+# trilha
 def test_consulta_vai_para_a_trilha(acervo):
     acervo.abrir("A1-02", ANA_N1, 1)
     assert eventos(acervo)[-1] == ("CONSULTA", "CONCEDIDO", "CONSULTA_ACERVO")
@@ -280,7 +280,7 @@ def test_sem_registro_a_imagem_nao_e_entregue(acervo):
         acervo.abrir("A1-01", ANA_N1, 1)
 
 
-# ================================================================ exportação (RF-14)
+# exportação
 def test_nivel_1_exporta_livre(acervo, tmp_path):
     destino = acervo.exportar(acervo.abrir("A1-01", ANA_N1, 1), ANA_N1, tmp_path / "relatório.png")
     assert destino.exists()                                  # nome com acento: cv2.imwrite falharia aqui
@@ -316,7 +316,7 @@ def test_todos_os_relatorios_abrem_no_nivel_deles(acervo):
         assert entrega.imagem.ndim == 3 and entrega.imagem.shape[1] == 1000
 
 
-# ================================================================ MySQL: mesmo comportamento da memória
+# MySQL: mesmo comportamento da memória
 def test_acervo_mysql_igual_ao_da_memoria(acervo_mysql):
     from ecosec.repositorios.mysql import RepositorioAcervoMySQL
     mysql, memoria = RepositorioAcervoMySQL(acervo_mysql), RepositorioAcervoMemoria()
@@ -324,7 +324,7 @@ def test_acervo_mysql_igual_ao_da_memoria(acervo_mysql):
     assert mysql.pendencias() == memoria.pendencias()
     assert mysql.pendencias("PR") == memoria.pendencias("PR")
     assert sorted(mysql.responsaveis(2), key=str) == sorted(memoria.responsaveis(2), key=str)
-    assert all(r.nivel_minimo <= 2 for r in mysql.responsaveis(2))       # RF-21 na consulta SQL
+    assert all(r.nivel_minimo <= 2 for r in mysql.responsaveis(2))       # filtro na consulta SQL
 
 
 def test_importacao_nao_duplica(acervo_mysql):

@@ -8,7 +8,7 @@ conferir. Por isso este arquivo mantém a redação original, inclusive a
 pontuação que a versão 3.0 abandonou. Um teste trava os hashes de referência.
 
 Só o necessário para reproduzir o texto (e o hash). A versão em vigor está em
-`termo.py`.
+termo.py.
 """
 VERSAO = "2.0"
 # 1.0 -> 1.1: contato do controlador (art. 9º), idade (art. 14), eliminação na revogação.

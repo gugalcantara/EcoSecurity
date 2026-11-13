@@ -4,7 +4,7 @@
 
 A rota sai da substância ([custos.rota_por_substancia]: PCBs vão à incineração, inorgânicos à
 estabilização, fase livre ao bombeamento, NORM ao armazém de NORM); sem regra, vale a rota padrão da
-classe. Todo valor tem `fonte`: enquanto não há fonte primária, é "PARAMETRO" (parâmetro de simulação),
+classe. Todo valor tem fonte: enquanto não há fonte primária, é "PARAMETRO" (parâmetro de simulação),
 e a tela mostra isso na memória de cálculo.
 
 CATEGORIA (padrão EEA): todo componente cai numa de quatro categorias, pela tabela

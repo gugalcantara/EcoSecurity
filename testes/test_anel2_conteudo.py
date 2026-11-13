@@ -40,7 +40,7 @@ def recorte(img, r):
     return img[r.y:r.y + r.altura, r.x:r.x + r.largura]
 
 
-# ================================================================ S8 Tarja
+# S8 Tarja
 def test_original_nunca_e_alterado(documento):
     copia = documento.copy()
     resultado = s8_tarja.aplicar(documento, [ENDERECO], Nivel.N1, PT, regioes_revisadas=True)
@@ -74,7 +74,7 @@ def test_posicao_recebe_supressao_solida_sem_estrutura(documento):
 
 
 def test_borrao_preservaria_a_posicao(documento):
-    """Por que a supressão sólida existe: com o gaussiano, o ponto ainda é localizável."""
+    """Supressão sólida: com o gaussiano, o ponto ainda seria localizável."""
     documento[350:360, 150:160] = (0, 0, 255)
     gauss = ParametrosTarja("gaussiano", PT.kernel_gaussiano, PT.passadas_gaussiano, PT.bloco_pixelizacao,
                             frozenset())
@@ -112,7 +112,7 @@ def test_parametros_invalidos():
         ParametrosTarja("gaussiano", 60, 3, 16, frozenset())
 
 
-# ================================================================ S9 Rastreio
+# S9 Rastreio
 def test_carga_ida_e_volta():
     assert s9_rastreio.decodificar(s9_rastreio.codificar(MARCA)) == MARCA
 

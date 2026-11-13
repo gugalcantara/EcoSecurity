@@ -23,6 +23,7 @@ from ecosec.repositorios.memoria import (RepositorioAcervoMemoria, RepositorioAm
                                          RepositorioUsuariosMemoria)
 from ecosec.seguranca.acesso import s6_vivacidade
 from ecosec.seguranca.acesso.contexto import ParametrosContexto
+from ecosec.seguranca.evidencia.monitor import ParametrosMonitor
 from ecosec.servicos.acervo import ServicoAcervo
 from ecosec.servicos.administracao import ServicoAdministracao
 from ecosec.servicos.sessao import ServicoSessao
@@ -206,7 +207,8 @@ def _montar(cfg: Configuracao | None, caminho_env: Path | None, modo: str | None
         administracao=administracao,
         acervo=ServicoAcervo.de_configuracao(cfg, repo_acervo, trilha, segredos.garantir_chave_marca(env),
                                              rasterizar_documento=_rasterizar_documento),
-        relatorios_sistema=ServicoRelatoriosSistema(trilha, tentativas, administracao),
+        relatorios_sistema=ServicoRelatoriosSistema(trilha, tentativas, administracao,
+                                                    ParametrosMonitor.de_configuracao(cfg)),
         sessao=ServicoSessao(usuarios, administracao, trilha,
                              inatividade_minutos=float(cfg["sessao.inatividade_minutos"])),
         modo_persistencia=modo,

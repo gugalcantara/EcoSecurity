@@ -141,7 +141,7 @@ def _municipio(uf: str, nome_oficial: str, codigo: int):
 
 
 def main() -> int:
-    """INCREMENTAL: municípios que já estão no arquivo são reaproveitados (polígono, CEP e bairros);
+    """Incremental: municípios que já estão no arquivo são reaproveitados (polígono, CEP e bairros);
     só os novos são baixados, em paralelo. `--tudo` refaz o arquivo inteiro."""
     from concurrent.futures import ThreadPoolExecutor
     anterior = {}

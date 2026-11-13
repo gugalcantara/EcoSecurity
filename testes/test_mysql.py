@@ -17,7 +17,7 @@ from ecosec.servicos.autenticacao import Etapa
 CFG = carregar()
 
 
-# ================================================================ leitor de scripts
+# leitor de scripts
 def test_dividir_respeita_texto_e_comentarios():
     sql = ("-- comentário; com ponto e vírgula\n"
            "CREATE TABLE t (a INT); -- fim de linha\n"
@@ -35,7 +35,7 @@ def test_scripts_do_projeto_sao_lidos():
             assert dividir((PASTA_SQL / arquivo).read_text(encoding="utf-8"))
 
 
-# ================================================================ falha segura
+# falha segura
 class RepositorioQueCai:
     """Simula o MySQL caindo no meio da operação."""
 
@@ -74,7 +74,7 @@ def test_modo_invalido_e_erro():
         montar(CFG, modo="planilha")
 
 
-# ================================================================ integração (banco real)
+# integração (banco real)
 def _conta(chave_usuario, chave_senha, banco):
     from ecosec.repositorios.mysql import conectar_direto
     usuario, senha = segredos.ler(chave_usuario), segredos.ler(chave_senha)

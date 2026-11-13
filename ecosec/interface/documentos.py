@@ -5,8 +5,8 @@
   - uma segunda marca, em coordenadas da janela (drawForeground), cobre recortes ampliados;
   - sem menu de contexto e sem os atalhos de copiar, salvar e imprimir;
   - opcional ([documentos] bloquear_captura): a janela sai preta em capturas de tela (Windows 10 2004+).
-    Defesa adicional, não garantia: uma foto da tela continua possível, por isso a marca visível leva o
-    hash da consulta, que está na trilha.
+    Uma foto da tela continua possível; por isso a marca visível leva o hash da consulta, que está na
+    trilha.
 """
 import ctypes
 import sys

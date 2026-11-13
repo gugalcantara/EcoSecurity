@@ -156,7 +156,7 @@ class ServicoAdministracao:
                    politica=PoliticaSenha.de_configuracao(cfg, Nivel.N3),
                    governanca=ParametrosGovernanca.de_configuracao(cfg), **extra)
 
-    # ------------------------------------------------------------ trilha
+    # trilha
     def _registrar(self, resultado: str, motivo: str, evento: str = "ADMIN", **campos) -> None:
         """Ações de proteção (desativar, revogar, negar) acontecem mesmo se a trilha
         falhar: bloquear um acesso nunca deve depender do log. A falha é anotada."""
@@ -283,7 +283,7 @@ class ServicoAdministracao:
         """A trilha como o ADMINISTRADOR a vê: o detalhe das consultas e exportações do acervo mascarado."""
         return self.trilha.recentes_para_administrador(limite)
 
-    # ------------------------------------------------------------ contenção (S1) das chaves próprias
+    # contenção (S1) das chaves próprias
     def _bloqueado_ate(self, chave: str) -> datetime | None:
         registro = self.tentativas.obter(chave)
         return registro.bloqueado_ate if s1_contencao.esta_bloqueado(registro, self.relogio()) else None
@@ -297,7 +297,7 @@ class ServicoAdministracao:
     def _zerar(self, chave: str) -> None:
         self.tentativas.salvar(s1_contencao.registrar_sucesso(chave))
 
-    # ------------------------------------------------------------ senha de instalação (configuração inicial)
+    # senha de instalação (configuração inicial)
     @property
     def configurado(self) -> bool:
         return bool(self._ler_hash())
@@ -344,7 +344,7 @@ class ServicoAdministracao:
         self.tentativas.salvar(novo)
         return Motivo.BLOQUEADO if s1_contencao.esta_bloqueado(novo, agora) else Motivo.SENHA_INCORRETA
 
-    # ------------------------------------------------------------ quem é administrador
+    # quem é administrador
     def _usuario_ativo(self, usuario_id: int | None) -> Usuario | None:
         usuario = self.usuarios.por_id(usuario_id) if usuario_id is not None else None
         return usuario if usuario is not None and usuario.ativo else None
@@ -418,7 +418,7 @@ class ServicoAdministracao:
                         detalhe="administrador da versão anterior (.env) passou para o banco")
         return True
 
-    # ------------------------------------------------------------ celular (TOTP) e códigos de recuperação
+    # celular (TOTP) e códigos de recuperação
     def _abrir(self, cifrado: str) -> str | None:
         try:
             return self._cifra.decrypt(cifrado.encode("ascii")).decode("ascii")
@@ -482,7 +482,7 @@ class ServicoAdministracao:
 
     def conferir_codigo_celular(self, usuario_id: int, codigo: str) -> tuple[Motivo, datetime | None]:
         """Abrir o painel: o código do celular (ou um de recuperação) da própria pessoa.
-        Devolve (motivo, bloqueado_até). Três erros trancam só este passo, por 15 minutos."""
+        Devolve (motivo, bloqueado_até). Erros seguidos trancam só este passo, com os limites de [s1_contencao]."""
         try:
             adm, usuario = self._admin_ativo(usuario_id), self._usuario_ativo(usuario_id)
             if adm is None or usuario is None:
@@ -507,10 +507,10 @@ class ServicoAdministracao:
             log.exception("Falha ao conferir o código do celular")
             return Motivo.ERRO_INTERNO, None
 
-    # ------------------------------------------------------------ aprovação por um segundo administrador
+    # aprovação por um segundo administrador
     def _autorizar(self, acao: AcaoCritica, solicitante_id: int | None, codigo: str | None,
                    alvo: Usuario | None = None, emergencia: Emergencia | None = None) -> tuple[int | None, str | None, str]:
-        """(aprovador, recusa, como). `como`: APROVADA, IMPLANTACAO ou EMERGENCIA."""
+        """(aprovador, recusa, como). como: APROVADA, IMPLANTACAO ou EMERGENCIA."""
         solicitante = self._usuario_ativo(solicitante_id)
         if solicitante is None or not self.eh_administrador(solicitante_id):
             return None, "Só um administrador pode fazer isso.", ""
@@ -597,7 +597,7 @@ class ServicoAdministracao:
         self.usuarios.atualizar(novo)
         return novo
 
-    # ------------------------------------------------------------ perfis e exclusão
+    # perfis e exclusão
     def atribuir_perfil(self, solicitante_id: int, alvo_id: int, perfil: Perfil, uf: str | None = None,
                         codigo: str | None = None) -> str | None:
         """Atribui ou troca o perfil de um cadastro. Crítico (segundo admin) quando dá a camada 3 (ministro);
@@ -697,7 +697,7 @@ class ServicoAdministracao:
                                     matricula_informada=alvo.matricula, detalhe="ACESSO DE EMERGÊNCIA")
         return None
 
-    # ------------------------------------------------------------ acesso de emergência
+    # acesso de emergência
     def pode_oferecer_emergencia(self, usuario_id: int | None) -> bool:
         """Só para admin, e só se o quórum for possível (admins com celular ou código de recuperação)."""
         if not self.eh_administrador(usuario_id):
@@ -709,7 +709,7 @@ class ServicoAdministracao:
     def nova_emergencia(self, usuario_id: int) -> "SessaoEmergencia | None":
         return SessaoEmergencia(self, usuario_id) if self.pode_oferecer_emergencia(usuario_id) else None
 
-    # ------------------------------------------------------------ usuários
+    # usuários
     def listar(self, excluidos: bool = False) -> list[LinhaUsuario]:
         """Os cadastros, sem os excluídos, salvo quando pedidos."""
         no_modelo = self._rotulos_modelo()
@@ -855,9 +855,9 @@ class ServicoAdministracao:
 class SessaoEmergencia:
     """Junta os códigos do quórum, em qualquer ordem. Uma por tentativa; a tela a descarta ao sair.
 
-    Cada código é conferido contra TODOS os administradores ativos (inclusive quem pediu: o código
-    dele prova que ele tem o celular). Precisa de `quorum` administradores DIFERENTES dentro de
-    `janela` minutos contados do primeiro aceito. Erro: contenção global, mensagem genérica."""
+    Cada código é conferido contra todos os administradores ativos (inclusive quem pediu: o código
+    dele prova que ele tem o celular). Precisa de quorum administradores DIFERENTES dentro de
+    janela minutos contados do primeiro aceito. Erro: contenção global, mensagem genérica."""
 
     def __init__(self, servico: ServicoAdministracao, usuario_id: int):
         self.s, self.usuario_id = servico, usuario_id
@@ -897,7 +897,7 @@ class SessaoEmergencia:
                     return self._passo("Código aceito. Falta o código de outro administrador.")
                 return self._conceder(agora)
             if len(achados) > 1:
-                return self._passo("Código ambíguo. Aguarde o próximo código (30 segundos).")
+                return self._passo("Código não aceito. Aguarde o próximo código e tente de novo.")
             bloqueio = s._contar_falha(CHAVE_EMERGENCIA)
             s._registrar("NEGADO", "EMERGENCIA_CODIGO_RECUSADO", evento="EMERGENCIA", usuario_id=self.usuario_id)
             # genérica de propósito: nunca diz qual código falhou nem se ele já foi usado

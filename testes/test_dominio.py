@@ -10,7 +10,7 @@ from ecosec.dominio.motivos import Motivo
 from ecosec.dominio.niveis import Exportacao, ModoBiometrico, Nivel
 
 
-# ---------------------------------------------------------------- Níveis
+# Níveis
 def test_modo_biometrico_por_nivel():
     assert Nivel.N1.modo is ModoBiometrico.IDENTIFICACAO
     assert Nivel.N2.modo is ModoBiometrico.VERIFICACAO
@@ -29,7 +29,7 @@ def test_sem_hierarquia_cada_perfil_ve_so_a_propria_camada():
     assert not Perfil.MINISTRO.ve(Nivel.N1) and Perfil.DIRETOR.ve(Nivel.N2) and not Perfil.SERVIDOR.ve(Nivel.N2)
 
 
-# ---------------------------------------------------------------- Camadas
+# Camadas
 def test_dez_camadas_com_codigos_sequenciais():
     assert [c.codigo for c in CamadaSeguranca] == [f"S{i}" for i in range(1, 11)]
 
@@ -51,7 +51,7 @@ def test_vivacidade_e_custodia_so_no_nivel_3():
         assert camada.niveis == {Nivel.N3}
 
 
-# ---------------------------------------------------------------- Motivos
+# Motivos
 def test_todo_motivo_tem_mensagem():
     for motivo in Motivo:
         assert motivo.mensagem
@@ -73,7 +73,7 @@ def test_motivo_aponta_a_camada():
     assert Motivo.CREDENCIAL_ALHEIA.camada is CamadaSeguranca.S4_INERENCIA
 
 
-# ---------------------------------------------------------------- Entidades
+# Entidades
 def _usuario(**ajustes):
     base = dict(matricula="R7K2M94", nome="Ana", nivel=Nivel.N1, senha_hash="$2b$hash")
     return Usuario(**{**base, **ajustes})

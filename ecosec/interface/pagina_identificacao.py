@@ -1,4 +1,4 @@
-"""Identificação facial: o sistema diz quem está diante da câmera, comparando o rosto com TODOS os
+"""Identificação facial: o sistema diz quem está diante da câmera, comparando o rosto com todos os
 cadastros (1:N). Não concede nada: identificar não é autenticar, e o login continua o mesmo.
 
 Quem vê: só o ADMINISTRADOR, numa seção do painel de Administração (: identidade de pessoas é gestão de
@@ -38,7 +38,7 @@ class VistaIdentificacao(QWidget):
         self.modo_demonstracao = bool(app.cfg["interface.modo_demonstracao"])
         self._montar()
 
-    # ============================================================ layout
+    # layout
     def _montar(self):
         raiz = QVBoxLayout(self)
         raiz.setContentsMargins(24, 16, 24, 16)
@@ -90,9 +90,9 @@ class VistaIdentificacao(QWidget):
         v.addStretch(1)
         return painel
 
-    # ============================================================ fluxo
+    # fluxo
     def iniciar(self, operador_id: int):
-        """`operador_id`: quem está logado (vai para a trilha como quem pediu a identificação)."""
+        """operador_id: quem está logado (vai para a trilha como quem pediu a identificação)."""
         self._operador = operador_id
         self._nova_sessao()
 
@@ -177,7 +177,7 @@ class VistaIdentificacao(QWidget):
         self.visor.limpar("Câmera indisponível")
         InfoBar.error("Câmera", mensagem, duration=6000, position=InfoBarPosition.TOP, parent=self)
 
-    # ============================================================ vídeo
+    # vídeo
     def _ligar_video(self):
         if self.trabalhador is not None or self.sessao is None:
             return

@@ -13,7 +13,7 @@ from enum import Enum, IntEnum
 
 
 class ModoBiometrico(str, Enum):
-    # 1:N, "quem é você?": compara com TODAS as identidades cadastradas.
+    # 1:N, "quem é você?": compara com todas as identidades cadastradas.
     IDENTIFICACAO = "1:N"
     # 1:1, "você é quem diz ser?": compara só com a identidade alegada.
     # Testa uma hipótese em vez de N, por isso a falsa aceitação (FAR) cai.
@@ -28,7 +28,7 @@ class Exportacao(str, Enum):
 
 @dataclass(frozen=True)
 class _PerfilNivel:
-    titulo: str                  # titulo e publico espelham a tabela `nivel`: padrão de texto do banco
+    titulo: str                  # titulo e publico espelham a tabela nivel: padrão de texto do banco
     publico: str
     conteudo: str
     modo: ModoBiometrico
@@ -68,7 +68,7 @@ class Nivel(IntEnum):
 _PERFIS = {
     Nivel.N1: _PerfilNivel(
         titulo="CONSULTA PUBLICA ASSISTIDA",
-        publico="SERVIDORES COM PERMISSAO GERAL",
+        publico="SERVIDORES COM ACESSO BASICO",
         conteudo="Estatísticas agregadas, sem localização; regiões sensíveis suprimidas",
         modo=ModoBiometrico.IDENTIFICACAO,
         exportacao=Exportacao.LIVRE),

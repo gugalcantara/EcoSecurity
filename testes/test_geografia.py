@@ -5,12 +5,12 @@ Nordeste e no Centro-Oeste; o DF tem um município só), as 27 UFs com caso, a c
 nenhuma cidade com mais de 8% do total, a capital com 30% a 60% da UF e a origem do passivo coerente com a economia
 da região. O score não muda aqui.
 
-A regra da capital vale para a participação esperada (a dos pesos do gerador, `participacao_esperada`): nas UFs com
+A regra da capital vale para a participação esperada (a dos pesos do gerador, participacao_esperada): nas UFs com
 cerca de 32 casos a contagem sorteada varia uns 17 pontos para cada lado, e uma regra sobre ela passaria ou falharia
 pela semente. A contagem sorteada confere a conta onde há casos bastantes (SP).
 
-295 cidades, proporcionais aos casos da UF (casos / 8, de 6 a 30; saíram as que o
-sorteio deixava sem caso; o DF continua com uma), a capital calibrada para 40% esperado da UF (era 45%), toda cidade da
+295 cidades, proporcionais aos casos da UF (casos / 8, de 6 a 30, sem as que o
+sorteio deixaria sem caso; o DF tem uma), a capital calibrada para 40% esperado da UF, toda cidade da
 lista com caso (1 basta). Mudar as cidades não muda nada fora da geografia: o gerador dela é próprio.
 """
 import dataclasses
@@ -36,7 +36,7 @@ AMAZONIA_LEGAL = {"AC", "AM", "AP", "MA", "MT", "PA", "RO", "RR", "TO"}
 TETO_CIDADE = 0.08
 FAIXA_CAPITAL = (0.30, 0.60)
 # Fora da geografia (município, endereço, bairro, CEP e coordenadas), o acervo com as 90 cidades: SHA-256 do
-# repr dos outros campos de cada pendência, na ordem de sinteticos.gerar() (calculado antes de 01/11/2026)
+# repr dos outros campos de cada pendência, na ordem de sinteticos.gerar()
 CAMPOS_DA_GEOGRAFIA = ("municipio", "logradouro", "numero", "complemento", "bairro", "cep", "latitude", "longitude")
 HASH_FORA_DA_GEOGRAFIA = "8a3441a0276134ff75bc34438983a377e94562646af9f185623798975457daf0"
 
@@ -107,7 +107,7 @@ def base():
     return sinteticos.gerar()
 
 
-# ================================================================ onde estão os casos
+# onde estão os casos
 def test_cada_estado_tem_pelo_menos_uma_cidade_com_caso(base):
     pendencias = base[0]
     _, municipios = sinteticos.geografia()
@@ -170,7 +170,7 @@ def test_mudar_as_cidades_nao_muda_nada_fora_da_geografia(base):
     assert m.hexdigest() == HASH_FORA_DA_GEOGRAFIA
 
 
-# ================================================================ a lista de cidades
+# a lista de cidades
 def test_distribuicao_de_cidades_por_estado_conforme_tabela():
     assert set(CIDADES) == set(sinteticos.PESO_UF) and sum(len(c) for c in CIDADES.values()) == TOTAL_CIDADES
     for uf, cidades in CIDADES.items():
@@ -186,7 +186,7 @@ def test_distribuicao_de_cidades_por_estado_conforme_tabela():
     assert {uf: {texto.nome(n) for n in nomes} for uf, nomes in baixar_geografia.MUNICIPIOS.items()} == aprovada
 
 
-# ================================================================ origem do passivo × região
+# origem do passivo × região
 def test_distribuicao_por_classe_e_plausivel_por_regiao(base):
     pendencias = base[0]
     falhas = []

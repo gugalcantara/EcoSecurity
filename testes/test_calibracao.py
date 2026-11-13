@@ -76,7 +76,7 @@ def test_nao_sugere_aumentar_o_deslocamento():
     assert "deslocamento_minimo" not in r["sugerido"]
 
 
-# ------------------------------------------------------------------ detector padrão (região dos olhos)
+# detector padrão
 def _serie_regiao(parado, piscar, deslizar):
     regs = [Registro("PARADO", i, True, regiao=v) for i, v in enumerate(parado)]
     regs += [Registro("PISCAR", 100 + i, True, regiao=v) for i, v in enumerate(piscar)]

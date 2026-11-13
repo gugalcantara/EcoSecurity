@@ -5,7 +5,7 @@ Critérios de aceite:
   matizes; raio estritamente crescente por faixa; anel só no crítico; ponto vazado com o novo tamanho;
 - uma entrada por camada visível, com o mesmo símbolo (a cor desenhada na legenda = a do ponto); a
   entrada some quando a camada é desligada; texto na cor de texto;
-- a legenda conta só a vista e mostra dentro × fora coerente com `contagens`;
+- a legenda conta só a vista e mostra dentro × fora coerente com contagens;
 - barra de escala com erro ≤ 1% contra a haversine em latitudes do RS, do centro e do AM;
   comprimento redondo; muda com o zoom;
 - + e − dão zoom; Tab foca um ponto (oeste -> leste); Enter abre a ficha (o mesmo sinal do clique); Esc
@@ -61,7 +61,7 @@ def _interativo(tela, qt, usuario=CAIO_N3, nivel=Nivel.N3):
     tela.mostrar_modo("painel")
     pa = tela.painel_analitico
     pa.mostrar("mapa")
-    # O padrão do filtro passou a Todos; estes testes medem o mapa nas ativas
+    # o padrão do filtro é Todos; estes testes medem o mapa nas ativas
     pa.estado.definir(situacao="ATIVAS")
     qt.processEvents()
     return pa.mapa
@@ -87,7 +87,7 @@ def _aproximar_em(m, lon, lat, aumento_minimo):
     m.centerOn(projetar(lon, lat))
 
 
-# ================================================================ simbologia acessível
+# simbologia acessível
 def test_contraste_de_cada_faixa_contra_o_fundo_e_mesmo_matiz(mapa):
     from PySide6.QtGui import QColor
     from PySide6.QtWidgets import QGraphicsPathItem
@@ -153,7 +153,7 @@ def test_ponto_desenhado_na_cor_da_faixa_e_vazado_sem_preenchimento(qt):
             assert borda.name().upper() != sb.FUNDO_MAPA.upper()                       # o contorno existe
 
 
-# ================================================================ legenda dinâmica completa
+# legenda dinâmica completa
 def test_legenda_uma_entrada_por_camada_visivel_com_o_mesmo_simbolo(tela, qt):
     from ecosec.interface.componentes import simbologia as sb
     mi = _interativo(tela, qt)
@@ -212,7 +212,7 @@ def test_legenda_limites_so_quando_desenhados_e_encerradas(tela, qt):
     assert int(linhas["○ ENCERRADAS"]) == sum(pt.vazado and pt.conta for pt in m.pontos) > 0
 
 
-# ================================================================ a vista certa, dentro × fora
+# a vista certa, dentro × fora
 def test_legenda_conta_so_a_vista_e_dentro_fora_coerente(mapa):
     alvo = next(pt for pt in mapa.pontos_visiveis() if pt.pendencia.uf == "SP")
     _aproximar_em(mapa, alvo.pendencia.longitude, alvo.pendencia.latitude, 40)
@@ -234,7 +234,7 @@ def test_legenda_conta_so_a_vista_e_dentro_fora_coerente(mapa):
     assert fora.simbolo is not None and fora.simbolo.atenuado and "atenuado" in fora.rotulo
 
 
-# ================================================================ barra de escala
+# barra de escala
 def test_distancia_redonda():
     from ecosec.interface.mapa_vetorial import distancia_redonda
     assert [distancia_redonda(v) for v in (1, 1.9, 3, 7.5, 37, 99, 120, 0.3, 4999)] == \
@@ -279,7 +279,7 @@ def test_barra_de_escala_muda_com_zoom_e_rolagem(mapa):
     assert not imagem.isNull()
 
 
-# ================================================================ teclado e acessibilidade
+# teclado e acessibilidade
 def test_mais_e_menos_dao_zoom(mapa, qt):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
@@ -395,7 +395,7 @@ def test_n1_coropletico_sem_pontos_sem_legenda_de_pontos_com_nome(tela, qt):
     assert not m.focar_proximo(True)                                                 # nada a focar no N1
 
 
-# ================================================================ painel de camadas
+# painel de camadas
 def test_reordenar_camadas_muda_o_z_value(tela, qt):
     from ecosec.interface.mapa_vetorial import NOME_CAMADA
     mi = _interativo(tela, qt)
@@ -444,7 +444,7 @@ def test_n2_painel_horizontal_com_ufs_limites_e_coropletico(tela, qt):
     assert mi.mapa.camadas["densidade"].zValue() > mi.mapa.camadas["pendencias"].zValue()
 
 
-# ================================================================ rampa da densidade
+# rampa da densidade
 def test_rampa_da_densidade_nao_colide_com_a_de_risco(mapa, qt):
     from PySide6.QtTest import QTest
 

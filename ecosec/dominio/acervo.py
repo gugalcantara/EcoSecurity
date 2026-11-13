@@ -3,7 +3,7 @@
 A visão consolidada é exatamente o artefato que o sistema existe para
 proteger: por isso cada nível recebe só a parte que lhe cabe.
 
-Camada causal (exigência do professor): toda pendência registra
+Camada causal: toda pendência registra
   - a ATIVIDADE GERADORA (AG-01 a AG-13): de onde o passivo veio;
   - o MOTIVO DA PERMANÊNCIA (MP-01 a MP-10): por que ele continua lá.
 O motivo é o que converte o cadastro em instrumento de decisão: MP-01 é
@@ -42,7 +42,7 @@ class RegiaoSensivel:
 
 @dataclass(frozen=True)
 class AtividadeGeradora:
-    """Catálogo das atividades. `nome` é o rótulo curto (até 40 caracteres)."""
+    """Catálogo das atividades. nome é o rótulo curto (até 40 caracteres)."""
     codigo: str
     nome: str
     descricao_operacional: str = ""
@@ -61,7 +61,7 @@ class AtividadeGeradora:
 
 @dataclass(frozen=True)
 class MotivoPermanencia:
-    """Catálogo dos motivos. `grupo` = quem paga (COBRAVEL, PUBLICO, INFRAESTRUTURA,
+    """Catálogo dos motivos. grupo = quem paga (COBRAVEL, PUBLICO, INFRAESTRUTURA,
     FISCALIZACAO)."""
     codigo: str
     nome: str
@@ -87,7 +87,7 @@ def rotulo(codigo: str, catalogo: dict) -> str:
 
 @dataclass(frozen=True)
 class Responsavel:
-    """Nomeia empresas e pessoas: só existe a partir do nível 2 (RF-21)."""
+    """Nomeia empresas e pessoas: só existe a partir do nível 2."""
     pendencia_codigo: str
     nome: str
     vinculo: str               # GERADOR_ORIGINAL, SUCESSOR, PROPRIETARIO_ATUAL, TRANSPORTADOR, DESTINADOR
@@ -114,7 +114,7 @@ class Pendencia:
     data_identificacao: date   # quando o passivo entrou no cadastro (histórico do risco)
     prazo_coleta: date         # previsão de coleta
     situacao: str
-    atividade: str             # AG-xx  (RF-19: nunca vazio)
+    atividade: str             # AG-xx  (nunca vazio)
     motivo: str                # MP-xx
     sintetico: bool = True
     fonte: str = "BASE CONSOLIDADA ECOSECURITY (ECOSEC/ACERVO/SINTETICOS.PY)"
@@ -124,7 +124,7 @@ class Pendencia:
     etapas: tuple = ()                 # ((nome, data), ...) em ordem; a última é a etapa_atual
 
     def ativa(self, em: date) -> bool:
-        """Já identificada em `em` e ainda não encerrada."""
+        """Já identificada em em e ainda não encerrada."""
         return self.data_identificacao <= em and (self.data_encerramento is None or self.data_encerramento > em)
 
     def encerrada(self, em: date) -> bool:
@@ -140,7 +140,7 @@ class Pendencia:
         return " - ".join(partes)
 
     def dias_de_atraso(self, hoje: date) -> int:
-        """Atraso até `hoje`: ou até o encerramento, se já encerrou (o atraso para de crescer)."""
+        """Atraso até hoje: ou até o encerramento, se já encerrou (o atraso para de crescer)."""
         fim = min(hoje, self.data_encerramento) if self.data_encerramento else hoje
         return max(0, (fim - self.prazo_coleta).days)
 
@@ -150,7 +150,7 @@ class Pendencia:
 
 @dataclass(frozen=True)
 class EventoRegulatorio:
-    """Anotação dos gráficos. `verificacao` = CONFIRMADO: só fato conferido na fonte vira anotação (o serviço do
+    """Anotação dos gráficos. verificacao = CONFIRMADO: só fato conferido na fonte vira anotação (o serviço do
     acervo descarta qualquer outro valor que tenha ficado gravado no banco)."""
     data_evento: date
     rotulo: str
@@ -163,7 +163,7 @@ class EventoRegulatorio:
 
 @dataclass(frozen=True)
 class Custodia:
-    """Instalação de custódia (fictícia). `tipo`: DEFINITIVO, INTERMEDIARIO, NORM ou INICIAL."""
+    """Instalação de custódia (fictícia). tipo: DEFINITIVO, INTERMEDIARIO, NORM ou INICIAL."""
     nome: str
     tipo: str
     longitude: float

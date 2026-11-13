@@ -10,10 +10,9 @@ sensível. Defesa em profundidade: um relatório de N2 marca endereço e
 coordenadas mesmo nunca sendo exibido no N1: se alguém rebaixar o nível
 mínimo dele no banco por engano, a tarja ainda protege.
 
-Quando o segredo é a posição, suprimir no lugar não basta: o retângulo da
-tarja fica exatamente onde o objeto está, e a posição vaza pela própria tarja.
-Por isso o que o nível não pode
-localizar é OMITIDO, nem desenhado: as instalações de custódia abaixo do N3 e
+Quando a informação sensível é a posição, uma tarja no lugar não basta: o
+retângulo fica exatamente onde o objeto está e revela a posição. Por isso o
+que o nível não pode localizar é omitido, sem ser desenhado: as instalações de custódia abaixo do N3 e
 os pontos das pendências no N1 (que vê só o total agregado de cada estado).
 
 Redesenho como relatório executivo. Todos seguem a mesma grade:
@@ -24,7 +23,7 @@ Redesenho como relatório executivo. Todos seguem a mesma grade:
 Política por camada: N1 só agregados protegidos (k=3, os mesmos do resumo e do cubo; nenhum valor financeiro,
 endereço, coordenada ou nome); N2 decisão e ação na UF (o que priorizar, o que venceu, quem agir, prazos);
 N3 precisão (números exatos com unidade, base, comparação e fontes), agrupada em situação, risco, custódia e custo.
-Todo rótulo visível vem do `vocabulario` (classes, faixas, ações, motivos, atividades, KPIs, "caso", "score").
+Todo rótulo visível vem do vocabulario (classes, faixas, ações, motivos, atividades, KPIs, "caso", "score").
 """
 import re
 from collections import Counter
@@ -42,7 +41,7 @@ from ecosec.acervo.mapa import CENTROIDES_UF, CONTORNO_BRASIL, Mapa
 from ecosec.acervo.sinteticos import AREA, CLASSE_I, RADIOATIVO
 from ecosec.dominio.acervo import GRUPOS_MOTIVO, Pendencia, RelatorioCatalogo, Responsavel, grupo_do_motivo
 
-# ================================================================ grade, tipografia e cores (iguais nos nove)
+# grade, tipografia e cores
 LARGURA = 1000                     # a marca d'água é lida nesta largura (servicos.acervo.identificar_marca)
 ALTURA_MINIMA = 1414               # proporção A4: o relatório curto continua com cara de página
 MARGEM = 56
@@ -116,7 +115,7 @@ class DadosRelatorio:
         return self.supressao_minima if self.nivel <= 1 else 0
 
 
-# ================================================================ números
+# números
 def br(valor: float, casas: int = 1) -> str:
     """Número no formato brasileiro: 1.376,5 (milhar com ponto, decimal com vírgula)."""
     return formatos.numero(valor, casas)
@@ -149,7 +148,7 @@ def _volume(ps, classe: str) -> float:
 
 
 def _cartoes_de_volume(ps, ocultas=frozenset()) -> list[tuple[str, str]]:
-    """Um total por classe, cada um com a sua unidade (t de Classe I, m³ de solo, m³ de rejeito). `ocultas` =
+    """Um total por classe, cada um com a sua unidade (t de Classe I, m³ de solo, m³ de rejeito). ocultas =
     classes cuja linha o resumo do N1 suprime: o total delas sai SUPRIMIDO."""
     return [(quantidades.DESCRICAO[c], analise.SUPRIMIDO if c in ocultas else formatos.quantidade(_volume(ps, c), c))
             for c in quantidades.CLASSES]
@@ -226,7 +225,7 @@ def _uf_do_escopo(dados: DadosRelatorio) -> str | None:
     return dados.escopo.split()[1] if dados.escopo.startswith("UF ") else None
 
 
-# ================================================================ totais do N1 (os mesmos do Resumo agregado)
+# totais do N1
 def _cubo(dados: DadosRelatorio) -> "analise.CuboN1":
     """O cubo protegido do corte (memorizado em analise): no N1, k e complementar; no N2 e no N3, k = 0."""
     return analise.proteger_cubo(dados.pendencias, analise.REGIAO_DA_UF, dados.hoje, dados.k, dados.parametros)
@@ -271,7 +270,7 @@ def _cont(cubo, linha: str, coluna: str = analise.TODAS):
     return analise.SUPRIMIDO if v is None else v
 
 
-# ================================================================ peças de desenho comuns
+# peças de desenho comuns
 def _tela(fontes, altura=7000) -> Tela:
     return Tela(LARGURA, altura, fontes)
 
@@ -329,7 +328,7 @@ def _selo_faixa(t: Tela, x: float, y: int, faixa: str, tamanho: int = 11) -> int
     return _selo(t, x, y, _rot_faixa(faixa), COR_CATEGORIA[faixa], tamanho)
 
 
-# ---------------------------------------------------------------- texto com trechos em negrito
+# texto com trechos em negrito
 _TOKEN = re.compile(r"\s+|\S+")
 
 
@@ -388,7 +387,7 @@ def _rico(t: Tela, x: int, y: int, texto: str, tamanho: int, largura: int, cor=T
     return altura_linha * len(linhas)
 
 
-# ---------------------------------------------------------------- capa, sumário, seções, rodapé
+# capa, sumário, seções, rodapé
 def _capa(t: Tela, item: RelatorioCatalogo, dados: DadosRelatorio, base: str) -> int:
     cor = COR_NIVEL[item.nivel_minimo]
     t.retangulo(0, 0, LARGURA, 8, preenchimento=cor)
@@ -472,7 +471,7 @@ def _nota(t: Tela, y: int, titulo_nota: str, itens: list[str]) -> int:
 
 def _fechar(t: Tela, item: RelatorioCatalogo, dados: DadosRelatorio) -> Documento:
     """Rodapé (data, escopo e classificação) e a página fechada logo abaixo do conteúdo, com a altura mínima de uma
-    página A4. A marcação de documento simulado saiu."""
+    página A4."""
     altura_rodape = 56
     altura = max(t.fundo + 40 + altura_rodape, ALTURA_MINIMA)
     y = altura - altura_rodape
@@ -483,7 +482,7 @@ def _fechar(t: Tela, item: RelatorioCatalogo, dados: DadosRelatorio) -> Document
     return Documento(t.para_bgr(), tuple(t.regioes))
 
 
-# ---------------------------------------------------------------- indicadores
+# indicadores
 @dataclass(frozen=True)
 class Kpi:
     nome: str
@@ -503,7 +502,7 @@ def _kpis(t: Tela, y: int, itens: list[Kpi], colunas: int | None = None) -> int:
         x = MARGEM + (i % n) * (largura + GOTEIRA)
         t.retangulo(x, y, x + largura, y + 3, preenchimento=TINTA)
         t.texto(x, y + 12, k.nome, 12, negrito=True, largura_max=largura)
-        tamanho = 30                                   # número longo num espaço estreito: diminui, não corta
+        tamanho = 30                                   # número longo em espaço estreito: a fonte diminui
         while tamanho > 14 and _largura_texto(t, k.valor, tamanho, True) > largura:
             tamanho -= 2
         t.texto(x, y + 12 + h_nome + 4 + (30 - tamanho) // 2, k.valor, tamanho, negrito=True)
@@ -512,7 +511,7 @@ def _kpis(t: Tela, y: int, itens: list[Kpi], colunas: int | None = None) -> int:
     return y + altura + 26
 
 
-# ---------------------------------------------------------------- gráficos
+# gráficos
 def _valor_e_pct(valor, total) -> str:
     """"1.055  (12,1%)"; SUPRIMIDO intacto; sem o % se não houver total."""
     if _suprimido(valor):
@@ -525,8 +524,8 @@ def _barras(t: Tela, x: int, y: int, largura: int, itens: list, total=None, larg
             cor=DADO, cores=None, extras=None, titulo_extra: str | None = None, largura_extra: int = 96,
             tamanho: int = 12, maximo=None) -> int:
     """Barras horizontais com rótulo direto (valor e %). O rótulo quebra dentro da sua coluna e a linha cresce
-    junto; SUPRIMIDO sai sem barra (o comprimento revelaria o número). `extras`: uma coluna de texto à direita
-    (ex.: % críticos), alinhada à direita, com o título `titulo_extra`."""
+    junto; SUPRIMIDO sai sem barra (o comprimento revelaria o número). extras: uma coluna de texto à direita
+    (ex.: % críticos), alinhada à direita, com o título titulo_extra."""
     visiveis = [v for _, v in itens if not _suprimido(v)]
     maximo = maximo if maximo is not None else max(visiveis, default=0)
     reserva = 104
@@ -614,7 +613,7 @@ def _empilhada(t: Tela, x: int, y: int, largura: int, partes: list, total, altur
     return y + 30
 
 
-# ---------------------------------------------------------------- tabela
+# tabela
 @dataclass(frozen=True)
 class Grupo:
     """Linha de grupo dentro da tabela (ex.: "Crítico · 98 casos")."""
@@ -631,8 +630,8 @@ class Faixa:
 def _tabela(t: Tela, y: int, colunas: list, linhas: list, total=None, tamanho: int = T_TABELA, sensivel=None,
             x0: int = MARGEM, largura: int | None = None, negrito_col0: bool = False) -> int:
     """Tabela de relatório: cabeçalho pequeno em cinza com filete escuro, linhas separadas por filete fino,
-    números à direita. `colunas` = [(título, largura[, "d"|"e"])] ("d" alinha à direita; número já alinha).
-    Uma linha `Grupo` ocupa a largura toda. `sensivel(i, j)` devolve o rótulo de proteção da célula ou None."""
+    números à direita. colunas = [(título, largura[, "d"|"e"])] ("d" alinha à direita; número já alinha).
+    Uma linha Grupo ocupa a largura toda. `sensivel(i, j)` devolve o rótulo de proteção da célula ou None."""
     largura = largura or sum(c[1] for c in colunas)
     altura_linha = int(tamanho * 1.35) + 10
     alturas = []
@@ -692,7 +691,7 @@ def _tabela(t: Tela, y: int, colunas: list, linhas: list, total=None, tamanho: i
     return y + 16
 
 
-# ---------------------------------------------------------------- mapas
+# mapas
 def _na_rampa(frac: float) -> tuple:
     """Cor contínua da rampa sequencial (0 = mais claro, 1 = mais escuro)."""
     paradas = np.linspace(0, 1, len(RAMPA))
@@ -833,7 +832,7 @@ def _legenda(t: Tela, x: int, y: int, largura: int, itens: list, titulo_legenda:
     return y + 24
 
 
-# ================================================================ N1: agregados protegidos, sem localização
+# N1: agregados protegidos, sem localização
 def a1_01(item, dados: DadosRelatorio, fontes: Fontes) -> Documento:
     t = _tela(fontes)
     ps, hoje = dados.pendencias, dados.hoje
@@ -864,7 +863,7 @@ def a1_01(item, dados: DadosRelatorio, fontes: Fontes) -> Documento:
         f"O país tem **{_casos(n, 'ativos')}**; **{_qtd(criticas)} ({_pct(criticas, n)})** estão na faixa de risco "
         "crítico." if not _suprimido(criticas) else f"O país tem **{_casos(n, 'ativos')}**.",
         (f"**{_pct(fora, n)}** dos casos já passaram do prazo previsto e **{_pct(alem, n)}** estão além do prazo "
-         "legal da sua classe: o atraso é a regra, não a exceção.") if not (_suprimido(fora) or _suprimido(alem))
+         "legal da sua classe: a maior parte dos casos está atrasada.") if not (_suprimido(fora) or _suprimido(alem))
         else "",
         f"A região **{NOME_REGIAO.get(reg_top, reg_top)}** concentra **{_pct(n_reg, n)}** dos casos; **{uf_top}** é o "
         f"estado com mais casos ({formatos.inteiro(n_uf)}, {_pct(n_uf, n)})." if n_reg else "",
@@ -1090,7 +1089,7 @@ def a1_05(item, dados: DadosRelatorio, fontes: Fontes) -> Documento:
         mapa.desenhar_ufs(t, {uf_escopo: (238, 243, 238)} if uf_escopo else {}, padrao=(238, 243, 238)
                           if not uf_escopo else (246, 247, 248), contorno=(150, 160, 150))
         _pontos(t, dados, mapa)
-        # a área inteira do mapa é sensível: a informação está na posição, não no texto
+        # a área inteira do mapa é sensível, porque a posição já é a informação
         t.marcar(*mapa.caixa, "DISTRIBUICAO_GEOGRAFICA", 2)
         if dados.nivel >= 3:                     # abaixo do N3: omitidas, não suprimidas (ver topo)
             _custodias(t, mapa)
@@ -1119,14 +1118,14 @@ def a1_05(item, dados: DadosRelatorio, fontes: Fontes) -> Documento:
     y = max(y, yy) + 8
     y = _nota(t, y, "Como ler", [
         "Só o total de cada estado: nenhum ponto é desenhado, e as instalações de custódia não aparecem (a posição "
-        "é o segredo).",
+        "é informação sensível).",
         ("Cores do mapa: 5 classes de casos por estado (quantis), do mais claro (menos casos) ao mais escuro. "
          + vocabulario.definicao("SUPRIMIDO", "sigilo")) if dados.nivel <= 1 else "",
         "Contorno e divisas: malha do IBGE (qualidade mínima), projeção simples, sem pretensão cartográfica."])
     return _fechar(t, item, dados)
 
 
-# ================================================================ N2: decisão e ação na UF
+# N2: decisão e ação na UF
 def _responsaveis(dados: DadosRelatorio, codigo: str) -> tuple[Responsavel, ...]:
     return tuple((dados.responsaveis or {}).get(codigo, ()))
 
@@ -1136,7 +1135,7 @@ def _anos(dias: float) -> str:
 
 
 def _campos(t: Tela, x: int, y: int, largura: int, campos: list, colunas: int = 3, medir=False) -> int:
-    """Grade de campos da ficha: rótulo pequeno em cinza sobre o valor. `campos` = [(rótulo, valor, sensível ou
+    """Grade de campos da ficha: rótulo pequeno em cinza sobre o valor. campos = [(rótulo, valor, sensível ou
     None)]. A altura de cada linha é medida antes de desenhar (nada se sobrepõe)."""
     largura_col = (largura - (colunas - 1) * 20) // colunas
     y0 = y
@@ -1525,7 +1524,7 @@ def a2_04(item, dados: DadosRelatorio, fontes: Fontes) -> Documento:
     return _fechar(t, item, dados)
 
 
-# ================================================================ N3: precisão, agrupada por tema
+# N3: precisão, agrupada por tema
 def _custo(ps, dados: DadosRelatorio, responsabilidade: str) -> float:
     return sum(regras.custo_estimado(p, dados.parametros) for p in ps if regras.responsabilidade(p) == responsabilidade)
 

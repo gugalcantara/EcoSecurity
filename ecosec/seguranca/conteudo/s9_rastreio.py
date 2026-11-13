@@ -8,7 +8,7 @@ A marca (64 bits):  usuário (24) · minuto em que foi liberado (32) · CRC-8 (8
 o CRC detecta extração corrompida: sem ele, uma marca danificada poderia
 apontar um inocente. Marca que não confere devolve None: nunca um palpite.
 
-Dois métodos, comparados de propósito (etp 6.5):
+Dois métodos, comparados:
 
 LSB (bit menos significativo): troca o último bit de pixels escolhidos.
   Invisível (muda o tom em 1 de 255) e simples, mas frágil: qualquer
@@ -64,7 +64,7 @@ class ParametrosMarca:
         return cls(m["metodo"], float(m["forca_dct"]), tuple(m["coef_a"]), tuple(m["coef_b"]))
 
 
-# ------------------------------------------------------------ carga (bits)
+# carga (bits)
 def _crc8(valor: int) -> int:
     return zlib.crc32(valor.to_bytes(7, "big")) & 0xFF
 
@@ -106,7 +106,7 @@ def _votar(lidos: np.ndarray, indices_bit: np.ndarray) -> np.ndarray:
     return (votos > contagem / 2).astype(np.uint8)
 
 
-# ------------------------------------------------------------ LSB
+# LSB
 def _canal_lsb(img: np.ndarray) -> np.ndarray:
     return img[..., 0] if img.ndim == 3 else img       # canal azul: o olho é menos sensível a ele
 
@@ -136,7 +136,7 @@ def extrair_lsb(img: np.ndarray, chave: bytes) -> Marca | None:
     return decodificar(_votar(plano[alvos] & 1, np.tile(np.arange(TOTAL_BITS), usados // TOTAL_BITS)))
 
 
-# ------------------------------------------------------------ DCT
+# DCT
 def _luminancia(img: np.ndarray):
     if img.ndim == 2:
         return img.astype(np.float32), None
@@ -193,7 +193,7 @@ def extrair_dct(img: np.ndarray, chave: bytes, p: ParametrosMarca) -> Marca | No
     return decodificar(_votar(lidos, np.tile(np.arange(TOTAL_BITS), usados // TOTAL_BITS)))
 
 
-# ------------------------------------------------------------ fachada
+# fachada
 def marcar(img: np.ndarray, marca: Marca, chave: bytes, p: ParametrosMarca) -> np.ndarray:
     return inserir_dct(img, marca, chave, p) if p.metodo == "dct" else inserir_lsb(img, marca, chave)
 

@@ -4,7 +4,7 @@
     .venv\\Scripts\\python.exe -m ferramentas.verificar_trilha --conferir "ECOSEC-TRILHA <id> <hash> <momento>"
     .venv\\Scripts\\python.exe -m ferramentas.verificar_trilha --conferir-arquivo ancoras.txt
 
-Roteiro da demonstração na banca:
+Roteiro de demonstração:
   1. use o sistema (alguns logins, um cadastro);
   2. rode esta ferramenta: "Trilha íntegra";
   3. no MySQL Workbench, como root, altere uma linha de log_acesso

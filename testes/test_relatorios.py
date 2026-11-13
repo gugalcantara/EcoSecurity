@@ -73,7 +73,7 @@ def _so_textos(desenhos, codigo):
     return [t for t, *_ in desenhos[codigo][1]]
 
 
-# ================================================================ política do N1
+# política do N1
 @pytest.mark.parametrize("codigo", [c for c in CODIGOS if NIVEL[c] == 1])
 def test_n1_sem_dinheiro_cnpj_nem_coordenada(desenhos, codigo):
     textos = _so_textos(desenhos, codigo)
@@ -95,7 +95,7 @@ def test_n1_nao_desenha_nome_nem_endereco(desenhos, acervo):
         assert not [l for l in logradouros if l in texto]
 
 
-# ================================================================ grade comum e vocabulário
+# grade comum e vocabulário
 @pytest.mark.parametrize("codigo", CODIGOS)
 def test_todo_relatorio_tem_sumario_e_rodape_sem_fonte(desenhos, codigo):
     """O rodapé diz quando foi gerado, o escopo e a classificação; sem a linha de fonte,
@@ -137,7 +137,7 @@ def test_cores_iguais_as_da_simbologia():
     assert relatorios.COR_CLASSE == {c: rgb(h) for c, h in simbologia.COR_IDENTIDADE_CLASSE.items()}
 
 
-# ================================================================ layout
+# layout
 @pytest.mark.parametrize("codigo", CODIGOS)
 def test_nada_fora_da_pagina(desenhos, codigo):
     entrega, caixas = desenhos[codigo]
@@ -159,7 +159,7 @@ def test_nenhum_texto_sobreposto(desenhos, codigo):
     assert not sobrepostos, sobrepostos[:5]
 
 
-# ================================================================ segurança preservada
+# segurança preservada
 @pytest.mark.parametrize("codigo", [c for c in CODIGOS if NIVEL[c] >= 2])
 def test_n2_e_n3_saem_com_marca_de_quem_consultou(desenhos, acervo, codigo):
     entrega = desenhos[codigo][0]

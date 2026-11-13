@@ -145,7 +145,7 @@ def verificar_webcam(cv2, haar):
     fps = lidos / (time.perf_counter() - inicio)
 
     marca = OK if fps >= 15 else (AVISO if fps >= 10 else FALHA)
-    print(f"{marca} {fps:.1f} FPS com captura + cinza + equalização + Haar EM TODO frame")
+    print(f"{marca} {fps:.1f} FPS com captura + cinza + equalização + Haar em todo quadro")
     if fps < 10:
         falha(f"Desempenho baixo ({fps:.1f} FPS).",
               "A thread de captura e o Haar a cada N frames devem compensar.")
@@ -163,7 +163,7 @@ def verificar_demais():
     # o Fluent entra pelo módulo do sistema, que cala o anúncio que a biblioteca imprime
     for nome, modulo in [("numpy", "numpy"), ("PySide6-Fluent-Widgets", "ecosec.interface.fluent"), ("Pillow", "PIL"),
                          ("mysql-connector-python", "mysql.connector"), ("bcrypt", "bcrypt"),
-                         ("cryptography", "cryptography"), ("python-dotenv", "dotenv")]:
+                         ("cryptography", "cryptography"), ("python-dotenv", "dotenv"), ("pywin32", "win32crypt")]:
         try:
             __import__(modulo)
             print(f"{OK} {nome} {version(nome)}")  # do metadado: nem todo pacote tem __version__

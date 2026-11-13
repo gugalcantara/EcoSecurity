@@ -1,15 +1,12 @@
 """S3 Qualidade: "A imagem permite decidir?"
 
-Uma decisão tomada sobre imagem ruim é um sorteio. Um rosto escuro e borrado
-gera um histograma LBP pobre, e a distância vira ruído: tanto pode negar o
-dono quanto aceitar um parecido. Por isso a S3 vem antes da S4: o reconhecedor
-só recebe o que vale a pena reconhecer.
+Com um rosto escuro ou borrado, o histograma LBP fica pobre e a distância vira ruído:
+o sistema poderia negar o dono ou aceitar alguém parecido. Por isso a S3 é avaliada
+antes da S4.
 
-As medidas (nitidez, brilho, contraste, número de faces) são calculadas pela
-camada de visão. Aqui só se decide se elas bastam.
-
-Uma pessoa por vez (EXC-02): duas faces na cena são recusadas, não resolvidas.
-Escolher "a maior" deixaria alguém entrar com um terceiro ao fundo.
+As medidas (nitidez, brilho, contraste e número de faces) vêm da camada de visão;
+esta camada decide se bastam. Com duas faces na cena, o quadro é recusado: escolher
+a maior deixaria uma terceira pessoa entrar ao fundo.
 """
 from ecosec.dominio.camadas import CamadaSeguranca
 from ecosec.dominio.motivos import Motivo

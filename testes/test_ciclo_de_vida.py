@@ -52,7 +52,7 @@ def estoque(ps, ano):
     return sum(p.ativa(corte) for p in ps)
 
 
-# ================================================================ saídas e séries
+# saídas e séries
 def test_saidas_no_ano_analitico_confere_com_euler():
     n, lam, h, dt = 100.0, 20.0, 0.3, 1e-3
     estoque_, total = n, 0.0
@@ -144,7 +144,7 @@ def test_modo_poisson_tambem_gera_um_acervo_coerente():
     assert len(ps) == 600 and any(p.data_encerramento for p in ps)
 
 
-# ================================================================ ciclo de vida
+# ciclo de vida
 def test_ciclo_de_vida_coerente(pendencias):
     for p in pendencias:
         datas = [d for _, d in p.etapas]
@@ -177,7 +177,7 @@ def test_consistencia_e_quedas_no_mysql(acervo_mysql):
         assert len(c.fetchall()) == 13
 
 
-# ================================================================ catálogo
+# catálogo
 def test_catalogo_completo_e_corrigido():
     assert len(sinteticos.ATIVIDADES) == 13 and len(sinteticos.MOTIVOS) == 10
     texto_largo = re.compile(r"^[A-Z0-9 ,.;:()/-]+$")
@@ -215,7 +215,7 @@ def test_planilha_mostra_codigo_e_nome(pendencias):
     assert linha.ATIVIDADE == atividades[pendencias[0].atividade].rotulo and " · " in linha.MOTIVO
 
 
-# ================================================================ índice de pressão
+# índice de pressão
 def test_indice_de_pressao(pendencias):
     ufs = sorted(analise.REGIAO_DA_UF)
     ip = analise.indice_pressao(pendencias, ufs, HOJE)
@@ -242,7 +242,7 @@ def test_pesos_da_configuracao_somam_um():
     assert sum(analise.pesos_pressao(CFG).values()) == pytest.approx(1.0)
 
 
-# ================================================================ segurança
+# segurança
 def test_panorama_n1_so_totais_e_suprime_no_servico(acervo):
     p = acervo.panorama(ANA_N1, 1)
     campos = {type(v).__name__ for v in vars(p).values()}
@@ -350,7 +350,7 @@ def test_priorizacao_ignora_encerradas(acervo):
     assert fila.selecionadas and all(p.ativa(HOJE) for p, _, _ in fila.selecionadas)
 
 
-# ================================================================ interface (componentes)
+# interface (componentes)
 def test_botao_exportar_mostra_o_cadeado_mas_nao_decide(qt):
     from types import SimpleNamespace
 
@@ -399,8 +399,7 @@ def test_painel_deslizante_abre_e_esc_fecha(qt):
     pai.show()
     painel = PainelDeslizante(pai, 300)
     painel.adicionar_aba("a", "A", QLabel("x"))
-    # Sonda com teto em vez de espera fixa (a animação de 260 ms atrasava sob carga na suíte inteira,
-    # depois que o mapa passou a ser a primeira aba visível do N3 já registrava a sensibilidade a tempo)
+    # sonda com teto em vez de espera fixa: a animação de 260 ms atrasa sob carga na suíte inteira
     def esperar(condicao, teto=3000):
         decorrido = 0
         while not condicao() and decorrido < teto:
@@ -440,7 +439,7 @@ def test_grafico_de_estoque_desenha_e_marca_o_ano(qt, pendencias):
     g.close()
 
 
-# ================================================================ interface (telas)
+# interface (telas)
 @pytest.fixture
 def tela(qt, tmp_path):
     from ecosec.aplicacao import montar
@@ -475,7 +474,7 @@ def test_panorama_legenda_barras_e_ano(tela, qt):
     assert f"{pn.panorama.pressao['SP'].ativas:,} casos ativos".replace(",", ".") in sp["dica"]
     pn.estado.definir(classe=sinteticos.AREA)
     assert pn.panorama.classe == sinteticos.AREA and pn.combo_classe.currentText() == "Área contaminada"
-    pn.combo_ano.setCurrentText("2015")                    # A lista no lugar do slider e do rótulo do ano
+    pn.combo_ano.setCurrentText("2015")                    # a lista de anos
     assert pn.panorama.ano == 2015 and pn.combo_ano.currentText() == "2015"
 
 
@@ -499,7 +498,7 @@ def test_mapa_n3_camadas_linha_do_tempo_arvore_e_documento(tela, qt):
     m.caixas_custodia["NORM"].setChecked(False)
     assert not any(i.isVisible() for i in m.mapa.custodias if i.data(0) == "CUSTODIA:NORM")
     assert all(m.arvore.topLevelItem(i).text(0)[0] != "△" for i in range(m.arvore.topLevelItemCount()))
-    m.combo_ano.setCurrentText("2012")                     # A lista no lugar do slider
+    m.combo_ano.setCurrentText("2012")                     # a lista de anos
     antes = sum(pt.isVisible() for pt in m.mapa.pontos)
     assert antes == sum(pt.pendencia.data_identificacao <= date(2012, 12, 31) for pt in m.mapa.pontos)   # Todos
     m.caixas_n3["densidade"].setChecked(True)

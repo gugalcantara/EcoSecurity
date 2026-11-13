@@ -386,7 +386,7 @@ class RepositorioAcervoMySQL:
         from ecosec.dominio.acervo import Responsavel
         sql = ("SELECT p.codigo AS pendencia_codigo, r.nome, r.vinculo, r.situacao_cadastral, r.nivel_minimo "
                "FROM responsavel r JOIN pendencia p ON p.id = r.pendencia_id "
-               "WHERE r.nivel_minimo <= %s")          # RF-21: o filtro do nível está NA CONSULTA
+               "WHERE r.nivel_minimo <= %s")          # o filtro do nível está NA CONSULTA
         parametros = [int(nivel)]
         if uf is not None:
             sql += " AND p.uf = %s"

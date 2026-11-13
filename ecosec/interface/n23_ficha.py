@@ -9,7 +9,7 @@ Blocos com hierarquia, do que decide para o que detalha:
   Custo estimado total, rota, divisão nas quatro categorias e a memória de cálculo recolhível
   Histórico de etapas linha do tempo
 Rótulos e textos de exibição pelo vocabulário (`acervo/vocabulario.py`): textos de catálogo do acervo passam por
-`vocabulario.frase` (grafia de frase, siglas preservadas). Tudo derivado de `acervo/ficha.py` e `acervo/regras.py`
+vocabulario.frase (grafia de frase, siglas preservadas). Tudo derivado de `acervo/ficha.py` e `acervo/regras.py`
 sobre o caso que o serviço já entregou no painel do nível; a exportação continua crua (ServicoAcervo.exportar_ficha).
 
 Regras de nível: a ficha nunca mostra responsável nomeado nem custo por responsável (só o N3, na aba
@@ -181,7 +181,7 @@ def _duracao(dias: int) -> str:
 
 
 class FichaTecnica(QWidget):
-    """O conteúdo da aba "Dados técnicos". `mostrar(p, painel, regras)` monta os blocos do caso `p`."""
+    """O conteúdo da aba "Dados técnicos". `mostrar(p, painel, regras)` monta os blocos do caso p."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -222,7 +222,7 @@ class FichaTecnica(QWidget):
         self.memoria = QLabel()                    # memória de cálculo (recolhível, dentro do bloco Custo)
         self.botao_memoria = None
 
-    # ------------------------------------------------------------ montagem
+    # montagem
     def mostrar(self, p, painel, r):
         from ecosec.acervo import ficha, regras
         hoje = painel.hoje
@@ -392,7 +392,7 @@ class FichaTecnica(QWidget):
         self.blocos["historico"].extra.addWidget(linha)
         self.blocos["historico"].linhas.extend((f"{d:%d/%m/%Y}", r) for d, r, _, _ in linhas)
 
-    # ------------------------------------------------------------ leitura (testes e acessibilidade)
+    # leitura (testes e acessibilidade)
     def texto(self) -> str:
         """Todo o texto visível da ficha, bloco a bloco (rótulos de exibição)."""
         partes = [self.titulo.text(), self.selo_classe.text(), self.selo_risco.text(),

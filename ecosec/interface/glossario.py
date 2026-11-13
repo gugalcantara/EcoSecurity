@@ -121,7 +121,7 @@ class CartaoSecao(QWidget):
 
 class PainelGlossario(QWidget):
     def __init__(self, camada=None, parent=None):
-        """`camada`: o nível da tela; o termo de nível fica só o dela (escopo exclusivo)."""
+        """camada: o nível da tela; o termo de nível fica só o dela (escopo exclusivo)."""
         super().__init__(parent)
         self.setObjectName("painelGlossario")
         v = QVBoxLayout(self)
@@ -178,7 +178,7 @@ class PainelGlossario(QWidget):
         v.addLayout(corpo, 1)
         self.filtrar("")
 
-    # ------------------------------------------------------------ busca e índice
+    # busca e índice
     def filtrar(self, texto: str = ""):
         alvo = vocabulario.sem_acento(texto.strip())
         total = sum(cartao.filtrar(alvo) for cartao in self.secoes)
@@ -197,7 +197,7 @@ class PainelGlossario(QWidget):
             alvo = self._no_indice[linha]
             QTimer.singleShot(0, lambda: self.rolagem.verticalScrollBar().setValue(alvo.y()))
 
-    # ------------------------------------------------------------ para os testes
+    # para os testes
     def termos_visiveis(self) -> list:
         return [l.termo for c in self.secoes if not c.isHidden() for l in c.linhas if not l.isHidden()]
 

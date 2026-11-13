@@ -6,7 +6,7 @@ mouse, clicar, rolar a página, teclar. A câmera ligada também conta (quem faz
 gesto do N3 ou a captura do cadastro não toca no teclado), e isso é verificado
 por quem usa o prazo, no momento em que ele vence.
 
-Um único filtro de eventos no QApplication emite `atividade`, no máximo uma vez
+Um único filtro de eventos no QApplication emite atividade, no máximo uma vez
 por segundo (mover o mouse gera dezenas de eventos por segundo). A sessão, o
 painel do administrador e o nível 3 escutam o mesmo sinal.
 """
@@ -52,7 +52,7 @@ def vigia() -> VigiaAtividade:
 
 
 class PrazoInatividade(QObject):
-    """Vence depois de `minutos` sem atividade. Ao vencer, pergunta `ocupado()`
+    """Vence depois de minutos sem atividade. Ao vencer, pergunta ocupado()
     (ex.: câmera ligada) e, se estiver ocupado, recomeça em vez de vencer."""
     vencido = Signal()
 

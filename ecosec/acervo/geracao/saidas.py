@@ -55,7 +55,7 @@ def calibrar(entradas: dict[int, float], saida: Saida, estoque_inicial: float) -
 
 
 def fracao_encerrada(entradas: dict[int, float], h: dict[int, float], de: int, ate: int) -> float:
-    """Fração esperada das entradas de [de, ate] já encerradas no fim de `ate` (mesmo risco para todo ativo)."""
+    """Fração esperada das entradas de [de, ate] já encerradas no fim de ate (mesmo risco para todo ativo)."""
     vivos = total = 0.0
     for a in range(de, ate + 1):
         k = h[a]
@@ -92,7 +92,7 @@ def calibrar_risco_base(entradas, saida: Saida, estoque_inicial: float) -> Saida
     return replace(saida, risco_base=_bissecao(medir, float(ancora[-1])))
 
 
-# ---------------------------------------------------------------- parâmetros ([geracao.saidas.*] no ecosec.toml)
+# parâmetros
 METAS_AREA = ((2020, 2019, 0.95), (2021, 2019, 0.90), (2022, 2021, 1.19))     # parâmetro de simulação
 CHAVES = {"POSTOS": "postos", "AREA": "area", "CLASSE I": "classe_i", "ATERROS": "aterros",
           "MTR SEM BAIXA": "mtr_sem_baixa", "FONTES SELADAS": "fontes_seladas", "NORM": "norm",

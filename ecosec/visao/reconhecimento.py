@@ -8,7 +8,7 @@ A classificação usa a distância qui-quadrado entre assinaturas (menor = mais 
 pela camada S4. Na identificação 1:N vale o vizinho mais próximo da galeria; na verificação 1:1, a menor
 distância às amostras da identidade alegada, para que um vizinho de outra pessoa não negue o dono legítimo.
 
-Um cadastro novo usa a atualização incremental (`update()`), sem retreinar as outras pessoas. O modelo é
+Um cadastro novo usa a atualização incremental (update()), sem retreinar as outras pessoas. O modelo é
 serializado em memória, comprimido e cifrado antes de ir para o disco, sem arquivo temporário em claro. Como o
 LBPH não remove uma pessoa, a revogação reescreve o modelo sem os histogramas daquele rótulo.
 """
@@ -105,7 +105,7 @@ class ReconhecedorLBPH:
             saida[int(rotulo)] = min(float(distancia), saida.get(int(rotulo), float("inf")))
         return saida
 
-    # ------------------------------------------------------------ persistência cifrada
+    # persistência cifrada
     def salvar_cifrado(self, caminho: Path, chave: bytes) -> None:
         """O modelo contém os histogramas das faces: é dado biométrico. Vai para
         o disco cifrado com Fernet (AES-128 + HMAC), nunca em texto."""
@@ -143,7 +143,7 @@ class ReconhecedorLBPH:
         reconhecedor._desserializar(dados)
         return reconhecedor
 
-    # ------------------------------------------------------------ eliminação (LGPD)
+    # eliminação (LGPD)
     def remover(self, rotulo: int) -> bool:
         """Elimina do modelo todos os histogramas de uma pessoa. True se havia algum."""
         with self._lock:

@@ -110,7 +110,7 @@ def _dicas(raiz) -> list[str]:
     return [w.toolTip() for w in _fora_do_glossario(raiz, QWidget) if w.toolTip()] + [raiz.toolTip()]
 
 
-# ================================================================ vocabulário
+# vocabulário
 def test_todo_codigo_do_acervo_tem_rotulo(acervo):
     pendencias = list(acervo.repo.pendencias())
     esperado = {
@@ -184,7 +184,7 @@ def test_glossario_tem_as_secoes_pedidas_e_a_busca_ignora_acento():
     assert vocabulario.buscar("zzzz inexistente") == []
 
 
-# ================================================================ N1 sem dado financeiro (serviço)
+# N1 sem dado financeiro (serviço)
 def test_servico_n1_sem_custo_e_recusa_registrada(acervo):
     with pytest.raises(ErroAcervo):
         acervo.painel_custo(ANA_N1, 1)
@@ -228,7 +228,7 @@ def test_relatorios_a1_sem_reais(acervo, monkeypatch):
     assert not [t for t in escritos if "KPI-0" in t or "NBR 10004" in t]
 
 
-# ================================================================ abas e glossário (tela)
+# abas e glossário (tela)
 @pytest.mark.parametrize("nivel, abas", [
     (Nivel.N1, ["panorama", "agregado", "glossario"]),
     (Nivel.N2, ["mapa", "paineis_uf", "planilha", "agregado", "glossario"]),
@@ -269,7 +269,7 @@ def test_glossario_em_todo_nivel_so_com_definicoes(tela, qt, nivel):
     assert len(g.termos_visiveis()) == len(vocabulario.TODOS_OS_TERMOS) - 2     # Só o nível da camada
 
 
-# ================================================================ situação
+# situação
 @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
 def test_situacao_abre_em_todos_no_mapa_e_na_planilha(tela, qt, nivel):
     assert Filtro().situacao == "TODAS" and Filtro().vazio()
@@ -327,7 +327,7 @@ def test_resumo_continua_sobre_os_ativos_com_todos(tela, qt):
     assert "ativos" in pa.agregado.aviso_filtro.text()
 
 
-# ================================================================ rótulos na tela e N1 sem R$
+# rótulos na tela e N1 sem R$
 def test_combos_mostram_rotulos_e_filtram_pelo_codigo(tela, qt):
     pa = _abrir(tela, qt, Nivel.N3, "planilha")
     pl = pa.planilha

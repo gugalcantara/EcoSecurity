@@ -82,7 +82,7 @@ def _atividades(servico, n):
     return sorted(a.codigo for a in servico.repo.atividades())[:n]
 
 
-# ================================================================ contrato e trilha
+# contrato e trilha
 def test_os_cinco_metodos_existem_registram_na_trilha_e_o_n1_so_tem_ano_e_classe(acervo):
     import inspect
     for nome in ("painel_classe", "painel_uf", "painel_custo", "kpis"):
@@ -116,9 +116,9 @@ def test_n2_ve_so_a_propria_uf_sem_k(acervo):
     assert painel.linhas[0].ativas == painel.total.ativas == real
 
 
-# ================================================================ nenhuma célula pequena no N1
+# nenhuma célula pequena no N1
 def _confere_grade(escondida, real, eixos, contexto):
-    """Grade com margens (TODAS): em cada linha e coluna, nunca UMA só célula escondida não nula."""
+    """Grade com margens (TODAS): em cada linha e coluna, nunca uma só célula escondida não nula."""
     for i in range(eixos):
         grupos = {}
         for chave in real:
@@ -266,7 +266,7 @@ def test_acervo_pequeno_montado_a_mao_nenhuma_funcao_nova_mostra_celula_pequena(
         assert {l.uf: l.ativas for l in uf.linhas}["PR"] is None
 
 
-# ================================================================ painel por UF = panorama (o mesmo cubo)
+# painel por UF = panorama
 @pytest.mark.parametrize("classe", FILTROS)
 def test_painel_uf_coerente_com_o_panorama_em_todos_os_anos(acervo, classe):
     for ano in ANOS:
@@ -291,7 +291,7 @@ def test_kpi03b_no_n1_agregado_bate_com_o_catalogo(acervo):
     assert (total.ativas, total.alem_do_prazo, total.fora_da_previsao) == (1028, 929, 833)
 
 
-# ================================================================ custo por categoria EEA
+# custo por categoria EEA
 def test_todo_componente_das_rotas_tem_categoria_eea():
     c = regras.ParametrosRegras.padrao().custos
     nomes = custos.componentes_das_rotas(c.rotas)
@@ -336,7 +336,7 @@ def test_partes_do_custo_somam_o_total(acervo, por):
     assert n1.total == pytest.approx(2250.4e6, abs=0.1e6) and n1.data_base == "2026-10" and n1.fonte == "PARAMETRO"
 
 
-# ================================================================ KPI-01: tábua de vida e Kaplan-Meier
+# KPI-01: tábua de vida e Kaplan-Meier
 # 10 casos: 5 encerrados cedo, 5 ainda ativos aos 4 anos. A média (e a mediana) só das encerradas diz 1,9 (1,6);
 # o Kaplan-Meier, que conta as censuradas, chega a 50% só aos 3,5 anos.
 CASO = [(0.5, True, 0.0), (1.5, True, 0.0), (1.6, True, 0.0), (2.5, True, 0.0), (3.5, True, 0.0)] + \
@@ -383,7 +383,7 @@ def test_curva_n1_da_classe_e_a_mesma_com_e_sem_filtro_e_o_total_usa_cortes_comu
     assert todas[TODAS].mediana == pytest.approx(8.6, abs=0.3)          # catálogo: total 8,6 anos
 
 
-# ================================================================ KPI-02 e cartões
+# KPI-02 e cartões
 def test_kpi02_marca_o_ano_corrente_como_parcial_e_bate_com_o_catalogo(acervo):
     taxa = {t.ano: t for t in acervo.painel_encerramento(ANA_N1, 1).taxa_anual}
     assert taxa[HOJE.year].parcial and not any(t.parcial for a, t in taxa.items() if a != HOJE.year)
@@ -416,7 +416,7 @@ def test_kpis_com_fonte_nivel_e_corte(acervo, usuario, nivel):
     for classe in FILTROS:
         for ano in (2015, None):
             lista = acervo.kpis(usuario, nivel, ano, classe)
-            # O N1 não recebe o KPI-05 (custo), que passou a ter nível mínimo 2
+            # o N1 não recebe o KPI-05 (custo), de nível mínimo 2
             assert [k.id for k in lista] == ["KPI-01", "KPI-02", "KPI-03", "KPI-03b", "KPI-04"] + (
                 ["KPI-05"] if nivel > 1 else [])
             for k in lista:
@@ -433,7 +433,7 @@ def test_kpis_com_fonte_nivel_e_corte(acervo, usuario, nivel):
     assert cartoes["KPI-04"].valor == pytest.approx(8.0) and cartoes["KPI-02"].valor == pytest.approx(8.3)
 
 
-# ================================================================ garantia hierárquica do resumo
+# garantia hierárquica do resumo
 def _celulas(tabelas):
     """{(agrupamento, chave): {coluna: valor}} das tabelas da família POR UF / REGIAO / ATIVIDADE / UF E ATIVIDADE."""
     saida = {}

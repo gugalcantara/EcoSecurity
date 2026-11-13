@@ -18,7 +18,7 @@ PREFIXO = "ecosec://verificar/"
 
 
 def pelo_qr(conteudo: str):
-    """(documento, pendência, confere) ou None. `confere` = o hash do QR bate com o dos campos atuais."""
+    """(documento, pendência, confere) ou None. confere = o hash do QR bate com o dos campos atuais."""
     resto = conteudo[len(PREFIXO):] if conteudo.startswith(PREFIXO) else conteudo
     partes = resto.split("/")
     if len(partes) < 4:

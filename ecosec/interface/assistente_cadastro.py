@@ -8,11 +8,11 @@ Regras que a tela garante (as de negócio estão no ServicoCadastro):
   (finalidade a, obrigatória; b, opcional). "Concordo" só habilita depois de o
   texto ser lido até o fim, da finalidade (a) marcada e da assinatura com
   nome e sobrenome. "Não concordo" encerra sem coletar nada.
-- Dados: a PESSOA digita a própria senha (o administrador não deve conhecê-la);
-  os erros aparecem ao lado do formulário, não só num aviso passageiro.
+- Dados: a própria pessoa digita a senha (o administrador não deve conhecê-la);
+  os erros aparecem ao lado do formulário.
 - Rosto: a câmera só liga quando a pessoa clica em "Iniciar captura".
 - Cancelar depois do aceite pede confirmação; qualquer saída (cancelar, trocar
-  de página, fechar a janela) passa por `encerrar()`, que apaga as faces.
+  de página, fechar a janela) passa por encerrar(), que apaga as faces.
 """
 import math
 import time
@@ -66,8 +66,8 @@ class AssistenteCadastro(QWidget):
     finalizado = Signal(object)          # Usuario criado (ou o recadastrado), ou None se cancelado
 
     def __init__(self, app, parent=None, *, recadastro=None, perfis=tuple(Perfil)):
-        """`recadastro` (um Usuario): só troca o rosto, pelo acesso de emergência. O termo e a senha
-        continuam os mesmos: da Preparação vai direto ao Rosto. `perfis`: os que o formulário oferece (na
+        """recadastro (um Usuario): só troca o rosto, pelo acesso de emergência. O termo e a senha
+        continuam os mesmos: da Preparação vai direto ao Rosto. perfis: os que o formulário oferece (na
         configuração inicial, só o Externo: o primeiro cadastro vira o primeiro administrador)."""
         super().__init__(parent)
         self.app = app
@@ -81,7 +81,7 @@ class AssistenteCadastro(QWidget):
         self.trabalhador: TrabalhadorVideo | None = None
         self._montar()
 
-    # ============================================================ layout
+    # layout
     def _montar(self):
         raiz = QVBoxLayout(self)
         raiz.setContentsMargins(24, 12, 24, 16)
@@ -121,7 +121,7 @@ class AssistenteCadastro(QWidget):
             cor = QColor(VERDE if i < indice else (themeColor().name() if i == indice else cor_texto_secundario()))
             rotulo.setTextColor(cor, cor)
 
-    # ------------------------------------------------------------ passo 1: preparação
+    # passo 1: preparação
     def _passo_preparacao(self):
         w = SimpleCardWidget()
         v = QVBoxLayout(w)
@@ -171,15 +171,15 @@ class AssistenteCadastro(QWidget):
         self.botao_comecar.setEnabled(prontos)
         self.botao_comecar.setToolTip("" if prontos else "Marque os três requisitos para começar.")
 
-    # ------------------------------------------------------------ passo 2: termo
+    # passo 2: termo
     def _passo_termo(self):
         w = QWidget()
         v = QVBoxLayout(w)
         v.setContentsMargins(0, 0, 0, 0)
         v.setSpacing(8)
 
-        # o termo é uma FOLHA de documento que ocupa a página: rola a página
-        # inteira, não uma caixa pequena dentro dela
+        # o termo é uma folha de documento que ocupa a página, e a rolagem é a da
+        # página inteira
         self.rolagem_termo = ScrollArea()
         self.rolagem_termo.setWidgetResizable(True)
         self.rolagem_termo.setStyleSheet("QScrollArea { background: transparent; border: none; }")
@@ -323,7 +323,7 @@ class AssistenteCadastro(QWidget):
         self.campo_nome.setText(self.aceite.titular_nome)
         self._ir(DADOS)
 
-    # ------------------------------------------------------------ passo 3: dados
+    # passo 3: dados
     def _passo_dados(self):
         w = SimpleCardWidget()
         grade = QGridLayout(w)
@@ -413,7 +413,7 @@ class AssistenteCadastro(QWidget):
         self._preparar_sessao()
         self._ir(ROSTO)
 
-    # ------------------------------------------------------------ passo 4: rosto
+    # passo 4: rosto
     def _passo_rosto(self):
         w = QWidget()
         h = QHBoxLayout(w)
@@ -561,7 +561,7 @@ class AssistenteCadastro(QWidget):
         self.botao_cancelar.setEnabled(False)
         self._ir(FIM)
 
-    # ------------------------------------------------------------ passo 5: fim
+    # passo 5: fim
     def _passo_fim(self):
         w = SimpleCardWidget()
         v = QVBoxLayout(w)
@@ -611,7 +611,7 @@ class AssistenteCadastro(QWidget):
         documento = QTextDocument()
         documento.setDefaultFont(QFont(FONTE_DOCUMENTO, 11))
         documento.setHtml(self.servico.via_do_titular_html(self.aceite, self.usuario.matricula))
-        # QPdfWriter, e não a classe de impressora: escreve o PDF direto, sem
+        # QPdfWriter escreve o PDF direto, sem
         # consultar o subsistema de impressão do Windows (lento, depende de drivers)
         pdf = QPdfWriter(caminho)
         pdf.setPageSize(QPageSize(QPageSize.PageSizeId.A4))
@@ -620,7 +620,7 @@ class AssistenteCadastro(QWidget):
         pdf.setCreator("EcoSecurity")
         documento.print_(pdf)               # sem tamanho de página no documento, o Qt numera as páginas
 
-    # ============================================================ saídas
+    # saídas
     def cancelar(self):
         if self.aceite is not None or self.coleta is not None:
             caixa = MessageBox("Cancelar o cadastro?", "O aceite do termo e as imagens já capturadas serão "

@@ -1,11 +1,9 @@
 """Autorização em três dimensões: PAPEL × CLASSIFICAÇÃO DO DADO × OPERAÇÃO.
 
-Antes, cada regra morava onde era usada ("N3 não exporta" no serviço do
-acervo, "N1 não tem planilha" no painel...). Aqui fica a MATRIZ inteira, num
-lugar só, como função pura: o serviço pergunta, a matriz responde, e o
-administrador vê a mesma matriz no relatório S-09. Inspirado no modelo
-"role-data-operation" e no princípio de confiança zero: nenhuma operação é
-permitida por omissão: o que não está na matriz é NEGADO.
+A matriz inteira fica num lugar só, como função pura: o serviço pergunta, a
+matriz responde, e o administrador vê a mesma matriz no relatório S-09.
+Inspirado no modelo "role-data-operation" e no princípio de confiança zero:
+nenhuma operação é permitida por omissão, e o que não está na matriz é negado.
 
   Papel           quem é: servidor, diretor ou ministro (o perfil) ou administrador (o papel de um Externo)
   Classificação   o grau do dado (da camada aberta): USO INTERNO, RESERVADO, SECRETO

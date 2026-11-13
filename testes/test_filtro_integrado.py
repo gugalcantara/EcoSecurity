@@ -79,7 +79,7 @@ def _chip(barra, dimensao):
     return next(c for c in barra.chips if c.dimensao == dimensao)
 
 
-# ================================================================ mapa == planilha == legenda == barra
+# mapa == planilha == legenda == barra
 def test_n3_classe_radioativo_mapa_planilha_legenda_e_barra(tela, qt):
     pa = _abrir(tela, qt)
     pa.mapa.combo_classe.setCurrentText(RADIOATIVO)
@@ -114,7 +114,7 @@ def test_motivo_na_planilha_e_risco_no_mapa_se_refletem(tela, qt):
     assert m.combo_uf.currentText() == "SP" and _pontos(pa) == _linhas(pa) == _esperado(pa)
 
 
-# ================================================================ chips, limpar, abas
+# chips, limpar, abas
 def test_remover_chip_volta_a_base_e_limpar_zera(tela, qt):
     pa = _abrir(tela, qt)
     pa.mapa.combo_classe.setCurrentText(AREA)
@@ -153,7 +153,7 @@ def test_trocar_de_aba_preserva_o_filtro(tela, qt):
     pa.mapa.combo_risco.setCurrentText("Alto")
     pa.planilha.combo_motivo.setCurrentIndex(2)
     filtro = pa.estado.filtro
-    for aba in ("planilha", "agregado", "mapa"):                        # a Evolução saiu do N3
+    for aba in ("planilha", "agregado", "mapa"):                        # as abas do N3
         pa.mostrar(aba)
         qt.processEvents()
         assert pa.estado.filtro == filtro, aba
@@ -161,9 +161,9 @@ def test_trocar_de_aba_preserva_o_filtro(tela, qt):
     assert _pontos(pa) == _linhas(pa) == _esperado(pa)
 
 
-# ================================================================ ano, gráfico, árvore, resumo
+# ano, gráfico, árvore, resumo
 def test_ano_n3_planilha_e_mapa_seguem(tela, qt):
-    """O ano do N3 é uma lista ("Todos" = situação atual); era o slider da linha do tempo."""
+    """O ano do N3 é uma lista ("Todos" = situação atual)."""
     pa = _abrir(tela, qt)
     pa.mapa.combo_ano.setCurrentText("2015")
     assert pa.estado.filtro.ano == 2015 and any(c.dimensao == "ano" for c in pa.barra.chips)
@@ -306,7 +306,7 @@ def test_vinte_combinacoes_aleatorias_mapa_planilha_barra(tela, qt):
     assert nao_vazios >= 5
 
 
-# ================================================================ N1: só classe e ano
+# N1: só classe e ano
 def test_n1_chip_de_classe_e_combo_do_panorama_nos_dois_sentidos(tela, qt):
     pa = _abrir(tela, qt, ANA_N1, Nivel.N1, aba="panorama")
     pn = pa.panorama

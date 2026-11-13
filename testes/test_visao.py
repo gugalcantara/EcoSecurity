@@ -34,7 +34,7 @@ def variacao(img, semente):
     return np.clip(img + ruido, 0, 255).astype(np.uint8)
 
 
-# ================================================================ Fase 1: Aquisição
+# Fase 1: Aquisição
 class CapturaFalsa:
     def __init__(self, aberta=True, quadros=True):
         self.aberta, self.quadros, self.n = aberta, quadros, 0
@@ -82,7 +82,7 @@ def test_ler_sem_iniciar_e_erro():
         Camera(0, 64, 48, 0.2, abrir=lambda _: CapturaFalsa()).ler()
 
 
-# ================================================================ Fase 2: Pré-processamento
+# Fase 2: Pré-processamento
 def test_normalizar_produz_200x200_cinza():
     pre = Preprocessador(ParametrosPreprocessamento.de_configuracao(CFG))
     face = pre.normalizar(textura(1, (137, 151)))
@@ -100,7 +100,7 @@ def test_kernel_par_e_recusado():
         Preprocessador(ParametrosPreprocessamento(2.0, (8, 8), 4, (200, 200)))
 
 
-# ================================================================ Fase 3: Segmentação
+# Fase 3: Segmentação
 class DetectorFalso:
     def __init__(self, faces):
         self.faces, self.chamadas = faces, 0
@@ -151,7 +151,7 @@ def test_recorte_na_borda():
     assert fracao_visivel((0, 0, 0, 10), 100, 100) == 0.0
 
 
-# ================================================================ Portão de qualidade
+# Portão de qualidade
 PQ = ParametrosQualidade.de_configuracao(CFG)
 
 
@@ -181,7 +181,7 @@ def test_medida_nan_reprova():
     assert avaliar(MedidasQualidade(float("nan"), 100, 50, 1), PQ)
 
 
-# ================================================================ Pipeline
+# Pipeline
 def test_pipeline_so_normaliza_com_uma_face_boa():
     pipe = PipelineVisao.de_configuracao(CFG)
     cena = np.full((480, 640), 120, np.uint8)
@@ -200,7 +200,7 @@ def test_pipeline_so_normaliza_com_uma_face_boa():
     assert pipe.processar(quadro).dica.startswith("Posicione")
 
 
-# ================================================================ Fases 4 e 5: LBPH
+# Fases 4 e 5: LBPH
 def _reconhecedor():
     rec = ReconhecedorLBPH(ParametrosLBPH.de_configuracao(CFG))
     rec.adicionar([variacao(textura(10), s) for s in range(5)], rotulo=1)
@@ -265,7 +265,7 @@ def test_confirmador_zera_com_divergencia():
     assert conf.confirmados == 1
 
 
-# ================================================================ Gestos (vivacidade)
+# Gestos (vivacidade)
 # os testes do contorno do olho (EAR) fixam o modo "ear"; os do modo "regiao" (o padrão) ficam mais abaixo
 PG = dataclasses.replace(ParametrosGestos.de_configuracao(CFG), sinal_piscada="ear")
 
@@ -433,7 +433,7 @@ def test_salvar_nao_cria_arquivo_temporario(tmp_path, monkeypatch):
     assert [a.name for a in tmp_path.iterdir()] == ["m.enc"]                # nem .tmp sobrou
 
 
-# ---------------------------------------------------------------- piscada pela região dos olhos (modo padrão)
+# piscada pela região dos olhos (modo padrão)
 PG_REGIAO = dataclasses.replace(ParametrosGestos.de_configuracao(CFG), sinal_piscada="regiao")
 _ABERTO = np.random.default_rng(7).normal(0, 1, (16, 64)).astype(np.float32)     # íris e esclera: um padrão
 _FECHADO = np.random.default_rng(8).normal(0, 1, (16, 64)).astype(np.float32)    # pálpebra: outro padrão

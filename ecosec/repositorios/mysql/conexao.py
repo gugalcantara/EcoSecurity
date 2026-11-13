@@ -10,7 +10,7 @@ termina bem e rollback se levanta exceção: nunca fica meio gravado.
 Tradução de erros: o resto do sistema não conhece o mysql.connector. Erros do
 driver viram os erros do contrato (BancoIndisponivel, PermissaoNegada...).
 
-FOUND_ROWS: por padrão o MySQL informa em `rowcount` as linhas alteradas; um
+FOUND_ROWS: por padrão o MySQL informa em rowcount as linhas alteradas; um
 UPDATE que grava o mesmo valor devolveria 0 e pareceria "registro inexistente".
 Com FOUND_ROWS ele informa as linhas encontradas.
 """

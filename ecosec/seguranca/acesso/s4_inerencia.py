@@ -1,22 +1,22 @@
 """S4 Inerência: "É quem diz ser?"
 
-O fator que a pessoa É, e não o que sabe (senha) ou tem (crachá): não se
-empresta nem se esquece.
+O fator inerente ao corpo da pessoa: não se empresta nem se esquece.
 
-O LBPH devolve distância, não similaridade: menor = mais parecido. A regra é
-`distancia <= limiar`. Inverter o sinal inverteria a segurança inteira: o
-sistema passaria a aceitar justamente os rostos mais diferentes.
+O LBPH devolve uma distância (menor = mais parecido), e a regra de aceite é
+`distancia <= limiar`. Com o sinal invertido, o sistema aceitaria justamente os
+rostos mais diferentes.
 
-Dois modos, conforme o nível:
-- 1:N (N1), compara com todos e pega o mais próximo. A chance de falsa
-  aceitação cresce com o número de cadastrados.
-- 1:1 (N2, N3), a senha já disse quem a pessoa alega ser; compara-se só com
-  ela. Uma hipótese em vez de N: a falsa aceitação cai. É por isso que a
-  senha vem antes da face, e não só "como um fator a mais".
+Modos:
+- 1:1, no login e na abertura dos níveis: a senha já indicou quem a pessoa alega
+  ser, e a comparação é só com esse cadastro. Por isso a senha vem antes do rosto.
+- 1:N, comparação com todos os cadastros, ficando com o mais próximo. A chance de
+  falsa aceitação cresce com o número de cadastros. Na aplicação, só a
+  Identificação do administrador (servicos/identificacao.py) compara 1:N, sem
+  conceder acesso.
 
-Falha segura com NaN: a comparação é escrita como `not (distancia <= limiar)`.
-Qualquer comparação com NaN é falsa, então uma distância corrompida nega. A
-forma ingênua `distancia > limiar` também seria falsa com NaN: e aprovaria.
+A comparação é escrita como `not (distancia <= limiar)`: com NaN, qualquer
+comparação é falsa, e uma distância corrompida nega o acesso. A forma
+`distancia > limiar` também daria falso com NaN e aprovaria.
 """
 from collections.abc import Mapping
 

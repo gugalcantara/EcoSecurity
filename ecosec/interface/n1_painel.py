@@ -44,7 +44,7 @@ CLASSES = g.CLASSES
 TODAS_CLASSES = "Todas as classes"
 ROTULO_CLASSE = {c: vocabulario.rotulo(c, "classe") for c in CLASSES}
 
-# ---------------------------------------------------------------- seções (o nome visível é a pergunta)
+# seções
 SECOES = (("onde", "Onde estão os casos?"), ("tipo", "Que tipo de passivo?"),
           ("motivos", "Por que continuam abertos?"), ("resolucao", "Estão sendo resolvidos?"),
           ("prazo", "Quanto está fora do prazo?"))
@@ -59,7 +59,7 @@ LEGENDA_SECAO = {
              "e prazo previsto vencido (o prazo combinado para o caso passou).",
 }
 
-# ---------------------------------------------------------------- indicadores do mapa e do ranking
+# indicadores do mapa e do ranking
 PRESSAO, ATIVOS = "Índice de pressão", "Casos ativos"
 CRITICOS = f"Casos em {vocabulario.rotulo_longo('CRITICO', 'faixa').lower()}"
 ALEM, FORA = vocabulario.ROTULO_KPI["KPI-03"], vocabulario.ROTULO_KPI["KPI-03b"]
@@ -102,7 +102,7 @@ def _rotular(rotulo: CaptionLabel, texto: str, secundario: bool = True):
     rotulo.setStyleSheet(f"color:{g.tokens()['texto2' if secundario else 'texto']};")
 
 
-# ---------------------------------------------------------------- cartões
+# cartões
 class Tendencia(QWidget):
     """Linha de tendência (12+ pontos) do cartão de indicador: o histórico atenuado e o ano do corte em destaque."""
 
@@ -236,7 +236,7 @@ class CartaoIndicador(QFrame):
 class CartaoGrafico(QFrame):
     """Moldura de um gráfico: título (afirmação descritiva), subtítulo (unidade, base, corte), o gráfico ou a sua
     tabela (botão "Ver tabela") e a nota de rodapé. A dica do título explica o gráfico. Os controles ficam à direita
-    do título ou, com `controles_abaixo` (o cartão do mapa), numa linha própria abaixo do subtítulo."""
+    do título ou, com controles_abaixo (o cartão do mapa), numa linha própria abaixo do subtítulo."""
 
     def __init__(self, titulo: str, grafico: QWidget, controles: QWidget | None = None, parent=None,
                  controles_abaixo: bool = False):
@@ -437,7 +437,7 @@ class Secao(QWidget):
         return [c.grafico for c in self.cartoes.values()]
 
 
-# ---------------------------------------------------------------- o painel
+# o painel
 class PainelN1(QWidget):
     """O painel analítico do N1. Mesmo EstadoN1 (classe, ano, UF em foco e seleção) para todas as seções; a
     BarraFiltros mostra só classe e ano (as dimensões que o cubo protegido do serviço conhece)."""
@@ -525,7 +525,7 @@ class PainelN1(QWidget):
         self.estado.ano_mudou.connect(self._ano_para_filtro)
         self.estado_filtro.mudou.connect(self._filtro_mudou)
 
-    # ------------------------------------------------------------ montagem
+    # montagem
     def _cartao(self, secao: Secao, chave: str, titulo: str, grafico, linha, coluna, colunas=1, peso=1,
                 controles=None, controles_abaixo=False) -> CartaoGrafico:
         cartao = CartaoGrafico(titulo, grafico, controles, controles_abaixo=controles_abaixo)
@@ -622,7 +622,7 @@ class PainelN1(QWidget):
         for chave in ("ranking", "regioes"):
             s["onde"].grade.setAlignment(s["onde"].cartoes[chave], Qt.AlignmentFlag.AlignTop)
 
-    # ------------------------------------------------------------ navegação
+    # navegação
     def mostrar_secao(self, chave: str):
         if chave not in self.secoes:
             return
@@ -633,7 +633,7 @@ class PainelN1(QWidget):
     def graficos(self) -> list:
         return [gr for s in self.secoes.values() for gr in s.graficos()]
 
-    # ------------------------------------------------------------ filtro (só classe e ano)
+    # filtro
     def _ano_corrente(self) -> int:
         return self._hoje.year if self._hoje else self.estado.ano
 
@@ -689,7 +689,7 @@ class PainelN1(QWidget):
     def _alternar_uf(self, uf: str):
         self.estado.definir(selecao=self.estado.selecao ^ {uf})
 
-    # ------------------------------------------------------------ dados
+    # dados
     def carregar(self):
         from ecosec.acervo import sinteticos
         hoje = self.tela.app.acervo.hoje()
@@ -746,7 +746,7 @@ class PainelN1(QWidget):
             texto += " · classe com poucos casos: suprimida"
         self.barra.definir_texto_contagem(texto)
 
-    # ------------------------------------------------------------ comum
+    # comum
     @property
     def k(self) -> int:
         return self.panorama.supressao_minima if self.panorama else 0
@@ -801,7 +801,7 @@ class PainelN1(QWidget):
     def _colunas_composta(self, primeira: str) -> list[str]:
         return [primeira, *[ROTULO_CLASSE[c] for c in self._classes()], "Total", "% do total"]
 
-    # ------------------------------------------------------------ 1. Onde estão os casos?
+    # 1. Onde estão os casos?
     def _valor_uf(self, uf: str, indicador: str | None = None):
         indicador = indicador or self.combo_indicador.currentText()
         item = self.panorama.pressao.get(uf)
@@ -958,7 +958,7 @@ class PainelN1(QWidget):
                   str(self._quintil_de[uf] + 1) if uf in self._quintil_de else ""]
                  for uf in sorted(self.panorama.pressao)] if self.panorama else [])
 
-    # ------------------------------------------------------------ 2. Que tipo de passivo?
+    # 2. Que tipo de passivo?
     def _mostrar_tipo(self):
         d, pc = self.dados["n1"], self.dados["classe"]
         linhas = {l.classe: l for l in pc.linhas}
@@ -1001,7 +1001,7 @@ class PainelN1(QWidget):
             f"Casos ativos · {self._recorte()} · cor mais escura = mais casos", fonte,
             "Total e Brasil sem cor: são as margens da tabela.")
 
-    # ------------------------------------------------------------ 3. Por que continuam abertos?
+    # 3. Por que continuam abertos?
     def _mostrar_motivos(self):
         d = self.dados["n1"]
         total = d.nacional.ativas
@@ -1038,7 +1038,7 @@ class PainelN1(QWidget):
             f"% dos casos ativos de cada classe · {self._recorte()} · cada coluna soma 100%", fonte,
             "Peso de cada motivo dentro da classe.")
 
-    # ------------------------------------------------------------ 4. Estão sendo resolvidos?
+    # 4. Estão sendo resolvidos?
     def _mostrar_resolucao(self):
         p, enc, pc = self.panorama, self.dados["encerramento"], self.dados["classe"]
         corte = min(date(p.ano, 12, 31), p.hoje)
@@ -1140,7 +1140,7 @@ class PainelN1(QWidget):
             dica_fonte("analise.envelhecimento", 1, pc.corte, vocabulario.dica("KPI-04", "kpi") + nota_k),
             "Faixas com poucos casos aparecem juntas, hachuradas.")
 
-    # ------------------------------------------------------------ 5. Quanto está fora do prazo?
+    # 5. Quanto está fora do prazo?
     def _linha_prazo(self, chave, rotulo, ativas, alem, fora, clique=None, referencia=False) -> dict:
         a, b = pct(alem, ativas), pct(fora, ativas)
         nota = f"\n{self._nota_k()}" if self.k and (a is None or b is None) else ""

@@ -45,7 +45,7 @@ def _abrir(tela, usuario, nivel):
     return tela.painel_analitico
 
 
-# ---------------------------------------------------------------- verificações de estrutura
+# verificações de estrutura
 def _redondo(x: float) -> bool:
     if x <= 0:
         return False
@@ -90,7 +90,7 @@ def _verificar_rotulos(vista):
             assert not a.intersects(b), (vista.chart().title(), a, b)
 
 
-# ================================================================ N1: panorama
+# N1: panorama
 # o N1 usa o painel por perguntas (n1_painel.py), com gráficos desenhados à mão (n1_graficos.py). Os três
 # testes abaixo conferem as mesmas regras nesses gráficos; o resto está em test_n1.py.
 def test_n1_estoque_fluxos_e_marcos(tela):
@@ -202,7 +202,7 @@ def test_n1_legenda_de_quintis(tela):
     assert COR_SUPRIMIDA in leg.suprimida.styleSheet() and COR_SEM_ATIVAS in leg.sem_ativas.styleSheet()
 
 
-# ================================================================ N3: evolução, priorização, responsáveis
+# N3: evolução, priorização, responsáveis
 def test_n3_priorizacao_e_custo_por_responsavel(tela):
     from PySide6.QtCore import Qt
     pa = _abrir(tela, CAIO_N3, Nivel.N3)
@@ -235,7 +235,7 @@ def test_n3_priorizacao_e_custo_por_responsavel(tela):
     assert r.memoria.width() >= 440
 
 
-# ================================================================ componentes
+# componentes
 
 
 def test_estoque_sem_opcao_de_acumulado_e_eixos_redondos(qt):

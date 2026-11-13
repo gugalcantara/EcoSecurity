@@ -4,7 +4,7 @@ Cada motivo pertence a uma camada. Há dois textos possíveis por motivo, e a
 diferença entre eles é uma regra de segurança, não de interface:
 
 - o código (ex.: CREDENCIAL_ALHEIA) vai para a trilha de auditoria, completo;
-- a mensagem vai para a tela, e às vezes esconde a distinção de propósito.
+- a mensagem vai para a tela e, quando a distinção ajudaria um atacante, a esconde.
 
 Exemplo: rosto desconhecido e rosto que não casa com a matrícula respondem
 igual na tela. Dizer "o rosto não confere com a matrícula" confirmaria a quem

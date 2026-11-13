@@ -45,8 +45,8 @@ MIGRACOES = (
      "ALTER TABLE consentimento ADD COLUMN autoriza_pesquisa BOOLEAN NOT NULL DEFAULT FALSE AFTER revogado_em"),
 )
 # Acervo de schema antigo: o schema mudou demais para ALTERs; como o acervo é todo gerado, ele é
-# recriado (ver _recriar_acervo). Antigo = tem a coluna única `endereco` (antes de 13/10/2026) ou
-# ainda não tem `data_encerramento` (antes do ciclo de vida, 17/10/2026).
+# recriado (ver _recriar_acervo). Antigo = tem a coluna única endereco ou ainda não tem
+# data_encerramento.
 COLUNA_ACERVO_ANTIGO = ("pendencia", "endereco")
 COLUNA_ACERVO_CICLO = ("pendencia", "data_encerramento")
 
@@ -216,7 +216,7 @@ def preparar(root_senha: str, recriar_acervo: bool = False) -> None:
     cursor = raiz.cursor()
     try:
         _recriar_acervo(raiz, cursor, b["acervo"], recriar_acervo)
-        # ---------------------------------------------------------------- bancos e tabelas
+        # bancos e tabelas
         for qual in ("seguranca", "acervo"):
             nome = b[qual]
             _executar(cursor, f"CREATE DATABASE IF NOT EXISTS `{nome}` "
@@ -235,7 +235,7 @@ def preparar(root_senha: str, recriar_acervo: bool = False) -> None:
 
         _padronizar_seguranca(raiz, cursor, b["seguranca"])
 
-        # ---------------------------------------------------------------- acervo
+        # acervo
         raiz.database = b["acervo"]
         pendencias, responsaveis = importar_acervo(raiz)
         print(f"  acervo: {pendencias} pendências e {responsaveis} responsáveis importados"
@@ -245,7 +245,7 @@ def preparar(root_senha: str, recriar_acervo: bool = False) -> None:
         conferir_ciclo_de_vida(cursor)
         conferir_volume(cursor)
 
-        # ---------------------------------------------------------------- contas
+        # contas
         seg_usuario, seg_senha = "ecosec_seg", _senha_da_conta(segredos.DB_SEGURANCA_SENHA)
         cofre_usuario, cofre_senha = "ecosec_cofre", _senha_da_conta(segredos.DB_ACERVO_SENHA)
         teste_usuario, teste_senha = "ecosec_teste", _senha_da_conta(segredos.DB_TESTE_SENHA)
@@ -265,7 +265,7 @@ def preparar(root_senha: str, recriar_acervo: bool = False) -> None:
         cursor.close()
         raiz.close()
 
-    # ---------------------------------------------------------------- .env
+    # .env
     for chave, valor in ((segredos.DB_SEGURANCA_USUARIO, seg_usuario), (segredos.DB_SEGURANCA_SENHA, seg_senha),
                          (segredos.DB_ACERVO_USUARIO, cofre_usuario), (segredos.DB_ACERVO_SENHA, cofre_senha),
                          (segredos.DB_TESTE_USUARIO, teste_usuario), (segredos.DB_TESTE_SENHA, teste_senha)):
@@ -305,7 +305,7 @@ def conferir_ciclo_de_vida(cursor) -> bool:
     cursor.execute(SQL_QUEDAS)
     quedas = [l[0] for l in cursor.fetchall()]
     print(f"  acervo: ciclo de vida {'coerente' if not incoerentes else 'INCOERENTE em ' + ', '.join(incoerentes[:5])}"
-          f"; estoque ativo cai em {', '.join(map(str, quedas)) if quedas else 'NENHUM ano (curva monotônica!)'}")
+          f"; estoque ativo cai em {', '.join(map(str, quedas)) if quedas else 'nenhum ano (curva monotônica)'}")
     return not incoerentes and bool(quedas)
 
 
@@ -314,7 +314,7 @@ def verificar_privilegios() -> bool:
     Cada tentativa é inofensiva (WHERE 1 = 0): o que se testa é a permissão."""
     cfg = carregar()
     b = _secao_banco(cfg)
-    print("\nVerificando privilégios (cada linha DEVE ser recusada pelo banco):")
+    print("\nVerificando privilégios (cada linha precisa ser recusada pelo banco):")
     casos = [
         (segredos.DB_SEGURANCA_USUARIO, segredos.DB_SEGURANCA_SENHA, b["seguranca"],
          "DELETE FROM usuario WHERE 1 = 0", "ecosec_seg apagar usuário"),

@@ -11,7 +11,7 @@ from ecosec.visao import desempenho as dp
 from ferramentas import experimento_det as ex
 
 
-# ------------------------------------------------------------------ pontuação da tentativa
+# pontuação da tentativa
 def test_pontuacao_exige_n_quadros_seguidos():
     # com 3 quadros seguidos: a melhor janela é (40, 42, 41), aceita a partir de 42
     assert dp.pontuacao_tentativa([90, 40, 42, 41, 95], 3) == 42
@@ -25,7 +25,7 @@ def test_pontuacao_sem_quadros_suficientes_e_none():
         dp.pontuacao_tentativa([40], 0)
 
 
-# ------------------------------------------------------------------ taxas e curva
+# taxas e curva
 def test_taxas_seguem_a_convencao_do_lbph():
     """Aceita quando distância <= limiar: FAR conta impostores aceitos, FRR conta genuínos recusados."""
     p = dp.taxas(genuinas=[30, 50, 70], impostoras=[45, 80, 90, 100], limiar=50)
@@ -84,7 +84,7 @@ def test_analise_limita_a_identificacao_ao_nivel_3():
     assert resumo["identificacao"]["limiar"] <= resumo["limiares_sugeridos"]["3"]["limiar"]
 
 
-# ------------------------------------------------------------------ participantes
+# participantes
 class _Usuarios:
     def __init__(self, lista):
         self._lista = lista
@@ -123,7 +123,7 @@ def test_codigo_do_participante_e_estavel_e_nao_expoe_identificadores():
     int(a[1:], 16)                                # o resto é só o resumo do hash, em hexadecimal
 
 
-# ------------------------------------------------------------------ análise e figura
+# análise e figura
 def _dados_sinteticos(participantes=3, sessoes=(1, 2)):
     rng = np.random.default_rng(7)
     codigos = [f"P{i}" for i in range(participantes)]
@@ -189,7 +189,7 @@ def test_analisar_pela_linha_de_comando_sem_coleta_falha_com_orientacao(tmp_path
     assert "Rode primeiro o comando coletar" in capsys.readouterr().out
 
 
-# ------------------------------------------------------------------ coleta (câmera e modelo falsos)
+# coleta
 class _Reconhecedor:
     """Distância fabricada: 40 para o próprio rótulo, 85 para os outros."""
     def __init__(self, dono):
@@ -257,7 +257,7 @@ def test_arquivo_de_dados_e_gravado_e_lido_de_volta(tmp_path):
     assert ex.ler_dados(caminho) == dados
 
 
-# ------------------------------------------------------------------ cadastros da mesma pessoa
+# cadastros da mesma pessoa
 def test_ignorar_tira_do_experimento_o_cadastro_da_mesma_pessoa():
     usuarios = _Usuarios([_u(1), _u(2), _u(3)])
     consentimentos = _Consentimentos({1: _c(), 2: _c(), 3: _c()})
@@ -273,7 +273,7 @@ def test_coleta_sozinho_mede_so_as_genuinas_e_ignora_a_identificacao_do_mesmo_ro
     assert q["genuina"] == 40.0 and q["impostoras"] == {} and "identificacao" not in q
 
 
-# ------------------------------------------------------------------ base pública
+# base pública
 @pytest.mark.parametrize("nome, esperado", [
     ("yaleB11_P00A+000E+00.pgm", 1), ("yaleB11_P00A+010E-20.pgm", 2), ("yaleB11_P00A+035E+15.pgm", 3),
     ("yaleB11_P00A+060E-20.pgm", 4), ("yaleB11_P00A+130E+20.pgm", 5), ("yaleB11_P00_Ambient.pgm", None),
@@ -356,7 +356,7 @@ def test_figura_com_mais_de_uma_curva(tmp_path):
     assert caminho.exists()
 
 
-# ------------------------------------------------------------------ administrador
+# administrador
 def test_coleta_e_base_pedem_um_administrador():
     pedidos = []
 

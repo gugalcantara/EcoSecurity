@@ -1,7 +1,7 @@
 """A regra de dependência entre camadas, verificada lendo os imports.
 
 Documentar "o domínio não importa nada" não impede ninguém de importar. Este
-teste impede: analisa cada arquivo com `ast` e falha se uma camada importar o
+teste impede: analisa cada arquivo com ast e falha se uma camada importar o
 que não pode.
 """
 import ast
@@ -50,17 +50,17 @@ def test_camada_nao_importa_o_que_nao_pode(camada):
     assert not violacoes, "\n".join(violacoes)
 
 
-# ---------------------------------------------------------------- texto visível
-# Regra do projeto (07/10/2026): nenhum travessão nos textos que a aplicação
+# texto visível
+# Regra do projeto: nenhum travessão nos textos que a aplicação
 # mostra. Vale para toda string do código (telas, termo, PDF, relatórios,
 # mensagens das ferramentas); comentários e docstrings não aparecem para
 # ninguém e ficam de fora. Exceção: o termo 2.0 arquivado precisa continuar
 # idêntico ao original, ou o hash dos consentimentos já gravados não confere.
 TRAVESSOES = ("—", "–")
 EXCECOES_TRAVESSAO = {"termo_v2.py"}
-# (2026-10-19), que sobrepõe a de 07/10 só para este texto: a marcação do rodapé
-# do termo 3.1 leva travessão. Qualquer outro travessão, inclusive no resto do mesmo rodapé, continua barrado.
-# Desde o termo 3.4 a marcação saiu do termo vigente e dos relatórios: a exceção vale só nos
+# A marcação do rodapé do termo 3.1 também leva travessão. Qualquer outro travessão, inclusive no resto do
+# mesmo rodapé, continua barrado.
+# O termo vigente e os relatórios não têm a marcação: a exceção vale só nos
 # termos arquivados que a apresentaram, que não podem mudar (o hash dos aceites).
 EXCECOES_TEXTO = ("DOCUMENTO SIMULADO — PROJETO ACADÊMICO",)
 ARQUIVADOS_COM_MARCACAO = {"termo_v3_1.py", "termo_v3_2.py", "termo_v3_3.py"}
@@ -87,7 +87,7 @@ def test_nenhum_texto_da_aplicacao_usa_travessao():
 
 
 def test_marcacao_de_documento_simulado_so_nos_termos_arquivados():
-    """A marcação saiu do termo vigente e dos relatórios."""
+    """O termo vigente e os relatórios não têm a marcação."""
     raiz = RAIZ.parent
     achados = [f"{a.relative_to(raiz)}:{linha}" for pasta in ("ecosec", "ferramentas")
                for a in (raiz / pasta).rglob("*.py") if a.name not in ARQUIVADOS_COM_MARCACAO

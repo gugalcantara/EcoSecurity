@@ -82,7 +82,7 @@ def _linha_do_tempo(ft):
 
 
 def _valor(bloco, chave):
-    """O QLabel do valor da linha `chave` de um bloco (para ler a dica)."""
+    """O QLabel do valor da linha chave de um bloco (para ler a dica)."""
     for i in range(bloco.grade.rowCount()):
         k = bloco.grade.itemAtPosition(i, 0)
         if k is not None and k.widget().text() == chave:
@@ -90,7 +90,7 @@ def _valor(bloco, chave):
     raise KeyError(chave)
 
 
-# ================================================================ estado sem caso
+# estado sem caso
 class TestEstadoInicial:
     def test_sem_caso_mostra_convite_e_esconde_selos_e_blocos(self, qt):
         from ecosec.interface.n23_ficha import FichaTecnica
@@ -107,7 +107,7 @@ class TestEstadoInicial:
         assert not set(linhas) & set(ROTULO_BLOCO.values())
 
 
-# ================================================================ cabeçalho
+# cabeçalho
 class TestCabecalho:
     @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
     def test_titulo_codigo_e_substancia_e_selos_do_vocabulario(self, tela, qt, nivel):
@@ -132,7 +132,7 @@ class TestCabecalho:
                                            f"{vocabulario.rotulo(a.fase, 'fase').lower()}")
 
 
-# ================================================================ blocos
+# blocos
 class TestBlocos:
     @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
     def test_seis_blocos_na_ordem_com_titulos_do_vocabulario(self, tela, qt, nivel):
@@ -245,7 +245,7 @@ class TestBlocos:
                     assert not gritos, (classe, chave, rotulo, valor)
 
 
-# ================================================================ memória de cálculo
+# memória de cálculo
 class TestMemoriaDeCalculo:
     def test_recolhida_por_padrao_e_alterna_no_botao(self, tela, qt):
         pa = _abrir(tela, qt)
@@ -273,7 +273,7 @@ class TestMemoriaDeCalculo:
             assert not any(f"color:{cor}" in html for cor in COR_IDENTIDADE.values())      # Sem texto colorido
 
 
-# ================================================================ histórico em linha do tempo
+# histórico em linha do tempo
 class TestHistorico:
     def test_uma_linha_por_etapa_com_datas_de_p_etapas_e_so_a_ultima_atual(self, tela, qt):
         pa = _abrir(tela, qt)
@@ -320,7 +320,7 @@ class TestHistorico:
         assert all(duracao for _, _, duracao, _ in linha.etapas[:-1])
 
 
-# ================================================================ duração em texto
+# duração em texto
 class TestDuracao:
     @pytest.mark.parametrize("dias, texto", [(0, "0 dias"), (1, "1 dia"), (59, "59 dias"), (60, "2 meses"),
                                              (364, "12 meses"), (365, "1 ano"), (730, "2 anos"), (800, "2,2 anos")])
@@ -335,7 +335,7 @@ class TestDuracao:
         assert "." not in _duracao(3000)
 
 
-# ================================================================ caso encerrado
+# caso encerrado
 class TestCasoEncerrado:
     def test_subtitulo_encerrado_e_linha_encerrado_em(self, tela, qt):
         pa = _abrir(tela, qt)
@@ -350,7 +350,7 @@ class TestCasoEncerrado:
         assert "além do prazo legal" not in ft.blocos["situacao"].texto()
 
 
-# ================================================================ troca de caso
+# troca de caso
 class TestTrocaDeCaso:
     def test_abrir_outro_caso_nao_acumula_linhas_nem_widgets(self, tela, qt):
         pa = _abrir(tela, qt)
@@ -376,7 +376,7 @@ class TestTrocaDeCaso:
         assert not ft.memoria.isVisibleTo(ft) and not ft.botao_memoria.isChecked()
 
 
-# ================================================================ regras de nível
+# regras de nível
 class TestRegrasDeNivel:
     @pytest.mark.parametrize("nivel", [Nivel.N2, Nivel.N3])
     def test_sem_responsavel_nomeado_nem_custo_por_responsavel(self, tela, qt, nivel):
@@ -420,7 +420,7 @@ class TestRegrasDeNivel:
         assert all(t in linha for t in ficha.TITULOS_EXPORTACAO)
 
 
-# ================================================================ texto legível
+# texto legível
 class TestTextoLegivel:
     def test_texto_so_blocos_visiveis_na_ordem(self, tela, qt):
         from ecosec.interface.n23_ficha import BLOCOS, ROTULO_BLOCO

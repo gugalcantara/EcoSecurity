@@ -1,7 +1,7 @@
 """Identificação 1:N: o sistema diz quem é, comparando com todos os cadastros, sem conceder nada.
 
 Serve a seção "Identificação facial" do painel de Administração: só o administrador identifica
-(identidade de pessoas é gestão de acesso, não acervo), com o painel já aberto pelo rosto e pelo celular. Não é a
+(identificar pessoas é gestão de acesso), com o painel já aberto pelo rosto e pelo celular. Não é a
 sessão do N1
 (ServicoAutenticacao.nova_sessao(1)): aquela decide ACESSO (nível, consentimento, contenção) e grava AUTENTICACAO
 na trilha. Identificar não é autenticar: este serviço nunca cria IdentidadeComprovada nem toca na contenção.
@@ -86,8 +86,8 @@ class ServicoIdentificacao:
                    eh_administrador=eh_administrador)
 
     def nova_sessao(self, operador_id: int) -> "SessaoIdentificacao":
-        """`operador_id`: quem está logado e pediu a identificação (vai para o detalhe da trilha). Só um
-        administrador ativo identifica; os outros perfis são recusados aqui, não só escondidos na tela."""
+        """operador_id: quem está logado e pediu a identificação (vai para o detalhe da trilha). Só um
+        administrador ativo identifica; os outros perfis são recusados também aqui, no serviço."""
         operador = self.usuarios.por_id(operador_id) if operador_id is not None else None
         if operador is None or not operador.ativo or not self.eh_administrador(operador.id):
             raise ErroIdentificacao("A identificação facial é do administrador.")

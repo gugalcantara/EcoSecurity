@@ -1,8 +1,7 @@
 """Cadastro de usuário: termo -> dados -> senha -> rosto -> matrícula.
 
-Feito só pelo administrador (a área administrativa é protegida por senha). Se
-qualquer pessoa pudesse se cadastrar escolhendo o nível, o cadastro seria a
-porta dos fundos de todo o resto.
+Feito só pelo administrador, dentro da Administração. Se qualquer pessoa pudesse
+se cadastrar escolhendo o nível, o cadastro contornaria todo o controle de acesso.
 
 Ordem obrigatória:
 1. TERMO primeiro: o consentimento precisa existir antes da câmera abrir
@@ -40,7 +39,7 @@ class ErroCadastro(Exception):
     pass
 
 
-# ============================================================ coleta facial
+# coleta facial
 @dataclass(frozen=True)
 class EstadoColeta:
     sessao: int
@@ -54,7 +53,7 @@ class EstadoColeta:
 
 
 class ColetaFacial:
-    """Amostras de uma pessoa, por sessão. Só em memória; `descartar()` zera tudo."""
+    """Amostras de uma pessoa, por sessão. Só em memória; descartar() zera tudo."""
 
     def __init__(self, sessoes: int, por_sessao: int, diferenca_minima: float):
         self.total_sessoes, self.meta, self.diferenca_minima = sessoes, por_sessao, diferenca_minima
@@ -92,7 +91,7 @@ class ColetaFacial:
             self._faces.append(face.copy())
             self._metadados.append((self.sessao, r.medidas.score if r.medidas else 0.0))
             self._ultima = face
-            return self.estado("Ótimo! Continue movendo a cabeça devagar")
+            return self.estado("Continue movendo a cabeça devagar.")
 
     def avancar_sessao(self) -> None:
         with self._lock:
@@ -125,7 +124,7 @@ class ColetaFacial:
                 self._ultima = None
 
 
-# ============================================================ serviço
+# serviço
 @dataclass(frozen=True)
 class DadosCadastro:
     """O que o formulário entrega. O perfil decide; quem ainda passa só o nível recebe o perfil
@@ -179,7 +178,7 @@ class ServicoCadastro:
                    versao_termo=str(cfg["lgpd.versao_termo"]), contato_controlador=str(cfg["lgpd.contato"]),
                    leitura_minima_segundos=int(cfg["lgpd.leitura_minima_segundos"]), **extra)
 
-    # ------------------------------------------------------------ etapa 1: termo
+    # etapa 1: termo
     def texto_termo(self, nome: str, autoriza_pesquisa: bool | None = None) -> str:
         return termo.renderizar(nome, self.contato, autoriza_pesquisa)
 
@@ -192,9 +191,9 @@ class ServicoCadastro:
                                          aceite.momento, aceite.hash_termo, matricula)
 
     def registrar_aceite(self, nome: str, autoriza_pesquisa: bool = False) -> Consentimento:
-        """Aceite em memória (sem id). Só vai ao banco em `concluir`.
+        """Aceite em memória (sem id). Só vai ao banco em concluir.
 
-        `autoriza_pesquisa` é a finalidade (b), opcional. A escolha entra no
+        autoriza_pesquisa é a finalidade (b), opcional. A escolha entra no
         texto cujo hash é gravado: o hash prova o que foi lido e o que foi escolhido."""
         # padronizado antes do hash: o termo assinado traz o nome como ele fica gravado
         nome = texto.nome(nome) or ""
@@ -208,7 +207,7 @@ class ServicoCadastro:
                              hash_termo=termo.calcular_hash(self.texto_termo(nome, autoriza_pesquisa)),
                              momento=self.relogio(), autoriza_pesquisa=autoriza_pesquisa)
 
-    # ------------------------------------------------------------ etapa 2: dados
+    # etapa 2: dados
     def politica(self, perfil_ou_nivel) -> PoliticaSenha:
         """A política de senha da camada do perfil. Sem camada (administrador, sem perfil), a mais forte: quem está
         sem perfil pode receber a camada 3 depois, e não há troca de senha."""
@@ -219,7 +218,7 @@ class ServicoCadastro:
         return self.politicas[camada]
 
     def requisitos_senha(self, senha: str, perfil_ou_nivel) -> list[tuple[str, bool]]:
-        """Checklist para a tela: a mesma lista que `validar` usa."""
+        """Checklist para a tela: a mesma lista que validar usa."""
         return s2_conhecimento.requisitos(senha, self.politica(perfil_ou_nivel))
 
     def validar(self, d: DadosCadastro) -> list[str]:
@@ -236,14 +235,14 @@ class ServicoCadastro:
             erros.append("A confirmação não é igual à senha.")
         return erros
 
-    # ------------------------------------------------------------ etapa 3: rosto
+    # etapa 3: rosto
     def nova_coleta(self, aceite: Consentimento | None) -> ColetaFacial:
         """Sem aceite vigente, nenhuma imagem é coletada: regra do serviço, não só da tela."""
         if aceite is None or not aceite.vigente or not aceite.hash_termo:
             raise ErroCadastro("Sem consentimento não há captura facial (LGPD art. 11, I).")
         return ColetaFacial(self.sessoes, self.frames_por_sessao, self.diferenca_minima)
 
-    # ------------------------------------------------------------ recadastro do rosto (acesso de emergência)
+    # recadastro do rosto
     def nova_coleta_recadastro(self, usuario_id: int) -> ColetaFacial:
         """Mesmo consentimento, rosto novo (por exemplo, quando o modelo deixou de reconhecer a pessoa).
         Sem consentimento vigente, nenhuma imagem é coletada."""
@@ -270,7 +269,7 @@ class ServicoCadastro:
         finally:
             coleta.descartar()
 
-    # ------------------------------------------------------------ etapa 4: conclusão
+    # etapa 4: conclusão
     def gerar_matricula(self) -> str:
         for _ in range(100):
             matricula = "".join(secrets.choice(ALFABETO_MATRICULA) for _ in range(self.tamanho_matricula))

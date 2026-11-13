@@ -1,9 +1,9 @@
-"""Navegação do mapa com as animações ligadas e a vista visível (/).
+"""Navegação do mapa com as animações ligadas e a vista visível.
 
 O defeito: a animação de enquadramento era criada com DeleteWhenStopped e a referência ficava
-guardada na vista; a partir do 2º enquadramento, `anterior.state()` tocava o objeto C++ já apagado
+guardada na vista; a partir do 2º enquadramento, anterior.state() tocava o objeto C++ já apagado
 ("Internal C++ object already deleted") e o filtro de UF, o combo de município, a árvore de
-custódia e `ir_para_ponto` paravam de funcionar. Os testes antigos não pegavam porque rodavam sem
+custódia e ir_para_ponto paravam de funcionar. Os testes antigos não pegavam porque rodavam sem
 animação ou com a vista oculta; aqui a tela é mostrada e cada passo ESPERA a animação terminar
 (com folga, sem depender de um tempo fixo).
 """
@@ -59,7 +59,7 @@ def _abrir_mapa(tela, usuario, nivel):
     # Estes testes contam pontos desenhados (isVisible) na escala país; sem a agregação por zoom,
     # que esconde os pontos dentro dos agregados (a agregação tem os próprios testes)
     m.caixa_agrupar.setChecked(False)
-    # O padrão do filtro passou a Todos; estes testes medem o mapa nas ativas
+    # o padrão do filtro é Todos; estes testes medem o mapa nas ativas
     m.estado.definir(situacao="ATIVAS")
     return m
 
@@ -104,7 +104,7 @@ def _clicar_no(arvore, item):
                      retangulo.center())
 
 
-# ================================================================ (a) combo de UF no N3
+# (a) combo de UF no N3
 def test_n3_combo_uf_filtra_e_enquadra_a_cada_passo(tela, erros):
     m = _abrir_mapa(tela, CAIO_N3, Nivel.N3)
     aumento_anterior = m.mapa.aumento
@@ -129,7 +129,7 @@ def test_n3_combo_uf_filtra_e_enquadra_a_cada_passo(tela, erros):
         assert not erros, (passo, erros[0][1])
 
 
-# ================================================================ (b) enquadramentos seguidos direto na vista
+# (b) enquadramentos seguidos direto na vista
 def test_tres_enquadramentos_seguidos_via_ir_para_uf(tela):
     m = _abrir_mapa(tela, CAIO_N3, Nivel.N3)
     for uf in ("SP", "MG", "BA"):
@@ -150,7 +150,7 @@ def test_tres_enquadramentos_seguidos_via_ir_para_uf(tela):
     assert m.mapa.aumento == pytest.approx(1.0, abs=0.05)
 
 
-# ================================================================ (c) árvore de custódia e ir_para_ponto
+# (c) árvore de custódia e ir_para_ponto
 def test_foco_pela_arvore_e_ir_para_ponto_depois_de_um_zoom(tela):
     from ecosec.interface.arvore_custodia import PAPEL
     from ecosec.interface.mapa_vetorial import projetar
@@ -194,7 +194,7 @@ def test_foco_pela_arvore_e_ir_para_ponto_depois_de_um_zoom(tela):
     assert _area_visivel(m.mapa).width() < 400
 
 
-# ================================================================ (d) N2 navegando por município
+# (d) N2 navegando por município
 def test_n2_municipio_duas_vezes_seguidas(tela):
     m = _abrir_mapa(tela, BIA_N2, Nivel.N2)
     ativas_sp = _ativas(m, "SP")

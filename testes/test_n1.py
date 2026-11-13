@@ -6,7 +6,7 @@ endereço, coordenada ou código de caso em texto visível ou dica); None do ser
 pequeno que força supressão); Índice de pressão do N1 sem custo e o do N3 com; agregados
 novos protegidos (nenhuma célula escondida se recompõe por soma com as outras vistas do N1, prova algébrica);
 filtro de classe e ano propagado a todas as seções; mapa navegável (arrasto, clique na UF ao soltar,
-Ctrl + roda dá zoom e a roda sozinha rola a página, − + e Brasil). Gera as capturas "depois".
+Ctrl + roda dá zoom e a roda sozinha rola a página, − + e Brasil).
 """
 import re
 
@@ -93,7 +93,7 @@ def _dicas(pn) -> list[str]:
     return dicas
 
 
-# ================================================================ estrutura
+# estrutura
 def test_cinco_secoes_com_o_nome_da_pergunta_e_cartoes_com_fonte(tela):
     from ecosec.interface.n1_painel import PainelN1
     pn = _abrir(tela)
@@ -172,7 +172,7 @@ def test_faixa_de_indicadores_com_nome_variacao_e_base(tela):
     assert g.cor_status("ruim") in pn.cartoes["KPI-03"].variacao.styleSheet() or not sobe.variacao
 
 
-# ================================================================ política da camada
+# política da camada
 def test_nada_financeiro_nem_identificador_em_texto_visivel_ou_dica(tela):
     pn = _abrir(tela)
     pendencias = list(tela.app.acervo.repo.pendencias())
@@ -199,7 +199,7 @@ def test_nada_financeiro_nem_identificador_em_texto_visivel_ou_dica(tela):
     assert not [t for t in visiveis if "KPI-0" in t or "NBR 10004" in t or "AG-" in t or "MP-" in t]
 
 
-# ================================================================ None = Suprimido
+# None = Suprimido
 def test_none_do_servico_aparece_suprimido_e_nunca_zero(tela):
     from ecosec.interface import n1_graficos as g
     _montar_pequeno(tela)
@@ -267,7 +267,7 @@ def test_estoque_e_fluxos_do_n1_seguem_o_cubo(tela):
     assert f"{vocabulario.rotulo(RADIOATIVO)}: Suprimido" in dica
 
 
-# ================================================================ índice de pressão
+# índice de pressão
 def test_indice_de_pressao_do_n1_sem_custo_e_do_n3_com(tela):
     acervo = tela.app.acervo
     n1, n3 = acervo.panorama(ANA_N1, 1), acervo.panorama(CAIO_N3, 3)
@@ -297,7 +297,7 @@ def test_indice_de_pressao_do_n1_sem_custo_e_do_n3_com(tela):
     assert dica == pn.legenda.toolTip() == pn.secoes["onde"].cartoes["mapa"].dica
 
 
-# ================================================================ agregados novos protegidos
+# agregados novos protegidos
 def _equacoes_do_cubo(d, pu, panorama, classes):
     """Células (linha, coluna) que o N1 publica com origem no cubo e as equações que as ligam: cada linha soma as
     classes; a região soma as UFs; o total soma as regiões e as atividades."""
@@ -440,12 +440,11 @@ def _registros(tela):
     return tela.app.acervo.trilha.repo.todos()
 
 
-# ================================================================ filtro classe e ano
+# filtro classe e ano
 def test_ano_em_lista_com_todos_por_padrao(tela):
     """O ano (data de corte) numa lista, como a classe ao lado: "Todos" primeiro e escolhido (a situação
-    atual), depois os anos anteriores em ordem decrescente. O ano corrente não entra (daria o mesmo que "Todos",
-    ). A lista, o chip e o clique num ano do gráfico ficam sincronizados; o slider e o rótulo do ano
-    saíram."""
+    atual), depois os anos anteriores em ordem decrescente. O ano corrente não entra (daria o mesmo que "Todos").
+    A lista, o chip e o clique num ano do gráfico ficam sincronizados."""
     from PySide6.QtCore import QPoint
 
     pn = _abrir(tela)
@@ -552,13 +551,13 @@ def test_mapa_e_ranking_seguem_o_mesmo_indicador_e_a_mesma_uf(tela):
     pn.estado.definir(foco=None, selecao=frozenset())
 
 
-# ================================================================ navegação do mapa do N1
+# navegação do mapa do N1
 def _barras(m) -> tuple[int, int]:
     return m.horizontalScrollBar().value(), m.verticalScrollBar().value()
 
 
 def _arrastar(m, inicio, delta, passos=10):
-    """Aperta em `inicio`, move em passos até `inicio + delta` e solta (o arrasto real, com o botão apertado)."""
+    """Aperta em inicio, move em passos até `inicio + delta` e solta (o arrasto real, com o botão apertado)."""
     from PySide6.QtCore import QPoint, Qt
     from PySide6.QtTest import QTest
     QTest.mousePress(m.viewport(), Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier, inicio)
@@ -690,7 +689,7 @@ def test_cabecalho_do_mapa_do_n1_com_controles_numa_linha_abaixo_do_titulo(tela)
     assert pn.combo_indicador.mapTo(cartao, QPoint(0, 0)).y() >= fim_do_subtitulo
 
 
-# ================================================================ prazo pelo cubo (k=3, parte e complemento)
+# prazo pelo cubo
 def _prazo_publicado(acervo, ano):
     """O que o N1 publica no ano, em todos os filtros de classe: ativas e as duas subcontagens do prazo (além do
     prazo legal, prazo previsto vencido) por célula (linha, coluna); linha ("N",), ("R", região) ou ("U", uf)."""
@@ -800,7 +799,7 @@ def test_prazo_do_n1_sai_do_cubo_com_k3_na_parte_e_no_complemento(tela, pequeno)
         assert suprimidas_vistas                                    # o acervo pequeno força supressão de fato
 
 
-# ================================================================ tabela equivalente com Suprimido
+# tabela equivalente com Suprimido
 def _suprimidas_do_grafico(gr, titulos) -> list[tuple[int, int]]:
     """(linha, coluna) da tabela equivalente onde o modelo do gráfico tem None (o que veio suprimido do serviço)."""
     from ecosec.interface import n1_graficos as g
@@ -866,7 +865,7 @@ def test_tabela_equivalente_escreve_suprimido_onde_o_servico_mandou_none(tela):
     assert {"mapa", "BarrasN1", "MapaCalorN1", "HalteresN1", "LinhasN1", "Barras100N1"} <= com_supressao
 
 
-# ================================================================ nada financeiro em outros recortes
+# nada financeiro em outros recortes
 FINANCEIRO = ("custo estimado", "orçament", "orcament", "responsabilidade financeira", "em reais")
 
 
@@ -898,7 +897,7 @@ def test_nada_financeiro_com_supressao_e_com_filtro(tela, pequeno, classe, ano):
     assert all(item.custo is None for item in pn.panorama.pressao.values())
 
 
-# ================================================================ pesos fixos por nível, em todo recorte
+# pesos fixos por nível, em todo recorte
 def test_pesos_do_indice_de_pressao_fixos_no_n1_e_completos_no_n3_em_todo_recorte(tela):
     """N1: 0,375 / 0,375 / 0,25 (volume / severidade / atraso), sem custo, em qualquer classe e ano. N3: os pesos
     completos de [indice_pressao] (config/ecosec.toml), 0,30 / 0,30 / 0,20 / 0,20, com custo."""
@@ -931,11 +930,10 @@ def test_pesos_do_indice_de_pressao_fixos_no_n1_e_completos_no_n3_em_todo_recort
     assert "custo estimado" not in dica and "R$" not in dica
 
 
-# ================================================================ capturas
+# capturas
 def test_capturas_do_n1(tela, tmp_path):
-    """Capturas "depois" para a conferência visual: cada seção (tela e inteira), com o acervo do sistema e com o
-    acervo pequeno que força supressão. Gravadas na pasta temporária do teste (antes, numa pasta fixa de uma
-    máquina de desenvolvimento, o que fazia o teste falhar em qualquer outra)."""
+    """Capturas de cada seção (tela e inteira), com o acervo do sistema e com o acervo pequeno que força
+    supressão, gravadas na pasta temporária do teste."""
     CAPTURAS = tmp_path / "capturas_n1"
     CAPTURAS.mkdir()
     arquivos = []

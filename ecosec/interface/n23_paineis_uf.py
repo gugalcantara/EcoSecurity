@@ -1,8 +1,7 @@
 """Painéis da UF (N2): o painel de decisão do diretor da UF.
 
-Antes: os três painéis temáticos do N1 recortados na UF (classe, custo, encerramento), com gráficos
-"simples demais" e sem resposta direta para quem decide. Agora, uma página só, de cima para baixo, cada visual com
-a sua pergunta de decisão escrita como subtítulo e, quando ajuda, um rodapé curto:
+Uma página só, de cima para baixo, cada visual com a sua pergunta de decisão escrita como subtítulo e, quando
+ajuda, um rodapé curto:
 
   Cartões             casos ativos, críticos, além do prazo legal, prazo previsto vencido e custo para resolver,
                       cada um com a comparação (fim do ano anterior ou Brasil)
@@ -14,9 +13,9 @@ a sua pergunta de decisão escrita como subtítulo e, quando ajuda, um rodapé c
   UF × país           o veredito por indicador (melhor ou pior, no sentido de cada um) e os halteres de 0 a 100%
   Custo na UF         custo por ação recomendada e a divisão nas quatro categorias de custo
 
-Fontes (todas pelo serviço, matriz e trilha): `kpis` e `painel_custo` (UF do diretor, sem k), `panorama` (série
-da UF), `resumo_agregado` (por ação recomendada e por faixa de risco, o mesmo do Resumo agregado) e
-`referencia_nacional` (a linha NACIONAL do cubo protegido com o k do N1: o país, nunca outra UF individualmente).
+Fontes (todas pelo serviço, matriz e trilha): kpis e painel_custo (UF do diretor, sem k), panorama (série
+da UF), resumo_agregado (por ação recomendada e por faixa de risco, o mesmo do Resumo agregado) e
+referencia_nacional (a linha NACIONAL do cubo protegido com o k do N1: o país, nunca outra UF individualmente).
 A lista de casos usa os registros do painel do N2 (a própria UF), como a planilha. Nenhuma pessoa física, nenhum
 custo por responsável. O custo da UF fica (só o N1 fica sem dado financeiro).
 """
@@ -56,7 +55,7 @@ def _mi(valor: float) -> str:
 
 @dataclass(frozen=True)
 class Comparacao:
-    """Um indicador da UF contra o Brasil, em %. `maior_e_melhor`: a taxa de encerramento (quanto mais encerra,
+    """Um indicador da UF contra o Brasil, em %. maior_e_melhor: a taxa de encerramento (quanto mais encerra,
     melhor); nos demais (críticos, além do prazo legal, prazo previsto vencido), menor é melhor."""
     rotulo: str
     valor: float | None
@@ -128,7 +127,7 @@ class PaineisUF(QWidget):
         for cartao in self.cartoes.values():
             linha.addWidget(cartao, 1)
         v.addLayout(linha)
-        # o que fazer agora (fora de `paineis`: fica sempre no topo, logo abaixo dos cartões)
+        # o que fazer agora (fora de paineis: fica sempre no topo, logo abaixo dos cartões)
         self.texto_agora = QLabel()
         self.texto_agora.setWordWrap(True)
         self.texto_agora.setTextFormat(Qt.TextFormat.RichText)
@@ -247,7 +246,7 @@ class PaineisUF(QWidget):
         if chave in self.paineis:
             self.rolagem.ensureWidgetVisible(self.paineis[chave])
 
-    # ------------------------------------------------------------ dados
+    # dados
     def carregar(self, painel, resumo=None):
         """Pede ao serviço os números da UF (cada consulta fica na trilha) e monta a página."""
         servico, usuario, nivel = self.tela.app.acervo, self.tela.usuario, painel.nivel

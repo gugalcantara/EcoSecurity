@@ -132,7 +132,7 @@ class JanelaPrincipal(FluentWindow):
         self.move(tela.center() - self.rect().center())
         self._aplicar_estado()
 
-    # ============================================================ estado
+    # estado
     @property
     def estado(self) -> Estado:
         adm = self.app.administracao
@@ -175,7 +175,7 @@ class JanelaPrincipal(FluentWindow):
         else:
             self._inatividade.parar()
 
-    # ============================================================ bloqueio por inatividade
+    # bloqueio por inatividade
     def _ocupado(self) -> bool:
         """Câmera ligada (login, step-up, conferência, captura do cadastro) é uso, não inatividade."""
         telas = [p.autenticacao for p in self.paginas_nivel.values()] + [self.pagina_admin.tela_rosto]
@@ -213,7 +213,7 @@ class JanelaPrincipal(FluentWindow):
         else:
             self.pagina_bloqueio.mostrar_erro("Senha incorreta.")
 
-    # ============================================================ sessão
+    # sessão
     def _talvez_fim_da_configuracao(self):
         if self.sessao is None and self.estado is Estado.LOGIN:
             self._aplicar_estado()

@@ -10,7 +10,7 @@
   7. (no serviço) registro na trilha e só então a entrega.
 
 Os passos 3 a 5 são desenho e moram na interface (ecosec/interface/rasterizar_documento.py):
-este módulo recebe a função `rasterizar` por injeção e não importa PySide6. O que vai no
+este módulo recebe a função rasterizar por injeção e não importa PySide6. O que vai no
 documento (campos, hash, QR, texto da marca) e a S9 continuam decididos aqui.
 """
 import hashlib

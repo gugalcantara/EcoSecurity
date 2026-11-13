@@ -1,9 +1,9 @@
 """O perfil na persistência, nas duas implementações, e a migração do MySQL.
 
 - contrato: memória e MySQL guardam e devolvem o perfil, o nível nulo (Externo, inclusive o administrador) e a
-  exclusão lógica (`excluido_em`);
-- o banco recusa perfil e nível incoerentes (CHECK `ck_usuario_perfil_nivel`), mesmo que a aplicação erre;
-- a migração (`ferramentas.preparar_banco.migrar_perfis`) leva ao modelo de quatro perfis tanto um banco de antes
+  exclusão lógica (excluido_em);
+- o banco recusa perfil e nível incoerentes (CHECK ck_usuario_perfil_nivel), mesmo que a aplicação erre;
+- a migração (ferramentas.preparar_banco.migrar_perfis) leva ao modelo de quatro perfis tanto um banco de antes
   (só níveis) quanto um da primeira versão dela (perfis Administrador, Sem perfil e Ministério Público):
   cada um pelo nível; administradores e perfis retirados viram Externo, sem camada. É idempotente. Os dois
   schemas estão congelados em `testes/dados/`.
@@ -35,7 +35,7 @@ def novo(matricula, perfil, uf=None):
                    uf=uf)
 
 
-# ---------------------------------------------------------------- contrato (memória e MySQL)
+# contrato
 @pytest.mark.parametrize("perfil, nivel", [("EXTERNO", None), ("SERVIDOR", Nivel.N1), ("MINISTRO", Nivel.N3)])
 def test_perfil_e_nivel_nulo_ida_e_volta(repos, perfil, nivel):
     usuarios, _, _ = repos
@@ -64,7 +64,7 @@ def test_exclusao_logica_ida_e_volta(repos):
     assert not lido.ativo and lido.excluido_em == momento
 
 
-# ---------------------------------------------------------------- o banco recusa o incoerente
+# o banco recusa o incoerente
 @pytest.mark.parametrize("perfil, nivel", [("EXTERNO", 3), ("EXTERNO", 1), ("MINISTRO", 1), ("MINISTRO", None),
                                            ("SERVIDOR", None), ("ADMINISTRADOR", None), ("MINISTERIO_PUBLICO", 3),
                                            ("XERIFE", None)])
@@ -77,9 +77,9 @@ def test_banco_recusa_perfil_e_nivel_incoerentes(banco_mysql_limpo, perfil, nive
     assert "ck_usuario_perfil" in str(erro.value), str(erro.value)
 
 
-# ---------------------------------------------------------------- migração
+# migração
 def _banco_descartavel(schema, cadastros):
-    """Um banco descartável com o `schema` de segurança e os `cadastros` (comandos INSERT). Apagado no fim."""
+    """Um banco descartável com o schema de segurança e os cadastros (comandos INSERT). Apagado no fim."""
     from ecosec import segredos
     from ecosec.configuracao import carregar
     from ecosec.repositorios.contratos import ErroRepositorio
@@ -156,7 +156,7 @@ def test_migracao_leva_o_schema_antigo_ao_modelo_de_perfis(banco_antigo):
 
 
 def test_migracao_leva_a_primeira_versao_dos_perfis_ao_modelo_de_quatro_perfis(banco_perfis_v1):
-    """Revisão: Administrador, Sem perfil e Ministério Público deixam de ser perfis e viram Externo, sem
+    """Migração: os antigos Administrador, Sem perfil e Ministério Público viram Externo, sem
     camada. O papel de administrador continua na tabela administrador."""
     from ferramentas.preparar_banco import migrar_perfis
     conexao, cursor, nome = banco_perfis_v1

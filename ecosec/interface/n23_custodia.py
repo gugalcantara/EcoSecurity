@@ -4,7 +4,7 @@ da camada: valor exato com unidade, base (n), data de corte, totais que fecham e
 Priorização (o orçamento público nacional): cartões com o que o orçamento compra (casos, gasto, risco eliminado, o
 que fica na fila), a curva custo acumulado × risco eliminado acumulado dos dois critérios de fila (a pergunta: com
 o mesmo dinheiro, qual fila tira mais risco?) e a fila com o acumulado em reais e em % do risco público. Tudo pelo
-serviço (`ServicoAcervo.priorizacao`, só N3).
+serviço (ServicoAcervo.priorizacao, só N3).
 
 Custo por responsável (só N3, matriz SOMAR_POR_RESPONSAVEL, sem exportação): cartões com a base (responsáveis,
 casos cobráveis distintos, passivo cobrável sem dupla contagem, soma das linhas e a concentração nos 10 maiores),
@@ -136,9 +136,9 @@ def custo_por_categoria(pendencias, r) -> dict[str, float]:
     return soma
 
 
-# ================================================================ casos para agir, por urgência (N3)
+# casos para agir, por urgência (N3)
 N_CASOS_PARA_AGIR = 20
-# os quatro grupos de urgência, na ordem (o índice é o `grupo` de LinhaUrgencia)
+# os quatro grupos de urgência, na ordem (o índice é o grupo de LinhaUrgencia)
 GRUPOS_URGENCIA = ("Crítico e além do prazo legal", "Crítico, dentro do prazo legal",
                    "Além do prazo legal, não crítico", "Demais casos ativos")
 
@@ -157,7 +157,7 @@ class LinhaUrgencia:
 
 
 def casos_por_urgencia(pendencias, hoje, r) -> list[LinhaUrgencia]:
-    """Todos os casos ativos em `hoje`, do mais urgente ao menos: crítico e além do prazo legal, crítico, além do
+    """Todos os casos ativos em hoje, do mais urgente ao menos: crítico e além do prazo legal, crítico, além do
     prazo legal, demais; no empate, o maior score e depois o código. Função pura (as regras de regras.py)."""
     linhas = []
     for p in pendencias:
@@ -214,7 +214,7 @@ class _DicasPorCelula(QIdentityProxyModel):
 
 class CasosParaAgir(QWidget):
     """Que casos o país precisa atacar primeiro? Os 20 casos ativos mais urgentes do país inteiro (a aba não segue o
-    filtro), na ordem de `casos_por_urgencia`. A ordem é a decisão: a tabela não se reordena pelo cabeçalho.
+    filtro), na ordem de casos_por_urgencia. A ordem é a decisão: a tabela não se reordena pelo cabeçalho.
     O score não aparece na tabela: só na dica da faixa."""
     TITULOS = ("CODIGO", "FAIXA", "CLASSE DE RISCO", "UF", "MUNICIPIO", "DIAS ALEM DO PRAZO LIMITE",
                "ACAO RECOMENDADA", "RESPONSABILIDADE", "CUSTO (R$)")
@@ -307,7 +307,7 @@ class CasosParaAgir(QWidget):
         cabecalho.setSectionResizeMode(acao, QHeaderView.ResizeMode.Stretch)
 
 
-# ================================================================ priorização orçamentária (N3)
+# priorização orçamentária (N3)
 class PriorizacaoOrcamento(QWidget):
     """Com um orçamento público, quais casos resolver primeiro? A regra de negócio que vira decisão.
 
@@ -317,7 +317,7 @@ class PriorizacaoOrcamento(QWidget):
     VISOES = (("urgencia", "Por urgência"), ("orcamento", "Pelo orçamento público"))
     TITULOS = ("ORDEM", "CODIGO", "NIVEL DE RISCO", "SCORE", "CLASSE DE RISCO", "SUBSTANCIA", "MUNICIPIO", "UF",
                "CUSTO (R$)", "ACUMULADO NA FILA (R$)", "RISCO ELIMINADO ACUMULADO (%)")
-    # o que cada cartão mede (a dica; a fonte e o corte entram em `atualizar`)
+    # o que cada cartão mede (a dica; a fonte e o corte entram em atualizar)
     DICAS = {"casos": "Casos que a fila leva com o orçamento escolhido, sobre todos os casos ativos pagos pelo poder "
                       "público.",
              "gasto": "Soma do custo estimado dos casos da fila. Nunca passa do orçamento.",
@@ -491,7 +491,7 @@ class PriorizacaoOrcamento(QWidget):
         self.curva.definir(curvas, orcamento, marcas, dominio)
 
 
-# ================================================================ custo por responsável (N3)
+# custo por responsável (N3)
 class CustoPorResponsavel(QWidget):
     """Custo do passivo ativo e cobrável por responsável nomeado, com a memória de cálculo de cada um. Só no N3:
     a tela só existe nas seções do N3, e o serviço (matriz, operação SOMAR_POR_RESPONSAVEL) nega e registra

@@ -118,7 +118,7 @@ class ColunasResponsivas(QObject):
     Uma coluna é elástica (fica com a sobra; ex.: o nome) e tem largura
     mínima. As demais têm largura fixa (o cabeçalho do Fluent tem espaçamento
     interno que o ajuste automático ignora, e cortava títulos). Quando a tabela
-    estreita, ocultam-se primeiro as colunas de `ocultaveis`, na ordem dada,
+    estreita, ocultam-se primeiro as colunas de ocultaveis, na ordem dada,
     em vez de espremer a elástica até cortar o texto que importa."""
 
     def __init__(self, tabela, larguras: dict[int, int], elastica: int, minima_elastica: int,
@@ -161,7 +161,7 @@ class Selo(QLabel):
         self.definir(texto, cor)
 
     def definir(self, texto: str, cor: str):
-        """Troca texto e cor. `solido` (selo de risco da ficha): fundo cheio na cor e texto branco ou
+        """Troca texto e cor. solido (selo de risco da ficha): fundo cheio na cor e texto branco ou
         #1A1A1A, o que der mais contraste; a informação não depende de ler texto colorido."""
         self.setText(texto)
         r, g, b = int(cor[1:3], 16), int(cor[3:5], 16), int(cor[5:7], 16)

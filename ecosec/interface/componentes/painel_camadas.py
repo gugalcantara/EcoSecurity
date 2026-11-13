@@ -1,12 +1,12 @@
 """Painel de camadas do mapa.
 
-Cada camada com o símbolo ao lado do nome (o mesmo da legenda, desenhado por `simbologia`), uma caixa de
+Cada camada com o símbolo ao lado do nome (o mesmo da legenda, desenhado por simbologia), uma caixa de
 ligar/desligar (também para as divisas das UFs), opacidade opcional e botões de subir e descer que mudam a
 ORDEM de desenho (z-value) no mapa. As linhas aparecem na ordem de desenho: a de cima é desenhada por cima.
 
 Vertical (N3, na coluna lateral, com opacidade) ou horizontal (N2, numa faixa acima do mapa, que quebra a
-linha se faltar largura). O painel só conversa com a API pública do mapa (`definir_camada_visivel`,
-`definir_opacidade`, `definir_ordem`, `ordem_camadas`, `ordem_mudou`).
+linha se faltar largura). O painel só conversa com a API pública do mapa (definir_camada_visivel,
+definir_opacidade, definir_ordem, ordem_camadas, ordem_mudou).
 """
 from __future__ import annotations
 

@@ -32,6 +32,12 @@ def test_parametro_ausente_e_erro_e_nao_valor_padrao(toml_temporario):
         cfg["captura.altura"]
 
 
+def test_parametro_ausente_dentro_da_secao_e_erro_com_o_nome(toml_temporario):
+    cfg = carregar(toml_temporario("[captura]\nlargura = 640\n"))
+    with pytest.raises(ErroConfiguracao, match=r"captura\.backend"):
+        cfg.secao("captura")["backend"]
+
+
 def test_secao_ausente_e_erro(toml_temporario):
     cfg = carregar(toml_temporario("[captura]\nlargura = 640\n"))
     with pytest.raises(ErroConfiguracao):
@@ -61,7 +67,7 @@ def test_toml_invalido(toml_temporario):
         carregar(toml_temporario("[captura\nlargura = "))
 
 
-# ---------------------------------------------------------------- abertura pelo atalho
+# abertura pelo atalho
 # O atalho abre com pythonw.exe: não há console, então um print some. Todo erro
 # de configuração precisa virar a caixa de mensagem, ou o programa "não abre" mudo.
 @pytest.fixture
@@ -100,7 +106,7 @@ def test_parametro_lido_pelas_telas_ausente_aparece_na_tela(monkeypatch, caixas)
     assert caixas and "modo_demonstracao" in caixas[0]
 
 
-# ---------------------------------------------------------------- prova de vida (S6)
+# prova de vida (S6)
 def test_config_gesto_obrigatorio_aceita_piscada(tmp_path):
     """O config do projeto exige a piscada, e um nome errado
     ("piscada" no lugar de PISCAR) para a ABERTURA com mensagem clara. Sem isso, o erro só

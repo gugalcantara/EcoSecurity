@@ -31,7 +31,7 @@ def filtrar(pendencias, hoje: date, ufs=None, categorias=None, atividade: str | 
             and (not categorias or categoria(p, hoje) in categorias)]
 
 
-# ---------------------------------------------------------------- série temporal
+# série temporal
 def _fim_do_periodo(ano: int, mes: int | None) -> date:
     if mes is None:
         return date(ano, 12, 31)
@@ -42,7 +42,7 @@ def _fim_do_periodo(ano: int, mes: int | None) -> date:
 def serie_risco(pendencias, inicio: date, fim: date, por_mes: bool = False,
                 atividade: str | None = None) -> list[tuple[str, dict[str, int]]]:
     """[(rótulo do período, {categoria: quantidade})]. Em cada período conta as pendências ATIVAS no fim
-    dele (ou em `fim`, no último): já identificadas e ainda não encerradas, pela criticidade daquela data."""
+    dele (ou em fim, no último): já identificadas e ainda não encerradas, pela criticidade daquela data."""
     escolhidas = [p for p in pendencias if not atividade or p.atividade == atividade]
     periodos = []
     ano, mes = inicio.year, (inicio.month if por_mes else None)
@@ -88,7 +88,7 @@ def serie_estoque(pendencias, inicio: int, fim: int, hoje: date) -> dict:
     return {"anos": anos, "ativas": ativas, "entradas": entradas, "saidas": saidas, "acumulado": acumulado}
 
 
-# ---------------------------------------------------------------- índice de pressão (N1)
+# índice de pressão (N1)
 PESOS_PRESSAO = {"volume": 0.30, "severidade": 0.30, "custo": 0.20, "atraso": 0.20}
 
 
@@ -102,7 +102,7 @@ class PressaoUF:
     vencidas: int | None             # além do prazo-limite; None = subcontagem suprimida no N1
     indice: float
     posto: int                       # 1 = maior pressão
-    suprimida: bool = False          # menos de `supressao_minima` ativas (ou complementar): nenhum número sai
+    suprimida: bool = False          # menos de supressao_minima ativas (ou complementar): nenhum número sai
 
 
 def pesos_pressao(cfg) -> dict[str, float]:
@@ -128,7 +128,7 @@ def indice_pressao(pendencias, ufs, em: date, r: regras.ParametrosRegras | None 
     """IP_uf = Σ peso_k · posto_percentil_k(uf), com volume (ativas), severidade (fração CRITICO), custo
     estimado e atraso (fração além do prazo-limite). UF sem ativas entra com zero em tudo.
 
-    Com `cubo` (CuboN1 do mesmo corte), quem some e quais subcontagens viram None vem do cubo, e não de uma
+    Com cubo (CuboN1 do mesmo corte), quem some e quais subcontagens viram None vem do cubo, sem uma
     supressão própria desta vista: a mesma célula (UF, classe) tem o mesmo destino em qualquer filtro."""
     r = r or regras.ParametrosRegras.padrao()
     pesos = pesos or PESOS_PRESSAO
@@ -173,7 +173,7 @@ def indice_pressao(pendencias, ufs, em: date, r: regras.ParametrosRegras | None 
     return resultado
 
 
-# ---------------------------------------------------------------- planilha (registros individuais)
+# planilha (registros individuais)
 @dataclass(frozen=True)
 class LinhaPlanilha:
     CODIGO: str
@@ -213,7 +213,7 @@ TITULOS = tuple(nome.replace("_", " ") for nome in COLUNAS)
 
 def linhas(pendencias, hoje: date, r: regras.ParametrosRegras | None = None, atividades: dict | None = None,
            motivos: dict | None = None) -> list[LinhaPlanilha]:
-    """Com o catálogo (`atividades`, `motivos`), as colunas ATIVIDADE e MOTIVO saem como "código · nome"."""
+    """Com o catálogo (atividades, motivos), as colunas ATIVIDADE e MOTIVO saem como "código · nome"."""
     from ecosec.dominio.acervo import rotulo
     r = r or regras.ParametrosRegras.padrao()
     return [LinhaPlanilha(p.codigo, p.substancia, p.classe_risco, p.quantidade, p.unidade,
@@ -227,7 +227,7 @@ def linhas(pendencias, hoje: date, r: regras.ParametrosRegras | None = None, ati
             for p in pendencias]
 
 
-# ---------------------------------------------------------------- resumo agregado (todos os níveis)
+# resumo agregado
 # "vencida" são dois indicadores com nomes distintos. Fora da previsao = prazo de
 # coleta do caso já passou; alem do prazo limite = passou do prazo-limite da norma para a classe (o KPI-03).
 FORA_DA_PREVISAO, PERCENTUAL_FORA_DA_PREVISAO = "FORA DA PREVISAO", "PERCENTUAL FORA DA PREVISAO"
@@ -282,7 +282,7 @@ def contagens_por_classe(pendencias, hoje: date, agrupamento: str, atividades: d
 def agregar(pendencias, hoje: date, agrupamento: str, atividades: dict, motivos: dict,
             r: regras.ParametrosRegras | None = None):
     """(títulos, linhas) com totais por grupo: nenhum registro individual, nenhuma localização.
-    É o que o nível 1 pode ver e extrair (RF-20)."""
+    É o que o nível 1 pode ver e extrair."""
     r = r or regras.ParametrosRegras.padrao()
     titulos_grupo, chave = _chave_do_agrupamento(agrupamento, hoje, atividades, motivos, r)
     grupos: dict[tuple, list] = {}
@@ -308,7 +308,7 @@ def agregar(pendencias, hoje: date, agrupamento: str, atividades: dict, motivos:
     return titulos_grupo + TITULOS_MEDIDAS, resultado
 
 
-# ---------------------------------------------------------------- KPI-01: tempo até o encerramento
+# KPI-01: tempo até o encerramento
 INICIO_OBSERVACAO = date(2006, 1, 1)     # = geracao.series.INICIO_SERIE: antes disso, ninguém sai do cadastro
 
 
@@ -321,7 +321,7 @@ class TempoEncerramento:
 
 
 def kaplan_meier(observacoes) -> list[tuple[float, float]]:
-    """[(t, S(t))] nos tempos de evento. `observacoes` = (tempo, encerrou, idade ao entrar na observação).
+    """[(t, S(t))] nos tempos de evento. observacoes = (tempo, encerrou, idade ao entrar na observação).
 
     Entrada tardia (truncamento à esquerda): quem foi identificado antes do início da observação só entra
     no conjunto em risco na idade que tinha naquele dia; antes disso, se tivesse saído, nem estaria no
@@ -355,7 +355,7 @@ def _primeiro_abaixo(curva, nivel: float) -> float | None:
 
 def observacoes_de_encerramento(pendencias, hoje: date, classe: str | None = None,
                                 inicio_observacao: date = INICIO_OBSERVACAO) -> list[tuple[float, bool, float]]:
-    """(tempo em anos, encerrou, idade ao entrar na observação) de cada pendência identificada até `hoje`."""
+    """(tempo em anos, encerrou, idade ao entrar na observação) de cada pendência identificada até hoje."""
     observacoes = []
     for p in pendencias:
         if p.data_identificacao > hoje or (classe and p.classe_risco != classe):
@@ -378,7 +378,7 @@ def tempo_ate_encerramento(pendencias, hoje: date, classe: str | None = None,
                              len(observacoes) - eventos)
 
 
-# ---------------------------------------------------------------- custo por responsável (só N3)
+# custo por responsável (só N3)
 VINCULOS_COBRAVEIS = ("GERADOR_ORIGINAL", "SUCESSOR", "PROPRIETARIO_ATUAL")
 
 
@@ -415,7 +415,7 @@ def custo_por_responsavel(pendencias, responsaveis, hoje: date, r: regras.Parame
     return sorted(linhas, key=lambda l: (-l.custo, l.nome))
 
 
-# ---------------------------------------------------------------- supressão de célula pequena
+# supressão de célula pequena
 SUPRIMIDO = "SUPRIMIDO"
 
 
@@ -424,13 +424,13 @@ def suprimir(contagens: dict, k: int, marginais=(lambda chave: (),), iniciais=()
 
     Primária: 0 < n < k. Complementar: se num grupo de margem conhecida (o total da tabela, o total da
     UF, o da região, o da atividade...) sobrou uma só célula escondida, ela sairia por subtração; então a
-    menor célula visível do grupo também é escondida. Repete até estabilizar. `marginais` = funções
-    chave -> grupo; `iniciais` = chaves já escondidas por outra regra (ex.: a UF inteira).
+    menor célula visível do grupo também é escondida. Repete até estabilizar. marginais = funções
+    chave -> grupo; iniciais = chaves já escondidas por outra regra (ex.: a UF inteira).
 
     A margem também pode ser uma célula do dicionário (a linha "total" no mesmo grupo das suas partes): aí o
     grupo é a equação inteira (total = soma das partes), e o total escondido conta como uma das escondidas.
 
-    `travadas` = chaves cujo destino já foi decidido por outra vista (o cubo do panorama): não são escolhidas
+    travadas = chaves cujo destino já foi decidido por outra vista (o cubo do panorama): não são escolhidas
     como complementares enquanto houver outra candidata no grupo. Sem outra, a travada cede (segurança antes
     da coerência entre telas).
 
@@ -487,12 +487,12 @@ def suprimir_subcontagem(totais: dict, parte: dict, k: int, marginais=(lambda ch
     """Chaves cuja subcontagem (vencidas, críticas... de um total visível) não sai no N1.
     A parte v e o complemento n − v são duas células da mesma linha, que mostra o total n:
     primária se 0 < v < k ou 0 < n − v < k, e esconder uma esconde a outra. A complementar corre ao longo de
-    cada uma das duas colunas pelos grupos de `marginais` (o total da coluna aparece em outra tabela).
-    `iniciais` = chaves já escondidas inteiras (entram nas colunas como escondidas); `travadas`, como em suprimir.
+    cada uma das duas colunas pelos grupos de marginais (o total da coluna aparece em outra tabela).
+    iniciais = chaves já escondidas inteiras (entram nas colunas como escondidas); travadas, como em suprimir.
 
     no par: com o total visível e um lado zero, o outro lado é o próprio total, então a célula
     não protege nada; para suprimir ela vale 0 (não é escolhida como complementar e, escondida, não conta). Com o
-    total escondido (`iniciais`) o par não a revela, e ela entra com o valor real."""
+    total escondido (iniciais) o par não a revela, e ela entra com o valor real."""
     lados = ("PARTE", "RESTO")
     celulas = {}
     for c, n in totais.items():
@@ -525,11 +525,11 @@ def suprimir_tabela(agrupamento: str, titulos, linhas, k: int, por_classe: dict 
     Linha: contagem 0 < n < k, ou complementar pelas margens da tabela: todas as medidas viram SUPRIMIDO, e ela
     vai para o fim em ordem de chave (a ordem por contagem entre as escondidas revelaria quem é maior).
     Linha visível: cada subcontagem de SUBCONTAGENS (e as suas derivadas) sai SUPRIMIDO pela regra de
-    suprimir_subcontagem; cada coluna de quantidade é a célula (grupo, classe), com a contagem de `por_classe`
+    suprimir_subcontagem; cada coluna de quantidade é a célula (grupo, classe), com a contagem de por_classe
     ({grupo: {classe: n}}), e sai SUPRIMIDO se 0 < n < k. Nas duas, a complementar corre ao longo da coluna. O
     custo da linha fica: é soma da linha inteira, que tem pelo menos k pendências.
-    `iniciais` = {título da coluna: chaves já escondidas por outra vista} (o cubo do panorama, no por UF).
-    `total` = {título da coluna: (valor do total do escopo, escondido no cubo?)}: o total entra como célula da
+    iniciais = {título da coluna: chaves já escondidas por outra vista} (o cubo do panorama, no por UF).
+    total = {título da coluna: (valor do total do escopo, escondido no cubo?)}: o total entra como célula da
     equação da tabela (total = soma das linhas), travado. Se o cubo o esconde, a tabela não pode deixá-lo sair
     somando as linhas: precisa de outra escondida na coluna."""
     titulos, iniciais = list(titulos), iniciais or {}
@@ -572,7 +572,7 @@ def suprimir_tabela(agrupamento: str, titulos, linhas, k: int, por_classe: dict 
 
 
 def _montar_tabela(titulos, linhas, n_chaves: int, escondidas, tapar: dict):
-    """(linhas, células escondidas): as visíveis com SUPRIMIDO nas colunas de `tapar`, e as escondidas no fim, em
+    """(linhas, células escondidas): as visíveis com SUPRIMIDO nas colunas de tapar, e as escondidas no fim, em
     ordem de chave (a ordem por contagem entre as escondidas revelaria quem é maior)."""
     visiveis = []
     for l in linhas:
@@ -584,7 +584,7 @@ def _montar_tabela(titulos, linhas, n_chaves: int, escondidas, tapar: dict):
     return visiveis + tapadas, len(tapadas) + sum(len(colunas) for colunas in tapar.values())
 
 
-# ---------------------------------------------------------------- o cubo protegido do N1
+# o cubo protegido do N1
 TODAS = "TODAS"                          # a coluna do total da linha (todas as classes) no cubo
 NACIONAL = "NACIONAL"                    # a linha do total do escopo (cada classe e TODAS) no cubo
 # a família de tabelas do resumo ligadas por soma, que o cubo protege junto com as UFs
@@ -698,7 +698,7 @@ _MEMO_CUBO: dict = {}
 
 
 def proteger_cubo(pendencias, ufs, em: date, k: int, r: regras.ParametrosRegras | None = None) -> CuboN1:
-    """O cubo do corte `em` (ver _proteger_cubo). Memorizado: o mesmo acervo, escopo, corte, k e parâmetros dão o
+    """O cubo do corte em (ver _proteger_cubo). Memorizado: o mesmo acervo, escopo, corte, k e parâmetros dão o
     mesmo cubo, e o painel pede o mesmo corte várias vezes (panorama, resumo, painéis, cartões)."""
     r = r or regras.ParametrosRegras.padrao()
     pendencias = tuple(pendencias)
@@ -714,12 +714,12 @@ def proteger_cubo(pendencias, ufs, em: date, k: int, r: regras.ParametrosRegras 
 
 
 def _proteger_cubo(pendencias, ufs, em: date, k: int, r: regras.ParametrosRegras) -> CuboN1:
-    """O cubo do corte `em`. Com k = 0 (N2 e N3: o k não se aplica) nada é escondido.
+    """O cubo do corte em. Com k = 0 (N2 e N3: o k não se aplica) nada é escondido.
 
     Número: primária 0 < n < k; complementar pelas equações de _margens_do_cubo, até estabilizar (a margem é
     uma célula do mesmo grupo, então uma UF escondida com todas as suas linhas de UF e atividade visíveis leva uma
     delas junto). A UF escondida na coluna TODAS esconde todas as suas células, zeros inclusive: na vista de uma
-    classe ela some, e não mostra 0 nem o número. O total geral (NACIONAL, TODAS) está em toda tela (estoque),
+    classe ela some, sem mostrar 0 nem o número. O total geral (NACIONAL, TODAS) está em toda tela (estoque),
     então fica travado. Subcontagens (críticas, além do prazo-limite, fora da previsão): suprimir_subcontagem,
     com as mesmas equações e com as células escondidas já fora."""
     colunas = tuple(quantidades.CLASSES) + (TODAS,)
@@ -759,7 +759,7 @@ def _proteger_cubo(pendencias, ufs, em: date, k: int, r: regras.ParametrosRegras
     return CuboN1(ativas, frozenset(escondidas), sub[CRITICAS], sub[ALEM_DO_PRAZO], sub[FORA_DA_PREVISAO], subs)
 
 
-# ---------------------------------------------------------------- o resumo do N1 inteiro, coerente
+# o resumo do N1 inteiro, coerente
 def _linha_do_cubo(agrupamento: str, chave: tuple) -> str:
     if agrupamento == "POR UF":
         return chave[0]
@@ -775,7 +775,7 @@ def proteger_resumo(tabelas: dict, pendencias, hoje: date, atividades: dict, mot
     """({agrupamento: (títulos, linhas)}, células escondidas): o resumo do N1 inteiro com k e complementar.
 
     Garantia hierárquica: as quatro tabelas de FAMILIA_UF saem do mesmo cubo protegido (proteger_cubo, corte
-    `hoje`), que tem as UFs, as regiões, as atividades e os pares (UF, atividade) como linhas e protege as
+    hoje), que tem as UFs, as regiões, as atividades e os pares (UF, atividade) como linhas e protege as
     equações que ligam umas às outras. Nenhuma célula escondida em por UF sai somando as linhas visíveis de por UF
     e atividade, nem por UF a partir de por regiao, nem por atividade a partir da sua coluna; vale para a contagem,
     para cada subcontagem (parte e complemento) e para cada quantidade por classe (a célula da classe). E o mapa
@@ -825,7 +825,7 @@ def proteger_resumo(tabelas: dict, pendencias, hoje: date, atividades: dict, mot
     return saida, escondidas_total
 
 
-# ---------------------------------------------------------------- painéis temáticos do N1
+# painéis temáticos do N1
 def suprimir_grade(contagens: dict, k: int, iniciais=(), travadas=()) -> set:
     """Tabela de n dimensões com as margens como células (TODAS em qualquer posição da chave). Em cada eixo, a
     margem e as suas partes formam um grupo (uma equação): ninguém sai por subtração ao longo de eixo nenhum,
@@ -895,7 +895,7 @@ def proteger_envelhecimento(env: Envelhecimento, k: int, cubo: "CuboN1 | None" =
 @dataclass(frozen=True)
 class CustoDoPassivo:
     """KPI-05 num corte, em R$ da data-base de [custos]. Chave (classe ou TODAS, rota ou TODAS, categoria ou
-    TODAS); `contagens` = pendências que contribuem para a célula (a categoria só conta quem tem componente
+    TODAS); contagens = pendências que contribuem para a célula (a categoria só conta quem tem componente
     nela), que é o n do k. Responsabilidade: chave (classe ou TODAS, responsabilidade ou TODAS)."""
     contagens: dict
     valores: dict                        # mesma chave -> R$
@@ -1036,9 +1036,9 @@ def _sobrevivencia_em(curva, t: float) -> float:
 
 
 def tabua_de_vida(observacoes, k: int, largura: float = 1.0, fronteiras=None) -> list[IntervaloVida]:
-    """Tábua de vida em intervalos de `largura` anos, sobre o Kaplan-Meier com entrada tardia. Junta intervalos
+    """Tábua de vida em intervalos de largura anos, sobre o Kaplan-Meier com entrada tardia. Junta intervalos
     seguidos até somar k eventos; para onde o conjunto em risco fica abaixo de k (os eventos que sobrarem no
-    fim entram no último degrau). Com `fronteiras` (lista crescente a partir de 0), usa só esses cortes: é como
+    fim entram no último degrau). Com fronteiras (lista crescente a partir de 0), usa só esses cortes: é como
     a curva TODAS herda os cortes comuns das classes."""
     observacoes = list(observacoes)
     if not observacoes:
@@ -1092,7 +1092,7 @@ def _curva_da_tabua(classe: str, observacoes, k: int, fronteiras=None) -> CurvaE
 
 def curvas_de_encerramento(pendencias, hoje: date, k: int, classe: str | None = None,
                            inicio_observacao: date = INICIO_OBSERVACAO) -> dict:
-    """{classe ou TODAS: CurvaEncerramento}. Com `classe`, só ela; sem, as classes presentes e TODAS. k = 0:
+    """{classe ou TODAS: CurvaEncerramento}. Com classe, só ela; sem, as classes presentes e TODAS. k = 0:
     curva exata (N2, N3).
 
     No N1, a curva TODAS usa só os cortes comuns às tábuas das classes e para no fim da mais curta: cada degrau
@@ -1126,7 +1126,7 @@ def curvas_de_encerramento(pendencias, hoje: date, k: int, classe: str | None = 
     return curvas
 
 
-# ---------------------------------------------------------------- arquivos
+# arquivos
 def _valor(v):
     return v.isoformat() if isinstance(v, date) else v
 
@@ -1173,7 +1173,7 @@ def sha256(conteudo: bytes) -> str:
     return hashlib.sha256(conteudo).hexdigest()
 
 
-# ---------------------------------------------------------------- painel do N1
+# painel do N1
 def pesos_sem_custo(pesos=None) -> dict[str, float]:
     """Pesos do Índice de pressão do N1: o componente de custo sai e os outros são
     renormalizados para somar 1, na mesma proporção (0,30; 0,30; 0,20 -> 0,375; 0,375; 0,25). O N2 e o N3
@@ -1241,7 +1241,7 @@ def _posto(linhas: list[list]) -> int:
 def celulas_recompostas(contagens: dict, escondidas, equacoes=None) -> set:
     """Células escondidas que as equações publicadas determinam (álgebra linear exata). Incógnitas: as escondidas
     não nulas; um zero escondido conta como conhecido (um zero escondido não protege nada).
-    `equacoes`: [(margem, partes)]; padrão, as de uma grade de duas dimensões com margens (_equacoes_da_grade).
+    equacoes: [(margem, partes)]; padrão, as de uma grade de duas dimensões com margens (_equacoes_da_grade).
     Vazio = nenhuma célula escondida sai por soma ou subtração de outras visíveis."""
     escondidas = {c for c in escondidas if c in contagens}
     incognitas = sorted((c for c in escondidas if contagens[c]), key=str)
@@ -1271,8 +1271,8 @@ def celulas_recompostas(contagens: dict, escondidas, equacoes=None) -> set:
 
 def proteger_grade_n1(contagens: dict, k: int, conhecidas=(), iniciais=()) -> set:
     """Células escondidas de uma grade nova do N1 (duas dimensões, margens como células), coerente com o que outra
-    vista já publica: `conhecidas` = células que outra vista do N1 mostra (não adianta escondê-las: contam como
-    sabidas); `iniciais` = células que outra vista esconde (escondidas aqui também).
+    vista já publica: conhecidas = células que outra vista do N1 mostra (não adianta escondê-las: contam como
+    sabidas); iniciais = células que outra vista esconde (escondidas aqui também).
 
     Primeiro suprimir_grade (primária 0 < n < k e complementar pelas equações, com as conhecidas travadas). Depois
     a prova algébrica (celulas_recompostas): enquanto alguma escondida sair das equações, esconde mais uma, a menor

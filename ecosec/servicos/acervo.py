@@ -3,13 +3,13 @@
     0. Autoriza pela matriz Papel × Classificação × Operação (seguranca/autorizacao.py),
        com o risco de contexto da sessão por cima. Nada é decidido fora da matriz.
     1. Filtra na origem: o N2 só recebe a própria UF; o N1 nem recebe a cadeia
-       de responsáveis (RF-21): o que o nível não autoriza nem sai do banco.
+       de responsáveis: o que o nível não autoriza nem sai do banco.
     2. Desenha o relatório na hora (o desenho anota as regiões sensíveis).
-    3. S8 TARJA: suprime, numa cópia, o que está acima do nível (RF-10).
+    3. S8 TARJA: suprime, numa cópia, o que está acima do nível.
     4. Marca visível: nos três níveis, a matrícula de quem consultou e o minuto da consulta, em diagonal
        (dissuade). Antes da S9: pintar depois degradaria a marca invisível.
-    5. S9 RASTREIO: nos níveis 2 e 3, marca d'água invisível com quem e quando (RF-11).
-    6. S10 TRILHA: registra a consulta. SEM REGISTRO, A IMAGEM NÃO É ENTREGUE.
+    5. S9 RASTREIO: nos níveis 2 e 3, marca d'água invisível com quem e quando.
+    6. S10 TRILHA: registra a consulta. Sem registro, a imagem não é entregue.
 
 Só depois do passo 6 a imagem sai do serviço. A interface nunca recebe o
 pixel original de uma região que o nível não autoriza.
@@ -18,7 +18,7 @@ Escopo exclusivo: cada perfil consulta só a própria camada, e o administrador 
 nada. Todo método que entrega dado recebe quem pede e pergunta à matriz pelo papel dessa pessoa, mesmo quando
 recebe um painel, um resumo ou um relatório já aberto: o objeto não carrega permissão.
 
-Exportação (RF-14): N1 livre · N2 com marca d'água e rosto conferido há pouco
+Exportação: N1 livre · N2 com marca d'água e rosto conferido há pouco
 (step-up: se a última conferência passou da janela, a tela confere de novo) ·
 N3 BLOQUEADA. Registra antes de gravar o arquivo: se a trilha falhar, nada sai.
 CSV/XLSX não carregam marca d'água: a trilha guarda o SHA-256 do arquivo, uma
@@ -128,7 +128,7 @@ class ResumoAgregado:
 @dataclass(frozen=True)
 class Panorama:
     """Visão agregada por UF: Índice de Pressão, totais por classe, série de estoque e
-    eventos. Nenhum registro individual nem coordenada: é o que o N1 pode ver (RF-20). A supressão de
+    eventos. Nenhum registro individual nem coordenada: é o que o N1 pode ver. A supressão de
     célula pequena é aplicada aqui, no serviço, e não só na dica da tela."""
     nivel: Nivel
     escopo: str
@@ -144,9 +144,9 @@ class Panorama:
     pesos: tuple = ()                  # ((componente, peso), ...) do Índice de pressão; no N1 sem custo
 
 
-# ---------------------------------------------------------------- painéis temáticos do N1
+# painéis temáticos do N1
 # Contrato com a tela (etapa 3b). Em todos: None = número suprimido pelo k do N1 (primária ou complementar);
-# `corte` = data a que os números se referem; `supressao_minima` = k aplicado (0 no N2 e no N3).
+# corte = data a que os números se referem; supressao_minima = k aplicado (0 no N2 e no N3).
 @dataclass(frozen=True)
 class LinhaClasse:
     """Uma classe no painel por classe."""
@@ -269,7 +269,7 @@ class ReferenciaNacional:
     supressao_minima: int
 
 
-# ---------------------------------------------------------------- painel do N1
+# painel do N1
 # Contrato com a tela do N1 (interface/n1_painel.py). Tudo agregado, sem dado financeiro;
 # None = suprimido pelo k (primária ou complementar), nunca 0. Tudo sai do cubo protegido do corte (as mesmas
 # células do panorama, do resumo e dos painéis), exceto a grade motivo × classe, protegida por
@@ -277,7 +277,7 @@ class ReferenciaNacional:
 @dataclass(frozen=True)
 class IndicadorN1:
     """Um indicador da faixa do N1: valor no corte, o mesmo valor um ano antes e a variação (em pontos
-    percentuais quando a unidade é %). `melhor` diz a direção boa ("menor" ou "maior")."""
+    percentuais quando a unidade é %). melhor diz a direção boa ("menor" ou "maior")."""
     id: str                            # "ATIVOS", "KPI-03", "KPI-03b", "CRITICOS", "KPI-02", "KPI-01", "KPI-04"
     nome: str                          # rótulo de exibição (vocabulário); o código fica na dica
     valor: float | None
@@ -423,7 +423,7 @@ class ServicoAcervo:
     def hoje(self) -> date:
         return self.data_referencia or self.relogio().date()
 
-    # ------------------------------------------------------------ autorização (a matriz decide)
+    # autorização
     @staticmethod
     def _decidir(usuario: Usuario, nivel: Nivel, operacao: Operacao, risco: str = "BAIXO") -> autorizacao.Autorizacao:
         """A matriz, pelo PAPEL de quem pede (o perfil do cadastro). O Externo, inclusive o administrador, não tem
@@ -451,13 +451,13 @@ class ServicoAcervo:
     def _exporta(self, usuario: Usuario, nivel: Nivel, operacao: Operacao) -> bool:
         return self._decidir(usuario, nivel, operacao).permitido
 
-    # ------------------------------------------------------------ catálogo
+    # catálogo
     def catalogo(self, nivel: int) -> list[RelatorioCatalogo]:
         """Só os relatórios DA camada (escopo exclusivo): os das outras nem aparecem na lista."""
         return [r for r in self.repo.catalogo()
                 if r.nivel_minimo == int(nivel) and r.codigo in relatorios.DESENHOS]
 
-    # ------------------------------------------------------------ consulta
+    # consulta
     def _escopo(self, usuario: Usuario, nivel: Nivel) -> str | None:
         """UF a que a consulta se restringe (None = nacional)."""
         if nivel is Nivel.N2 and usuario.nivel is Nivel.N2:
@@ -467,7 +467,7 @@ class ServicoAcervo:
         return None
 
     def abrir(self, codigo: str, usuario: Usuario, nivel: int, ufs=None, categorias=None) -> Entrega:
-        """`ufs` e `categorias` (de risco) filtram as pendências desenhadas: o mapa de calor filtrado do N3."""
+        """ufs e categorias (de risco) filtram as pendências desenhadas: o mapa de calor filtrado do N3."""
         nivel = Nivel(nivel)
         item = next((r for r in self.catalogo(nivel) if r.codigo == codigo), None)
         if item is None:
@@ -476,7 +476,7 @@ class ServicoAcervo:
         self._autorizar(usuario, nivel, Operacao.VISUALIZAR, codigo=codigo)
         uf = self._escopo(usuario, nivel)
         responsaveis = None
-        if nivel is not Nivel.N1:                     # N1 não recebe a cadeia (RF-21)
+        if nivel is not Nivel.N1:                     # N1 não recebe a cadeia
             responsaveis = defaultdict(list)
             for r in self.repo.responsaveis(nivel.value, uf):
                 responsaveis[r.pendencia_codigo].append(r)
@@ -508,9 +508,9 @@ class ServicoAcervo:
                                        + ("; marca d'água" if marcada else "") + filtros)[:DETALHE_MAX])
         return Entrega(item, nivel, usuario.id, imagem, tratado.suprimidas, marcada, momento, marca_visivel)
 
-    # ------------------------------------------------------------ painel analítico
+    # painel analítico
     def painel(self, usuario: Usuario, nivel: int) -> Painel:
-        """Registros individuais do escopo do nível. O N1 não tem painel: só vê agregados (RF-20)."""
+        """Registros individuais do escopo do nível. O N1 não tem painel: só vê agregados."""
         nivel = Nivel(nivel)
         if nivel is Nivel.N1:
             self._registrar_negacao("CONSULTA", "NIVEL_INSUFICIENTE", usuario, nivel, "PAINEL")
@@ -535,7 +535,7 @@ class ServicoAcervo:
         return regras.priorizar(painel.pendencias, painel.hoje, painel.regras, orcamento, criterio)
 
     def resumo_agregado(self, usuario: Usuario, nivel: int, filtro=None) -> ResumoAgregado:
-        """Totais por grupo. No N2 e no N3, `filtro` (acervo.filtro.Filtro) recorta as pendências antes de
+        """Totais por grupo. No N2 e no N3, filtro (acervo.filtro.Filtro) recorta as pendências antes de
         agregar e os chips vão para a trilha. No N1 o filtro é RECUSADO: o k=3 protege o
         cubo inteiro, e um recorte arbitrário reabriria a dedução por diferença entre consultas."""
         nivel = Nivel(nivel)
@@ -573,13 +573,13 @@ class ServicoAcervo:
                               self._exporta(usuario, nivel, Operacao.EXPORTAR_AGREGADO),
                               self.supressao_minima if nivel is Nivel.N1 else 0)
 
-    # ------------------------------------------------------------ panorama agregado (N1 e N3)
+    # panorama agregado
     def eventos(self) -> list:
         """Os eventos que anotam os gráficos: só os conferidos na fonte (verificacao = CONFIRMADO)."""
         return [e for e in self.repo.eventos() if e.verificacao == "CONFIRMADO"]
 
     def panorama(self, usuario: Usuario, nivel: int, ano: int | None = None, classe: str | None = None) -> Panorama:
-        """Coroplético do N1: Índice de Pressão e totais por UF no fim de `ano`, série de estoque por classe e
+        """Coroplético do N1: Índice de Pressão e totais por UF no fim de ano, série de estoque por classe e
         eventos. Calculado aqui: a tela nunca recebe os registros que deram origem aos totais."""
         nivel = Nivel(nivel)
         self._autorizar(usuario, nivel, Operacao.VISUALIZAR, codigo="PANORAMA")
@@ -653,7 +653,7 @@ class ServicoAcervo:
             return analise.pesos_sem_custo(self.pesos_pressao)
         return dict(self.pesos_pressao)
 
-    # ------------------------------------------------------------ painéis temáticos
+    # painéis temáticos
     # Os quatro painéis e os cartões de KPI. N1 e N3 (no N2, a UF do diretor, sem k). O N1 só tem os filtros
     # classe e ano. Toda consulta passa pela matriz e fica na trilha; no N1, todo número é agregado e
     # passa pelo k com complementar, lendo o mesmo cubo protegido do panorama.
@@ -685,7 +685,7 @@ class ServicoAcervo:
 
     def painel_classe(self, usuario: Usuario, nivel: int, ano: int | None = None,
                       classe: str | None = None) -> PainelClasse:
-        """Estoque ativo por classe no fim de `ano`, com a quantidade na unidade da classe e o envelhecimento
+        """Estoque ativo por classe no fim de ano, com a quantidade na unidade da classe e o envelhecimento
         (KPI-04) em faixas. O total de cada classe segue o cubo; a complementar cai nas faixas."""
         ctx = self._abrir_painel(usuario, nivel, "PAINEL_CLASSE", ano, classe)
         painel = self._dados_classe(ctx)
@@ -859,7 +859,7 @@ class ServicoAcervo:
         taxa = analise.taxa_anual_encerramento(fluxos, anos, ctx.hoje, ctx.classe)
         return PainelEncerramento(ctx.nivel, ctx.escopo, ctx.classe, corte, curvas, tuple(taxa), not ctx.k, ctx.k)
 
-    # ------------------------------------------------------------ painel do N1
+    # painel do N1
     def painel_n1(self, usuario: Usuario, nivel: int, ano: int | None = None, classe: str | None = None) -> PainelN1:
         """Indicadores com variação anual, regiões, classes, atividades de origem e motivos da permanência no
         recorte (classe e ano). No N1 tudo passa pelo k=3 com complementar: o que sai do cubo lê o
@@ -1035,7 +1035,7 @@ class ServicoAcervo:
         return tuple(lista)
 
 
-    # ------------------------------------------------------------ ficha, documentos e custódias (N2 e N3)
+    # ficha, documentos e custódias
     @staticmethod
     def _dono_do_painel(painel: Painel, usuario: Usuario) -> None:
         if painel.usuario_id != usuario.id:
@@ -1050,7 +1050,7 @@ class ServicoAcervo:
         return p
 
     def responsaveis_da_pendencia(self, painel: Painel, usuario: Usuario, codigo: str) -> list:
-        """A cadeia de responsabilidade de uma pendência, filtrada NA CONSULTA pelo nível (RF-21): o N2 não
+        """A cadeia de responsabilidade de uma pendência, filtrada NA CONSULTA pelo nível: o N2 não
         recebe pessoa física (nivel_minimo = 3)."""
         self._dono_do_painel(painel, usuario)
         self._autorizar(usuario, painel.nivel, Operacao.VISUALIZAR, codigo=codigo)
@@ -1083,15 +1083,15 @@ class ServicoAcervo:
         html = docs.html_do_documento(campos, render.hash_documento(campos), p)
         imagem, h_doc, h_consulta, marca = render.renderizar(html, campos, usuario.id, usuario.matricula, momento,
                                                               self.chave, self.p_marca, self.rasterizar_documento)
-        # SEM REGISTRO, O DOCUMENTO NÃO É ENTREGUE (S-04: tipo, número e hash da leitura)
+        # sem registro na trilha, o documento não é entregue (S-04: tipo, número e hash da leitura)
         self.trilha.registrar("CONSULTA", "CONCEDIDO", "ABERTURA_DOCUMENTO", nivel_solicitado=painel.nivel.value,
                               usuario_id=usuario.id,
                               detalhe=f"DOC {doc.tipo} {doc.numero}; {codigo}; SHA256 {h_consulta[:16]}"[:DETALHE_MAX])
         return EntregaDocumento(doc, imagem, h_doc, h_consulta, marca, momento)
 
     def custo_por_responsavel(self, painel: Painel, usuario: Usuario) -> list:
-        """Custo do passivo ativo e cobrável por responsável nomeado (KPI-05 por responsável). Só o N3 (matriz,
-        ); a consulta fica na trilha. Não há exportação: a lista só é vista."""
+        """Custo do passivo ativo e cobrável por responsável nomeado (KPI-05 por responsável). Só o N3, pela matriz;
+        a consulta fica na trilha. Não há exportação: a lista só é vista."""
         if painel.usuario_id != usuario.id:
             raise ErroAcervo("O painel é pessoal: só quem o abriu consulta os detalhes.")
         self._autorizar(usuario, painel.nivel, Operacao.SOMAR_POR_RESPONSAVEL, codigo="CUSTO_RESPONSAVEL")
@@ -1134,7 +1134,7 @@ class ServicoAcervo:
             raise ErroAcervo("Instalações de custódia não fazem parte deste acesso.")
 
     def custodias(self, painel: Painel, usuario: Usuario, ano: int | None = None) -> list[tuple]:
-        """[(Custodia, ocupação no fim de `ano`)]: só para o N3 (localização de custódia é SECRETA)."""
+        """[(Custodia, ocupação no fim de ano)]: só para o N3 (localização de custódia é SECRETA)."""
         from ecosec.acervo import sinteticos
         self._autorizar_custodia(painel, usuario)
         ano = ano or painel.hoje.year
@@ -1142,8 +1142,8 @@ class ServicoAcervo:
 
     def pendencias_da_custodia(self, painel: Painel, usuario: Usuario, nome: str | None,
                                ano: int | None = None) -> list:
-        """Pendências guardadas numa custódia (`nome`) ou in situ (`nome` = None), ativas ou já recolhidas
-        até o fim de `ano`."""
+        """Pendências guardadas numa custódia (nome) ou in situ (nome = None), ativas ou já recolhidas
+        até o fim de ano."""
         from ecosec.acervo import sinteticos
         self._autorizar_custodia(painel, usuario)
         corte = min(date(ano or painel.hoje.year, 12, 31), painel.hoje)
@@ -1155,7 +1155,7 @@ class ServicoAcervo:
                 escolhidas.append(p)
         return escolhidas
 
-    # ------------------------------------------------------------ exportação
+    # exportação
     def exportar_resumo(self, resumo: ResumoAgregado, usuario: Usuario, agrupamento: str, destino: Path, *,
                         risco: str = "BAIXO", verificado_em: datetime | None = None) -> str:
         """CSV ou XLSX (pela extensão) de uma tabela do resumo."""
@@ -1170,7 +1170,7 @@ class ServicoAcervo:
 
     def exportar_planilha(self, painel: Painel, usuario: Usuario, codigos, destino: Path, filtros: str = "", *,
                           risco: str = "BAIXO", verificado_em: datetime | None = None) -> str:
-        """Grava CSV ou XLSX (pela extensão) das pendências `codigos` do painel. Devolve o SHA-256."""
+        """Grava CSV ou XLSX (pela extensão) das pendências codigos do painel. Devolve o SHA-256."""
         if painel.usuario_id != usuario.id:
             raise ErroAcervo("A exportação é pessoal: só quem abriu o painel pode exportá-lo.")
         self._autorizar(usuario, painel.nivel, Operacao.EXPORTAR_REGISTROS, risco=risco, verificado_em=verificado_em,
@@ -1242,7 +1242,7 @@ class ServicoAcervo:
         destino.write_bytes(conteudo)
         return resumo
 
-    # ------------------------------------------------------------ auditoria
+    # auditoria
     def identificar_marca(self, imagem: np.ndarray) -> Marca | None:
         """De quem veio uma cópia vazada? None = sem marca legível (nunca um palpite).
 

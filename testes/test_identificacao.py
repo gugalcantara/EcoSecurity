@@ -1,6 +1,6 @@
 """Identificação 1:N: o sistema diz quem é, sem conceder nada.
 
-Serviço próprio (`app.identificacao`), e não a sessão do N1: aquela decide ACESSO (nível, consentimento,
+Serviço próprio (app.identificacao), e não a sessão do N1: aquela decide ACESSO (nível, consentimento,
 contenção) e grava AUTENTICACAO na trilha. Aqui só se identifica, e cada identificação vai para a trilha como
 IDENTIFICACAO / REGISTRADO: só o ADMINISTRADOR identifica, numa seção do painel de Administração
 (já aberto pelo rosto e pelo celular); não há mais item no menu nem step-up do N3.
@@ -40,7 +40,7 @@ class Relogio:
 
 @pytest.fixture
 def app(tmp_path):
-    """O app da fixture `janela` de test_interface, sem a janela."""
+    """O app da fixture janela de test_interface, sem a janela."""
     a = montar(caminho_env=tmp_path / ".env", modo="memoria")
     a.administracao.custo = a.cadastro.custo = a.autenticacao.p.custo_bcrypt = 4
     a.cadastro.frames_por_sessao = 3
@@ -71,7 +71,7 @@ def _alimentar(sessao, relogio, q, n, passo=0.1):
     return andamento
 
 
-# ================================================================ serviço
+# serviço
 def test_identificacao_1n_identifica_usuario_cadastrado(app):
     bia, _, rafael = _tres_cadastros(app)
     relogio = Relogio()
@@ -150,7 +150,7 @@ def test_identificacao_1n_recusa_desconhecido(app, caso):
         assert ev.detalhe == "OPERADOR: RAFAEL DUARTE"
 
 
-# ================================================================ seção do painel (só o administrador)
+# seção do painel
 def identificacao_no_menu(janela) -> bool:
     return "paginaIdentificacao" in janela.navigationInterface.panel.items
 
@@ -288,7 +288,7 @@ def test_identificacao_nao_concede_acesso(janela):
     assert not any(isinstance(getattr(a, f.name), IdentidadeComprovada) for f in dataclasses.fields(a))
 
 
-# ================================================================ arquitetura
+# arquitetura
 def test_identificacao_so_fala_com_o_servico():
     pagina = RAIZ / "interface" / "pagina_identificacao.py"
     assert pagina.exists(), "falta a página de identificação (ecosec/interface/pagina_identificacao.py)"

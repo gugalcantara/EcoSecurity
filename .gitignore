@@ -1,16 +1,8 @@
-# =============================================================================
-# EcoSecurity: o que NUNCA entra no controle de versão.
-# Este arquivo foi criado ANTES de qualquer código: um rosto que entra no
-# histórico do git não sai mais (é dado biométrico, LGPD art. 5º, II).
-# =============================================================================
-
-# --- Segredos ----------------------------------------------------------------
+# Segredos
 .env
 *.key
 
-# --- Dado biométrico ----------------------------------------------------------
-# imagens faciais, modelos treinados (contêm os histogramas das faces) e
-# qualquer captura feita durante o desenvolvimento ou os experimentos
+# Dado biométrico: imagens faciais, modelos treinados e capturas (LGPD art. 5º, II)
 dados_faciais/
 modelo/
 *.yml
@@ -18,15 +10,14 @@ modelo/
 *.yml.gz
 capturas/
 
-# --- Saídas geradas -----------------------------------------------------------
+# Saídas geradas
 resultados/
 logs/
-# capturas de tela e anotações de trabalho: ficam fora do repositório
-scratchpad/
+ancoras.txt
 *.sql.dump
 *.dump
 
-# --- Python -------------------------------------------------------------------
+# Python
 .venv/
 __pycache__/
 *.py[cod]
@@ -34,11 +25,11 @@ __pycache__/
 build/
 dist/
 
-# --- Editores e sistema -------------------------------------------------------
+# Editores e sistema
 .vscode/
 .idea/
 Thumbs.db
 desktop.ini
-ancoras.txt
-# documentação de trabalho: fica só no computador de cada um
+
+# Documentação de trabalho, mantida só localmente
 docs/

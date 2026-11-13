@@ -46,7 +46,7 @@ FATOR_ZOOM_TECLADO = 1.6                     # o mesmo dos botões + e − do pa
 ZOOM_MINIMO, ZOOM_MAXIMO = 0.8, 400.0        # do país inteiro (com folga) até ~1 km na tela; o passo para no limite
 LIMIAR_CLIQUE_PX = 4                         # Entre apertar e soltar, até aqui é clique; além, arrasto
 BARRA_ESCALA_MAX_PX = 140
-# camada -> (z, opacidade padrão); z maior = desenhada por cima. A ordem pode mudar (`definir_ordem`).
+# camada -> (z, opacidade padrão); z maior = desenhada por cima. A ordem pode mudar (definir_ordem).
 CAMADAS = {"ufs": (1, 1.0), "municipios": (2, 0.7), "limites": (3, 1.0), "densidade": (4, 0.55),
            "pendencias": (10, 0.9), "custodias": (20, 1.0)}
 # nomes sem ambiguidade: "municipios" é o coroplético (pendências por município); "limites", o contorno
@@ -67,18 +67,18 @@ def projetar(lon: float, lat: float) -> QPointF:
 
 
 def desprojetar(ponto: QPointF) -> tuple[float, float]:
-    """(lon, lat) de um ponto da cena (inverso de `projetar`)."""
+    """(lon, lat) de um ponto da cena (inverso de projetar)."""
     return ponto.x() / (K * COS_LAT), -ponto.y() / K
 
 
 def km_por_pixel(escala_cena: float, lat: float) -> float:
-    """Distância LESTE-OESTE representada por um pixel na latitude `lat`: um grau de longitude mede
-    KM_POR_GRAU · cos(lat), e um grau ocupa K · COS_LAT unidades de cena (projeção) × `escala_cena` pixels."""
+    """Distância LESTE-OESTE representada por um pixel na latitude lat: um grau de longitude mede
+    KM_POR_GRAU · cos(lat), e um grau ocupa K · COS_LAT unidades de cena (projeção) × escala_cena pixels."""
     return KM_POR_GRAU * cos(radians(lat)) / (K * COS_LAT * escala_cena)
 
 
 def distancia_redonda(km_max: float) -> float:
-    """O maior valor 1, 2 ou 5 × 10ⁿ km que não passa de `km_max`."""
+    """O maior valor 1, 2 ou 5 × 10ⁿ km que não passa de km_max."""
     if km_max <= 0:
         return 0.0
     potencia = 10 ** floor(log10(km_max))
@@ -246,7 +246,7 @@ class _Ponto(QGraphicsEllipseItem):
             self.setScale(1.0)
 
     def ativar(self):
-        """Abre a ficha: o mesmo caminho do clique (o sinal `pendencia_escolhida` do mapa)."""
+        """Abre a ficha: o mesmo caminho do clique (o sinal pendencia_escolhida do mapa)."""
         self._ao_clicar(self.pendencia)
 
     def hoverEnterEvent(self, evento):
@@ -462,7 +462,7 @@ class MapaVetorial(QGraphicsView):
         self._densidade.setInterval(200)
         self._densidade.timeout.connect(self._recalcular_densidade)
 
-    # ------------------------------------------------------------ montagem
+    # montagem
     def _nova_cena(self):
         self.soltar_foco()
         self.cena.clear()
@@ -501,8 +501,8 @@ class MapaVetorial(QGraphicsView):
 
     def montar(self, pais, divisas_uf: dict, municipios: dict, pendencias, faixa_de, custodias=(),
                rotulos_atividade: dict | None = None):
-        """`municipios`: {uf: [Municipio]} (sinteticos.geografia); `faixa_de(p)` -> BAIXO..CRITICO;
-        `custodias`: Custodia (com .tipo) ou tuplas antigas (nome, lon, lat, ocupação)."""
+        """municipios: {uf: [Municipio]} (sinteticos.geografia); `faixa_de(p)` -> BAIXO..CRITICO;
+        custodias: Custodia (com .tipo) ou tuplas antigas (nome, lon, lat, ocupação)."""
         self._nova_cena()
         self.legenda_dinamica = True
         self.setAccessibleName("Mapa dos casos")
@@ -565,7 +565,7 @@ class MapaVetorial(QGraphicsView):
         self.agregacao_mudou.emit(self._agregar)
 
     def coropletico(self, pais, divisas_uf: dict, cores: dict, dicas: dict):
-        """N1: só os polígonos das UFs pintados (cores {uf: QColor}); nenhum ponto na cena (RF-20)."""
+        """N1: só os polígonos das UFs pintados (cores {uf: QColor}); nenhum ponto na cena."""
         self._nova_cena()
         self._contorno(pais)
         for uf, aneis in divisas_uf.items():
@@ -596,7 +596,7 @@ class MapaVetorial(QGraphicsView):
         for uf, regiao in self.ufs.items():
             regiao.setOpacity(1.0 if not ufs or uf in ufs else 0.25)
 
-    # ------------------------------------------------------------ camadas
+    # camadas
     def definir_opacidade(self, chave: str, valor: float):
         if chave in self.camadas:
             self.camadas[chave].setOpacity(max(0.0, min(1.0, valor)))
@@ -649,7 +649,7 @@ class MapaVetorial(QGraphicsView):
         return ordem
 
     def _atualizar_derivadas(self):
-        """Camadas derivadas (/): dicas das UFs e dos municípios e coroplético municipal contam só os
+        """Camadas derivadas: dicas das UFs e dos municípios e coroplético municipal contam só os
         pontos que entram nas contagens (ativos no ano do mapa e no recorte do filtro)."""
         if not self._derivadas:                       # coroplético do N1: as dicas vêm de fora (pintar_ufs)
             return
@@ -714,7 +714,7 @@ class MapaVetorial(QGraphicsView):
                 icone.setToolTip(f"{SIMBOLO[tipo]} {nome}\ncustódia {tipo.lower()} · ocupação {ocupacoes[nome]:.0%}")
 
     def definir_ano(self, corte, so_ativas: bool = True) -> int:
-        """Linha do tempo: só as pendências ATIVAS na data `corte` (None = todas), dentro do recorte do filtro.
+        """Linha do tempo: só as pendências ATIVAS na data corte (None = todas), dentro do recorte do filtro.
         Com `so_ativas=False` (situação ENCERRADAS ou TODAS no filtro), basta a pendência existir no corte: o
         recorte decide sozinho, e as encerradas no corte aparecem vazadas. Devolve quantas entram nas
         contagens."""
@@ -732,7 +732,7 @@ class MapaVetorial(QGraphicsView):
                 ponto.definir_vazado(p.data_encerramento is not None if corte is None else not p.ativa(corte))
         return self._reaplicar()
 
-    # ------------------------------------------------------------ navegação
+    # navegação
     @property
     def aumento(self) -> float:
         return self.transform().m11() / self._escala_pais if self._escala_pais else 1.0
@@ -769,7 +769,7 @@ class MapaVetorial(QGraphicsView):
         self._enquadrar(r)
 
     def aproximar(self, fator: float = 1.5):
-        """Zoom de `fator`; um passo que passaria do limite para exatamente nele, para o mapa não parecer
+        """Zoom de fator; um passo que passaria do limite para exatamente nele, para o mapa não parecer
         emperrado. Já além do limite (um enquadramento), não anda mais para fora."""
         atual = self.aumento
         alvo = atual * fator
@@ -856,7 +856,7 @@ class MapaVetorial(QGraphicsView):
         if emitir:
             self.zoom_mudou.emit(self.aumento)
 
-    # ------------------------------------------------------------ teclado e acessibilidade
+    # teclado e acessibilidade
     def event(self, evento):
         if (evento.type() == QEvent.Type.KeyPress and evento.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab)
                 and not evento.modifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier)):
@@ -951,12 +951,12 @@ class MapaVetorial(QGraphicsView):
         except Exception:  # noqa: BLE001, sem leitor de tela ativo, nada a avisar
             pass
 
-    # ------------------------------------------------------------ filtros
+    # filtros
     def aplicar_recorte(self, dentro: frozenset[str] | None, modo: str = "esconder") -> int:
-        """Recorte do filtro: `dentro` = códigos das pendências que passam (None = todas).
+        """Recorte do filtro: dentro = códigos das pendências que passam (None = todas).
 
         Um ponto conta (legenda, dicas, coroplético, densidade, clique) se e somente se estiver ativo no ano do
-        mapa (`definir_ano`) E no recorte. Modo "esconder" (padrão): os de fora somem. Modo "atenuar":
+        mapa (definir_ano) E no recorte. Modo "esconder" (padrão): os de fora somem. Modo "atenuar":
         os de fora ativos no ano ficam visíveis a 15% de opacidade, por baixo, sem clique e sem contar.
         Devolve quantos pontos contam; emite `recorte_mudou(dentro, fora)`."""
         if modo not in MODOS_RECORTE:
@@ -999,8 +999,8 @@ class MapaVetorial(QGraphicsView):
 
     @property
     def contagens(self) -> dict[str, int]:
-        """Para a barra de filtros. Entre os ativos no ano: `dentro` (no recorte), `fora` (fora dele) e
-        `total` = dentro + fora; `na_vista` = pontos do recorte cujo símbolo cruza a vista (como na legenda)."""
+        """Para a barra de filtros. Entre os ativos no ano: dentro (no recorte), fora (fora dele) e
+        total = dentro + fora; na_vista = pontos do recorte cujo símbolo cruza a vista (como na legenda)."""
         dentro, fora = self._dentro_fora()
         return {"dentro": dentro, "fora": fora, "total": dentro + fora, "na_vista": self._na_vista}
 
@@ -1016,7 +1016,7 @@ class MapaVetorial(QGraphicsView):
         return self.ufs[uf].toolTip() if uf in self.ufs else ""
 
     def filtrar(self, faixas=None, ufs=None, atividade: str | None = None) -> int:
-        """Filtro antigo (faixa, UF, atividade), agora por cima de `aplicar_recorte`. Devolve quantos contam."""
+        """Filtro antigo (faixa, UF, atividade), agora por cima de aplicar_recorte. Devolve quantos contam."""
         if not faixas and not ufs and not atividade:
             return self.aplicar_recorte(None)
         dentro = frozenset(
@@ -1025,7 +1025,7 @@ class MapaVetorial(QGraphicsView):
             and (not atividade or ponto.pendencia.atividade == atividade))
         return self.aplicar_recorte(dentro)
 
-    # ------------------------------------------------------------ agregação por zoom e temática
+    # agregação por zoom e temática
     @property
     def agregacao(self) -> bool:
         return self._agregar
@@ -1156,7 +1156,7 @@ class MapaVetorial(QGraphicsView):
         return {"agregados": agregados, "soltos": soltos, "desenhados": agregados + soltos,
                 "pontos": len(self.pontos_visiveis()), "soma": em_agregados + soltos}
 
-    # ------------------------------------------------------------ densidade (KDE)
+    # densidade (KDE)
     def _recalcular_densidade(self):
         """KDE gaussiana ponderada pela pontuação de criticidade, numa grade do tamanho da vista (metade da
         resolução). O raio do kernel é fixo em pixels de tela: acompanha o zoom. Rampa azul."""
@@ -1199,7 +1199,7 @@ class MapaVetorial(QGraphicsView):
         self._escala_densidade = self.transform().m11()
         self._centro_densidade = vista.center()
 
-    # ------------------------------------------------------------ legenda dinâmica
+    # legenda dinâmica
     def _recalcular_legenda(self):
         if not self.legenda_dinamica:
             self._entradas = []
@@ -1296,7 +1296,7 @@ class MapaVetorial(QGraphicsView):
         return [Entrada("ufs", "DIVISA DE UF", "Divisa de UF", "", sb.Simbolo("linha", sb.COR_DIVISA_UF, espessura=1.4))]
 
     def _contar_na_vista(self) -> Counter:
-        """Itens da legenda cujo símbolo cruza a vista (/). Pontos e custódias ignoram o zoom
+        """Itens da legenda cujo símbolo cruza a vista. Pontos e custódias ignoram o zoom
         (ItemIgnoresTransformations): sem a transformação do dispositivo, o retângulo deles seria tomado em
         unidades de cena e, em zoom alto, pontos fora da tela entrariam na conta."""
         vista = self.mapToScene(self.viewport().rect()).boundingRect()
@@ -1331,10 +1331,10 @@ class MapaVetorial(QGraphicsView):
 
     @property
     def linhas_legenda(self) -> list[tuple[str, str]]:
-        """Compatível com a versão anterior: (chave, valor) de cada entrada (ex.: ("● CRITICO", "120"))."""
+        """(chave, valor) de cada entrada (ex.: ("● CRITICO", "120"))."""
         return [(e.chave, e.valor) for e in self._entradas]
 
-    # ------------------------------------------------------------ barra de escala
+    # barra de escala
     def barra_escala(self) -> tuple[float, float, float]:
         """(km, pixels, latitude do centro) da barra: o maior comprimento redondo que cabe em
         BARRA_ESCALA_MAX_PX (ou 1/4 da largura), medido na latitude do centro da vista."""
@@ -1375,7 +1375,7 @@ class MapaVetorial(QGraphicsView):
         painter.drawText(QRectF(caixa.left(), caixa.top() + 3, caixa.width(), 14), Qt.AlignmentFlag.AlignHCenter,
                          texto)
 
-    # ------------------------------------------------------------ marca d'água, escala e foco (na tela)
+    # marca d'água, escala e foco (na tela)
     def drawForeground(self, painter: QPainter, retangulo: QRectF):
         painter.save()
         painter.resetTransform()                      # em pixels da tela, não da cena

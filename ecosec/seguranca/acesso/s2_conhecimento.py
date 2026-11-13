@@ -1,12 +1,12 @@
 """S2 Conhecimento: "Sabe o segredo?"
 
-Por que bcrypt e não SHA-256: SHA-256 é rápido de propósito (bilhões por
+bcrypt, e não SHA-256: o SHA-256 é rápido (bilhões por
 segundo numa GPU), o que serve à integridade da trilha (S10), mas é um
 desastre para senha: um vazamento seria quebrado por força bruta em horas.
-O bcrypt é lento de propósito (custo 12 ≈ 0,25 s) e embute um sal aleatório:
+O bcrypt é lento (custo 12 ≈ 0,25 s) e embute um sal aleatório:
 duas pessoas com a mesma senha têm hashes diferentes.
 
-Três cuidados além do óbvio:
+Cuidados da verificação:
 1. Tempo constante para matrícula inexistente. Sem isso, "matrícula não
    existe" responderia em 1 ms e "senha errada" em 250 ms: o cronômetro
    revelaria quais matrículas existem. Comparamos contra um hash de referência.

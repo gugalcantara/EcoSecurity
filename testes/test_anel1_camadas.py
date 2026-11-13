@@ -24,7 +24,7 @@ def usuario(id_=1, nivel=Nivel.N3, ativo=True, **extra):
                    senha_hash="$2b$x", uf=uf, ativo=ativo, id=id_)
 
 
-# ================================================================ S1 Contenção
+# S1 Contenção
 PARAMS_S1 = s1_contencao.ParametrosContencao(tentativas_maximas=3, bloqueio=timedelta(minutes=15))
 
 
@@ -63,7 +63,7 @@ def test_s1_sem_registro_esta_livre():
     assert not s1_contencao.esta_bloqueado(None, AGORA)
 
 
-# ================================================================ S2 Conhecimento
+# S2 Conhecimento
 def test_s2_hash_confere_e_nao_e_a_senha():
     h = s2_conhecimento.gerar_hash("Senha#Forte2026", CUSTO_TESTE)
     assert "Senha#Forte2026" not in h and h.startswith("$2b$04$")
@@ -153,7 +153,7 @@ def test_s2_avaliar(existe, confere, forte, nivel, esperado):
     assert s2_conhecimento.avaliar(nivel, existe, confere, forte).motivo is esperado
 
 
-# ================================================================ S3 Qualidade
+# S3 Qualidade
 @pytest.mark.parametrize("faces, qualidade, esperado", [
     (None, True, Motivo.FACE_AUSENTE),
     (0, True, Motivo.FACE_AUSENTE),
@@ -166,7 +166,7 @@ def test_s3_avaliar(faces, qualidade, esperado):
     assert s3_qualidade.avaliar(faces, qualidade).motivo is esperado
 
 
-# ================================================================ S4 Inerência
+# S4 Inerência
 LIMIARES = {Nivel.N1: 70.0, Nivel.N2: 60.0, Nivel.N3: 50.0}
 
 
@@ -211,7 +211,7 @@ def test_s4_limiar_ausente_nega():
     assert not s4_inerencia.avaliar(Nivel.N1, 1.0, 7, {}).aprovado
 
 
-# ================================================================ S5 Habilitação
+# S5 Habilitação
 @pytest.mark.parametrize("u, consentimento, solicitado, esperado", [
     (None, True, Nivel.N1, Motivo.ERRO_INTERNO),
     (usuario(ativo=False), True, Nivel.N1, Motivo.USUARIO_INATIVO),
@@ -227,7 +227,7 @@ def test_s5_avaliar(u, consentimento, solicitado, esperado):
     assert veredito.camada is C.S5_HABILITACAO
 
 
-# ================================================================ S6 Vivacidade
+# S6 Vivacidade
 def test_s6_sorteio_respeita_lista_e_quantidade():
     sequencia = s6_vivacidade.sortear(["PISCAR", "MOVER_DIREITA"], 5)
     assert len(sequencia) == 5
@@ -270,7 +270,7 @@ def test_s6_avaliar(confirmada, aprovado):
     assert s6_vivacidade.avaliar(confirmada).aprovado is aprovado
 
 
-# ================================================================ S7 Custódia
+# S7 Custódia
 @pytest.mark.parametrize("segundo, autenticado, segundos, esperado", [
     (None, True, 10, Motivo.SEGUNDA_PESSOA_AUSENTE),
     (usuario(2), False, 10, Motivo.SEGUNDA_PESSOA_AUSENTE),

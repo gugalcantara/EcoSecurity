@@ -5,7 +5,7 @@ O total é sempre por classe: m³ de solo e m³ de rejeito têm a mesma unidade,
 sem significado. Não há conversão entre t e m³ nos totais: não existe um fator único defensável para todos os
 materiais, então cada classe aparece com a sua própria unidade.
 
-Toda soma de quantidade do acervo passa por aqui: relatórios e análises não somam `p.quantidade` por conta
+Toda soma de quantidade do acervo passa por aqui: relatórios e análises não somam p.quantidade por conta
 própria (um teste confere).
 """
 from ecosec.acervo.sinteticos import AREA, CLASSE_I, RADIOATIVO, UNIDADE_DA_CLASSE

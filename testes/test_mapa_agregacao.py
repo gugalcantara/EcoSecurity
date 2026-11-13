@@ -6,7 +6,7 @@ O que se confere:
 - na escala de UF (≥ 3×) nada agregado; recorte e ano refazem os agregados;
 - clique e Enter no agregado aproximam; Tab alcança agregados com nome "Agregado de N pendências, pior risco X";
 - a legenda continua contando pontos (soma = `contagens["na_vista"]`) e ganha a entrada AGREGADO;
-- trocar o atributo troca a legenda e o símbolo (o mesmo objeto `Simbolo`, e a mesma cor desenhada);
+- trocar o atributo troca a legenda e o símbolo (o mesmo objeto Simbolo, e a mesma cor desenhada);
 - cores novas com contraste ≥ 3:1 sobre #EEF3EE; classe distinguível pela forma, fase pelo preenchimento;
 - N1 sem pontos nem agregados.
 """
@@ -41,7 +41,7 @@ def _interativo(tela, qt, usuario=CAIO_N3, nivel=Nivel.N3):
     tela.mostrar_modo("painel")
     pa = tela.painel_analitico
     pa.mostrar("mapa")
-    # O padrão do filtro passou a Todos; estes testes medem o mapa nas ativas
+    # o padrão do filtro é Todos; estes testes medem o mapa nas ativas
     pa.estado.definir(situacao="ATIVAS")
     qt.processEvents()
     return pa.mapa
@@ -92,7 +92,7 @@ def _sem_sobreposicao(m):
             assert hypot(a.x() - b.x(), a.y() - b.y()) >= ra + rb - 1e-6
 
 
-# ================================================================ algoritmo puro
+# algoritmo puro
 def test_agrupar_puro_soma_sementes_afastadas_e_determinismo():
     import random
 
@@ -114,7 +114,7 @@ def test_agrupar_puro_soma_sementes_afastadas_e_determinismo():
     assert agrupar([], 30.0) == []
 
 
-# ================================================================ critério do país e soma
+# critério do país e soma
 def test_pais_zoom_1_itens_desenhados_menos_de_25_por_cento(mi):
     m = mi.mapa
     assert m.agregacao and mi.caixa_agrupar.isChecked()                          # ligado por padrão no N3
@@ -190,7 +190,7 @@ def test_aproximar_numa_uf_desagrega(mi, qt):
     assert not m.agregados and all(pt.isVisible() for pt in m.pontos_visiveis())
 
 
-# ================================================================ recorte e ano
+# recorte e ano
 def test_recorte_e_ano_recalculam_agregados(mi):
     from ecosec.acervo import fase
     m = mi.mapa
@@ -237,7 +237,7 @@ def test_n2_ligado_por_padrao(tela, qt):
     assert r["pontos"] == len(m.pontos_visiveis()) and all(pt.pendencia.uf == "SP" for pt in m.pontos)
 
 
-# ================================================================ clique, Enter, Tab e dica
+# clique, Enter, Tab e dica
 def test_clique_no_agregado_aproxima(mi, qt):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
@@ -295,7 +295,7 @@ def test_tab_alcanca_agregado_nome_acessivel_dica_e_enter_aproxima(mi, qt):
     assert ag not in m.agregados
 
 
-# ================================================================ legenda
+# legenda
 def test_legenda_conta_pontos_e_tem_entrada_agregado(mi):
     from ecosec.interface.componentes import simbologia as sb
     m = mi.mapa
@@ -314,7 +314,7 @@ def test_legenda_conta_pontos_e_tem_entrada_agregado(mi):
         assert soma > na_vista                                                   # conta pendências, não agregados
 
 
-# ================================================================ temática
+# temática
 def test_trocar_atributo_troca_legenda_e_simbolo(mi, qt):
     from ecosec.acervo import fase
     from ecosec.interface.componentes import simbologia as sb

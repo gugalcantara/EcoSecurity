@@ -1,9 +1,9 @@
 """Supressão k=3 do N1 sem vazamento entre filtros e tabelas.
 
 panorama do N1: a célula (UF, classe) escondida na visão "todas as classes" não pode sair na visão
-           filtrada pela classe, nem por subtração (antes: 38 casos de 2008 a 2026). Um cubo por corte.
+           filtrada pela classe, nem por subtração. Um cubo por corte.
 /  resumo do N1: a quantidade de uma célula (grupo, classe) pequena e as subcontagens pequenas (ou com
-           complemento pequeno) dentro de linhas visíveis saem SUPRIMIDO (2026-10-24).
+           complemento pequeno) dentro de linhas visíveis saem SUPRIMIDO.
 /  o k só vale no N1: o panorama do N3 sai inteiro.
 """
 from dataclasses import replace
@@ -48,7 +48,7 @@ def _celula_escondida_em_todas(todas, uf, classe) -> bool:
     return todas.pressao[uf].suprimida or todas.por_classe[uf].get(classe, 0) is None
 
 
-# ================================================================ o panorama do N1
+# o panorama do N1
 def test_nenhuma_celula_escondida_em_todas_sai_na_vista_da_classe(vistas):
     """Busca de vazamento, para todo ano e toda classe: nem revelada pelo
     filtro, nem deduzida por subtração (total da UF − classes visíveis − reveladas)."""
@@ -127,7 +127,7 @@ def test_panorama_do_n3_nao_suprime_nem_com_a_classe_radioativo(vistas):
     assert {uf for uf, item in radioativo.pressao.items() if 0 < item.ativas < K} >= {"AC", "AM", "CE", "PB"}
 
 
-# ================================================================ o resumo do N1
+# o resumo do N1
 def _celulas(titulos, linhas, coluna):
     i = list(titulos).index(coluna)
     return {tuple(l[:list(titulos).index("PENDENCIAS")]): l[i] for l in linhas}
@@ -214,7 +214,7 @@ def test_resumo_do_n3_continua_sem_suprimido(acervo):
     assert all(analise.SUPRIMIDO not in l for _, linhas in resumo.tabelas.values() for l in linhas)
 
 
-# ================================================================ a regra
+# a regra
 def test_suprimir_subcontagem_esconde_parte_e_complemento_pequenos_com_complementar():
     totais = {("A",): 10, ("B",): 10, ("C",): 10, ("D",): 10}
     parte = {("A",): 2, ("B",): 5, ("C",): 6, ("D",): 9}          # A: v pequeno; D: n − v = 1
@@ -234,7 +234,7 @@ def test_zero_escondido_sozinho_tambem_ganha_complementar():
     assert ("B",) in escondidas
 
 
-# ================================================================ fluxos anuais da série no N1
+# fluxos anuais da série no N1
 @pytest.mark.parametrize("classe", [None, *sinteticos.UNIDADE_DA_CLASSE])
 def test_fluxo_anual_do_n1_nao_mostra_entrada_ou_saida_pequena(acervo, classe):
     serie = acervo.panorama(ANA_N1, 1, classe=classe).serie

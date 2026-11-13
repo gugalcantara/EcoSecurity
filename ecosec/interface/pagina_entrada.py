@@ -12,11 +12,10 @@ vídeo, falha segura); TelaLogin só rearruma o layout.
 O nome não substitui a matrícula (não é único e é público; ver a ajuda
 "Esqueci minha matrícula" na própria tela).
 
-Acesso de emergência: uma porta discreta, que
-aparece no resultado só quando um administrador acertou matrícula e senha e o
-rosto ou a câmera falhou, e só se o quórum for possível. Ela abre uma tela sem
-instruções que pede os códigos dos administradores. A segurança está nos
-códigos, não em esconder a porta (princípio de Kerckhoffs).
+Acesso de emergência: aparece no resultado só quando um administrador acertou
+matrícula e senha e o rosto ou a câmera falhou, e só se o quórum for possível.
+A tela, sem instruções, pede os códigos dos administradores. A segurança depende
+dos códigos, mesmo que a opção seja conhecida (princípio de Kerckhoffs).
 """
 from pathlib import Path
 

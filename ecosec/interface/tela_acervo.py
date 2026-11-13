@@ -101,7 +101,7 @@ class TelaAcervo(QWidget):
         self._relogio.timeout.connect(self._tique)
         self._montar()
 
-    # ============================================================ layout
+    # layout
     def _montar(self):
         raiz = QVBoxLayout(self)
         raiz.setContentsMargins(24, 16, 24, 16)
@@ -223,7 +223,7 @@ class TelaAcervo(QWidget):
         corpo.addWidget(direita)
         raiz.addLayout(corpo, 1)
 
-    # ============================================================ sessão
+    # sessão
     def iniciar(self, usuario, nivel: Nivel):
         self.usuario, self.nivel, self.entrega = usuario, Nivel(nivel), None
         cor = COR_NIVEL[self.nivel]
@@ -339,7 +339,7 @@ class TelaAcervo(QWidget):
                      position=InfoBarPosition.TOP, parent=self.window())
         self.encerrar()
 
-    # ============================================================ relatórios
+    # relatórios
     def abrir(self, codigo: str):
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:

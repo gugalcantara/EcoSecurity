@@ -1,6 +1,6 @@
 """Gráficos do painel do N1, desenhados à mão com QPainter.
 
-Por que não QtCharts aqui: o tema do QtCharts põe fundo cinza, borda e legenda em caixa, e a faixa de rótulos e
+Sem QtCharts: o tema do QtCharts põe fundo cinza, borda e legenda em caixa, e a faixa de rótulos e
 marcas que este desenho usa (marcas finas, fim de barra arredondado, vão de 2 px entre segmentos,
 grade em linha fina, rótulo direto e seletivo, texto sempre na cor de texto e nunca na cor da série) dá mais
 trabalho para desligar do que para desenhar. Cada gráfico aqui:
@@ -10,8 +10,8 @@ trabalho para desligar do que para desenhar. Cada gráfico aqui:
   - mostra None (número suprimido pelo k=3 do N1) como "Suprimido", com hachura a 45°, nunca como 0;
   - tem dica em toda marca (o alvo de mouse é maior que a marca) e emite `clicado(valor)` quando a marca filtra
     (classe ou ano, os dois filtros do N1);
-  - tem a tabela equivalente (`tabela()`), que o cartão mostra no lugar do gráfico (acessibilidade);
-  - guarda os textos que desenhou (`textos()`) para os testes conferirem o que está visível.
+  - tem a tabela equivalente (tabela()), que o cartão mostra no lugar do gráfico (acessibilidade);
+  - guarda os textos que desenhou (textos()) para os testes conferirem o que está visível.
 
 Cores: as três classes com os mesmos matizes de identidade do sistema (azul, laranja, vermelho), em passos
 conferidos quanto à separação para daltonismo e ao contraste, no tema claro e no escuro. As duas
@@ -33,7 +33,7 @@ SUPRIMIDO = "Suprimido"
 AREA, CLASSE_I, RADIOATIVO = "AREA CONTAMINADA", "CLASSE I NBR 10004", "REJEITO RADIOATIVO CNEN"
 CLASSES = (AREA, CLASSE_I, RADIOATIVO)                      # ordem fixa das classes em toda tela do N1
 
-# ---------------------------------------------------------------- paleta (separação para daltonismo e contraste conferidos)
+# paleta
 # classes: --pairs all, claro sobre #ffffff e escuro sobre #2b2b2b, todas as verificações aprovadas (o laranja do
 # claro fica abaixo de 3:1: por isso todo gráfico com classe tem rótulo visível e tabela)
 _CLASSE = {False: {AREA: "#2f6fbd", CLASSE_I: "#e8901a", RADIOATIVO: "#c42e4a"},
@@ -109,7 +109,7 @@ def texto_sobre(fundo: QColor) -> QColor:
     return QColor("#1A1A1A") if lum > 0.36 else QColor("#FFFFFF")
 
 
-# ---------------------------------------------------------------- escala e formatos
+# escala e formatos
 def escala_redonda(maximo: float, intervalos: int = 4, inteiro: bool = True) -> tuple[float, float]:
     """(topo, passo): passo 1, 2 ou 5 × 10^k, topo múltiplo do passo e >= máximo."""
     if maximo is None or maximo <= 0:
@@ -151,7 +151,7 @@ def _fonte(px: int, peso=QFont.Weight.Normal) -> QFont:
     return f
 
 
-# ---------------------------------------------------------------- base
+# base
 class GraficoN1(QWidget):
     """Base: alvos de mouse com dica, clique que filtra, textos desenhados e tabela equivalente."""
     clicado = Signal(object)
@@ -268,11 +268,11 @@ class GraficoN1(QWidget):
         return self._sobre == (rect.x(), rect.y())
 
 
-# ---------------------------------------------------------------- barras horizontais (ordenadas, empilhadas)
+# barras horizontais (ordenadas, empilhadas)
 class BarrasN1(GraficoN1):
     """Barras horizontais de uma grandeza, uma linha por categoria, na ordem de quem chama (ordenada pelo valor,
     com as suprimidas no fim em ordem de nome). Um ou mais segmentos por linha (empilhado por classe), com vão de
-    2 px entre eles; rótulo de valor no fim da barra; linhas em `destaque` ficam cheias e as outras atenuadas."""
+    2 px entre eles; rótulo de valor no fim da barra; linhas em destaque ficam cheias e as outras atenuadas."""
     ALTURA_LINHA = 24
     ESPESSURA = 13
 
@@ -287,7 +287,7 @@ class BarrasN1(GraficoN1):
 
     def mostrar(self, linhas: list[dict], legenda=(), maximo: float | None = None, colunas_tabela=(),
                 inteiro: bool = True, formato_eixo=None):
-        """`linhas`: [{chave, rotulo, segmentos: [(nome, valor ou None, cor, clique)], fim: texto no fim, dica,
+        """linhas: [{chave, rotulo, segmentos: [(nome, valor ou None, cor, clique)], fim: texto no fim, dica,
         clique, destaque: bool, tabela: [células]}]. Linha com algum segmento None é desenhada como Suprimido."""
         self.linhas, self.legenda, self.maximo = list(linhas), list(legenda), maximo
         self.colunas_tabela = list(colunas_tabela)
@@ -393,11 +393,11 @@ class BarrasN1(GraficoN1):
             self.alvos = linhas + barras
 
 
-# ---------------------------------------------------------------- halteres (duas medidas no mesmo eixo de %)
+# halteres
 class HalteresN1(GraficoN1):
     """Duas porcentagens por categoria no mesmo eixo de 0 a 100% (as duas definições de fora do prazo): dois pontos
     ligados por um traço. Os valores ficam em duas colunas à direita, alinhadas, com o cabeçalho na cor da medida
-    (rótulo sem colisão, mesmo quando os pontos quase se tocam). Linha `referencia` (o total) em negrito, separada."""
+    (rótulo sem colisão, mesmo quando os pontos quase se tocam). Linha referencia (o total) em negrito, separada."""
     ALTURA_LINHA = 24
 
     def __init__(self, nomes=("Além do prazo legal", "Prazo previsto vencido"), parent=None):
@@ -408,7 +408,7 @@ class HalteresN1(GraficoN1):
         self.base = 0.0
 
     def mostrar(self, linhas: list[dict], maximo: float = 100.0):
-        """`linhas`: [{chave, rotulo, a, b (% ou None), dica_a, dica_b, clique, referencia: bool, destaque}]."""
+        """linhas: [{chave, rotulo, a, b (% ou None), dica_a, dica_b, clique, referencia: bool, destaque}]."""
         self.linhas, self.maximo = list(linhas), maximo
         self.setMinimumHeight(int(26 + 30 + self.ALTURA_LINHA * max(1, len(self.linhas)) + 8))
         self.vazio = "" if self.linhas else "Sem casos no recorte"
@@ -509,7 +509,7 @@ class HalteresN1(GraficoN1):
         self.alvos.sort(key=lambda a: -a[0].width())          # pontos (menores) por último: ganham o mouse
 
 
-# ---------------------------------------------------------------- mapa de calor
+# mapa de calor
 class MapaCalorN1(GraficoN1):
     """Grade linhas × colunas com a cor na rampa de um matiz (mais escuro = mais). Texto dentro da célula em
     branco ou quase preto, pelo contraste. Margens (coluna e linha de total) sem cor, em negrito. None: célula
@@ -527,7 +527,7 @@ class MapaCalorN1(GraficoN1):
 
     def mostrar(self, linhas, colunas, celulas, legenda_escala: str = "", rampa=None, maximo: float | None = None,
                 formato=None):
-        """`maximo`: o valor da cor mais escura (padrão: o maior visível); `formato`: texto do máximo na legenda."""
+        """maximo: o valor da cor mais escura (padrão: o maior visível); formato: texto do máximo na legenda."""
         self.linhas, self.colunas, self.celulas = list(linhas), list(colunas), [list(c) for c in celulas]
         self.legenda_escala, self.maximo, self.formato = legenda_escala, maximo, formato
         if rampa is not None:
@@ -598,7 +598,7 @@ class MapaCalorN1(GraficoN1):
         self.alvos.sort(key=lambda a: -a[0].width() * a[0].height())
 
 
-# ---------------------------------------------------------------- linhas no tempo (e degraus)
+# linhas no tempo (e degraus)
 class LinhasN1(GraficoN1):
     """Uma ou mais séries no mesmo eixo (mesma unidade). Eixo X: anos (inteiros) ou anos desde a identificação
     (degraus). Linha de 2 px, legenda acima (com mais de uma série), rótulo do último valor de cada série no fim
@@ -822,7 +822,7 @@ class LinhasN1(GraficoN1):
         return "\n".join(linhas)
 
 
-# ---------------------------------------------------------------- colunas por ano (taxa anual)
+# colunas por ano (taxa anual)
 class ColunasN1(GraficoN1):
     """Uma coluna por ano, uma grandeza (% ao ano). Rótulo só no ano escolhido, no maior e no menor; o ano corrente
     (parcial) em contorno, com "parcial". None: tracinho cinza no pé e "Suprimido" na dica. Clique escolhe o ano."""
@@ -913,7 +913,7 @@ class ColunasN1(GraficoN1):
         self._texto(p, QRectF(x0, y1 + 18, x1 - x0, 14), "ano", t["mudo"], Qt.AlignmentFlag.AlignHCenter, px=10)
 
 
-# ---------------------------------------------------------------- barras de 100% (composição ordinal)
+# barras de 100% (composição ordinal)
 class Barras100N1(GraficoN1):
     """Uma barra de 100% por linha, com os segmentos de uma escala ordinal (faixas de idade). O rótulo de % entra no
     segmento só quando cabe; as faixas suprimidas de uma linha viram um segmento hachurado "Suprimido" (a soma delas

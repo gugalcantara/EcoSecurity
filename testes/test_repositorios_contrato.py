@@ -1,9 +1,9 @@
 """Testes de contrato dos repositórios.
 
-Escritos contra o contrato, não contra a implementação: a mesma bateria roda
-sobre a memória e sobre o MySQL real (num banco descartável criado pelo
-teste). Se as duas se comportarem diferente em qualquer regra, o teste acusa.
-Sem o MySQL preparado, os casos "mysql" aparecem como pulados, não aprovados.
+A mesma bateria roda sobre a implementação em memória e sobre o MySQL real
+(num banco descartável criado pelo teste): se as duas divergirem em alguma
+regra, o teste acusa. Sem o MySQL preparado, os casos "mysql" aparecem como
+pulados.
 """
 from datetime import datetime, timedelta
 
@@ -31,7 +31,7 @@ def novo(matricula="R7K2M94", nivel=Nivel.N1, **extra):
     return Usuario(matricula=matricula, nome="Ana", nivel=nivel, senha_hash="$2b$x", **extra)
 
 
-# ---------------------------------------------------------------- Usuários
+# Usuários
 def test_adicionar_atribui_id_e_data(repos):
     usuarios, _, _ = repos
     gravado = usuarios.adicionar(novo())
@@ -87,7 +87,7 @@ def test_listar_em_ordem_de_id(repos):
     assert [u.matricula for u in usuarios.listar()] == ["CCC", "AAA", "BBB"]
 
 
-# ---------------------------------------------------------------- Tentativas
+# Tentativas
 def test_tentativas_salvar_e_obter(repos):
     _, tentativas, _ = repos
     assert tentativas.obter("X1") is None
@@ -105,7 +105,7 @@ def test_tentativas_valem_para_matricula_inexistente(repos):
     assert tentativas.obter("NINGUEM").falhas == 1
 
 
-# ---------------------------------------------------------------- Consentimentos
+# Consentimentos
 def _termo(momento=datetime(2026, 10, 6, 10)):
     return Consentimento("Ana", "1.0", "a" * 64, momento)
 
@@ -185,7 +185,7 @@ def test_bloqueadas_lista_so_as_vigentes(repos):
     assert [r.matricula for r in tentativas.bloqueadas(agora)] == ["VIGENTE"]
 
 
-# ---------------------------------------------------------------- Administradores (papel, celular, recuperação)
+# Administradores
 @pytest.fixture(params=["memoria", "mysql"])
 def admins(request):
     if request.param == "memoria":

@@ -1,4 +1,4 @@
-"""Correções da revisão de código (07/10/2026)."""
+"""Casos avulsos: falha interna no acervo, nome de banco inseguro, logotipo e retirada da digital."""
 import pytest
 
 

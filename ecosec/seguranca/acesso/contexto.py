@@ -13,8 +13,8 @@ usa internet nem localização por ip):
   2 sinais  ALTO    + prova de vida, e a sessão fica só para consulta: sem N3 e sem
                     exportação (a matriz de autorização nega), com alerta ao administrador
 
-HORÁRIO NÃO É SINAL, NUNCA (2026-10-19): o dia e a hora
-do acesso não pesam no risco nem restringem nenhum nível. Não há expediente no sistema.
+O horário não é sinal de risco: o dia e a hora do acesso não pesam no risco
+nem restringem nenhum nível, porque não há expediente no sistema.
 
 Função pura: recebe o momento e os fatos, devolve o risco. Quem coleta os
 fatos (estação, falhas) é o serviço de autenticação.
@@ -58,8 +58,8 @@ SEM_RISCO = RiscoContexto(BAIXO, ())
 
 
 def avaliar(momento: datetime, p: ParametrosContexto, estacao_conhecida: bool | None, falhas_recentes: int) -> RiscoContexto:
-    """`estacao_conhecida` None = primeira estação desta pessoa (só registra, não conta como sinal).
-    `momento` não entra na avaliação: o horário nunca é sinal de risco."""
+    """estacao_conhecida None = primeira estação desta pessoa (só registra, não conta como sinal).
+    momento não entra na avaliação: o horário nunca é sinal de risco."""
     if not p.ativo:
         return SEM_RISCO
     sinais = []

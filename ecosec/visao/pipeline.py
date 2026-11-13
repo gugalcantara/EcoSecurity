@@ -7,7 +7,7 @@
 As fases 4-5 (LBPH) ficam com quem consome o resultado, porque dependem do
 CONTEXTO: no login compara-se com o modelo; no cadastro, a face é guardada.
 
-O resultado só traz `face_normalizada` quando há exatamente uma face, visível
+O resultado só traz face_normalizada quando há exatamente uma face, visível
 por inteiro e aprovada na qualidade. Qualquer outra situação não alimenta o
 reconhecimento.
 """

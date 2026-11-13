@@ -2,7 +2,7 @@
 
 Um chip por restrição ativa, cada um com um × que tira só aquela restrição; a contagem "N dentro · M fora
 (de T)"; e "Limpar filtros", desabilitado quando não há filtro. A barra só lê e altera o EstadoFiltro: quem
-conta as pendências é a tela, que chama `definir_contagem`. Os chips quebram linha (FlowLayout) quando
+conta as pendências é a tela, que chama definir_contagem. Os chips quebram linha (FlowLayout) quando
 não cabem numa só.
 """
 from PySide6.QtCore import QSize, Qt

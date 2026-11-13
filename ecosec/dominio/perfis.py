@@ -3,11 +3,11 @@
 O nível (niveis.py) é a classificação do dado: camada 1, 2 ou 3. O perfil é quem a pessoa é no sistema, e cada
 perfil tem no máximo uma camada. Não há hierarquia: o ministro não vê a camada 1 nem a 2, o diretor não vê a 1.
 
-Quatro perfis. Servidor, diretor e ministro são do quadro do governo, cada um com a sua camada. EXTERNO é quem não é
+Quatro perfis. Servidor, diretor e ministro são do quadro do governo, cada um com a sua camada. Externo é quem não é
 funcionário do governo: o cadastro só registra a matrícula, o termo e o rosto; não tem camada e não entra no
-sistema. O administrador não é um perfil: é um PAPEL dado pelo administrador a um cadastro Externo (tabela
-`administrador`). Por isso o administrador nunca tem camada: gere pessoas, perfis, consentimentos, a trilha e a
-governança, e não lê dado do acervo em nenhuma circunstância. Só o papel de administrador deixa um Externo entrar.
+sistema. Administrador é um papel, dado pelo administrador a um cadastro Externo (tabela
+administrador). Por isso o administrador não tem camada: gere pessoas, perfis, consentimentos, a trilha e a
+governança, sem ler dado do acervo. Só o papel de administrador deixa um Externo entrar.
 """
 from enum import Enum
 

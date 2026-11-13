@@ -7,8 +7,8 @@ com o limiar mais rígido e a vivacidade, e o painel do administrador também co
 têm contenção própria (matrícula e nível), para que falhar o gesto do nível 3 não bloqueie o login.
 
 O serviço só coleta as evidências e pergunta à política, a cada etapa, se até ali está tudo certo; a decisão
-final é sempre da política. Ele recebe os quadros já processados pela visão, e não a câmera, por isso pode ser
-testado com quadros fabricados. A matrícula bloqueada nem confere a senha, o rosto continua sendo conferido
+final é sempre da política. Ele recebe os quadros já processados pela visão, sem acesso à câmera, por isso pode
+ser testado com quadros fabricados. A matrícula bloqueada nem confere a senha, o rosto continua sendo conferido
 durante os gestos, desistir na etapa do rosto conta como falha, e os métodos são protegidos por trava, porque
 o vídeo e a tela chamam o serviço de threads diferentes.
 """
@@ -150,7 +150,7 @@ class ServicoAutenticacao:
         self.eh_administrador = eh_administrador or (lambda _usuario_id: False)
 
     def nova_sessao(self, nivel: int, identidade: IdentidadeComprovada | None = None) -> "SessaoAutenticacao":
-        """Com `identidade`, a sessão começa no rosto (step-up do N3)."""
+        """Com identidade, a sessão começa no rosto (step-up do N3)."""
         return SessaoAutenticacao(Nivel(nivel), self, identidade=identidade)
 
     def nova_entrada(self) -> "SessaoAutenticacao":
@@ -249,7 +249,7 @@ class SessaoAutenticacao:
         self._andamento: Andamento | None = None
         self._nova_pessoa()
 
-    # ============================================================ consulta
+    # consulta
     @property
     def andamento(self) -> Andamento:
         with self._lock:
@@ -277,7 +277,7 @@ class SessaoAutenticacao:
                                     cancelada=self._cancelada, bloqueado_ate=self._bloqueado_ate, **extra)
         return self._andamento
 
-    # ============================================================ pessoas
+    # pessoas
     def _nova_pessoa(self):
         nivel_pessoa = 3 if self._pessoas else self.nivel.value     # a 2ª pessoa é sempre N3
         entrada = not self._pessoas and self.finalidade is not Finalidade.NIVEL
@@ -324,7 +324,7 @@ class SessaoAutenticacao:
         self._aprovadas |= {C.S1_CONTENCAO, C.S2_CONHECIMENTO}
         self._iniciar_rosto()
 
-    # ============================================================ credenciais (S1, S2)
+    # credenciais (S1, S2)
     @_falha_segura
     def informar_credenciais(self, matricula: str, senha: str) -> Andamento:
         with self._lock:
@@ -377,10 +377,10 @@ class SessaoAutenticacao:
             self._ev.exigir_vivacidade = True
             self._camadas = camadas_exigidas(self.nivel, self.p.acesso.exigir_segunda_pessoa, True)
 
-    # ============================================================ rosto (S3, S4, S5)
+    # rosto
     def _iniciar_rosto(self):
         self._etapa = Etapa.ROSTO
-        # O prazo do rosto conta a partir do 1º QUADRO, não do aceite da senha: a
+        # O prazo do rosto conta a partir do primeiro quadro recebido: a
         # câmera só liga agora, e o tempo de abri-la não pode consumir o prazo
         # (com ele contando daqui, uma webcam lenta negava no primeiro quadro).
         # Uma câmera que nunca entrega quadro cai no timeout de leitura (ErroCamera).
@@ -477,7 +477,7 @@ class SessaoAutenticacao:
                                         if nivel.modo is ModoBiometrico.VERIFICACAO
                                         else Motivo.FACE_NAO_RECONHECIDA))
 
-    # ============================================================ desafio (S6)
+    # desafio (S6)
     # Como o gesto é amarrado à identidade (três regras):
     #  1. o rosto é conferido em todo quadro bom, com a tolerância de gesto (o rosto em
     #     movimento ou piscando se afasta do modelo); N quadros seguidos fora dela negam
@@ -551,7 +551,7 @@ class SessaoAutenticacao:
         # regra 3: depois do gesto, N quadros seguidos conferidos
         self._conferidos = self._conferidos + 1 if conferido else 0
         if self._conferidos < self.p.conferidos_minimos:
-            return self._atualizar("Ótimo. Agora olhe para a câmera, parado, por um instante.", atual,
+            return self._atualizar("Gesto confirmado; agora olhe para a câmera, parado, por um instante.", atual,
                                    progresso=1.0, desafio=desafio, desafio_indice=self._indice_desafio + 1,
                                    desafio_total=len(self._desafios))
         self._indice_desafio += 1
@@ -573,7 +573,7 @@ class SessaoAutenticacao:
                 return self._andamento
         return self._finalizar()
 
-    # ============================================================ desfecho
+    # desfecho
     def _janela_expirou(self) -> bool:
         if self._pessoa != 2 or not self._concluiu_em:
             return False

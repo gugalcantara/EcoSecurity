@@ -8,7 +8,7 @@
 --
 -- Decisões:
 --  * Datas em DATETIME(6), gravadas pela aplicação (não por DEFAULT do banco):
---    a trilha de auditoria (S10) vai encadear hashes que incluem o momento, e o
+--    a trilha de auditoria (S10) encadeia hashes que incluem o momento, e o
 --    valor no hash precisa ser exatamente o gravado.
 --  * As REGRAS que importam à segurança moram também aqui (CHECK, FK, UNIQUE):
 --    se a aplicação tiver um defeito, o banco ainda recusa o estado inválido.

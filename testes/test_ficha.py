@@ -36,9 +36,7 @@ TRAVESSOES = ("—", "–")
 ROTULOS_FICHA = ("Fase:", "Contaminante:", "Meio afetado:", "Restrição de uso:", "Uso anterior:", "Uso pretendido:")
 
 # Instantâneo do acervo: SHA-256 do repr de dataclasses.astuple de cada pendência e de cada responsável, na ordem
-# de sinteticos.gerar(). Em 01/11/2026 a recalibração geográfica mudou o acervo; o de antes (2026-10-24) era
-# 98aa40e3... (pendências) e 333f1d24... (responsáveis). Depois, com 295 cidades, mudou só a geografia das
-# pendências (era cbc292ea...); os responsáveis ficam.
+# de sinteticos.gerar(). Qualquer mudança no gerador ou na geografia muda o hash: confira e atualize.
 HASH_PENDENCIAS = "d0d8863250e5cf6bdbcd11b4abae46d74bcc8373f2905b421f38173bf45c6772"
 HASH_RESPONSAVEIS = "87bf928691315247589d3dc490f245086a257b6b6ab2bcccd91a8480f91cbf78"
 CAMPOS_PENDENCIA = ("codigo", "substancia", "classe_risco", "quantidade", "unidade", "uf", "municipio", "logradouro",
@@ -81,7 +79,7 @@ def _substancias() -> dict:
     return dict(pares)
 
 
-# ================================================================ acervo antigo idêntico
+# acervo antigo idêntico
 def test_acervo_identico_ao_de_antes_do_bloco_5(base):
     pendencias, responsaveis = base
     assert len(pendencias) == 2400
@@ -102,7 +100,7 @@ def test_derivar_a_ficha_nao_muda_o_acervo_nem_o_gerador_global(base, r):
     assert _hash(novas) == HASH_PENDENCIAS and _hash(responsaveis) == HASH_RESPONSAVEIS
 
 
-# ================================================================ fase
+# fase
 def test_toda_etapa_de_todo_ciclo_tem_fase_e_a_fase_nao_decresce():
     for nome, (etapas, _, _) in CICLOS.items():
         ordem = [fase.FASES.index(fase.fase_da_etapa(e)) for e in etapas]
@@ -110,7 +108,7 @@ def test_toda_etapa_de_todo_ciclo_tem_fase_e_a_fase_nao_decresce():
         assert fase.fase_da_etapa(etapas[-1]) == fase.ENCERRADA
 
 
-# ================================================================ contaminante e meio
+# contaminante e meio
 def test_catalogo_de_contaminantes_cobre_exatamente_as_substancias_do_gerador():
     substancias = _substancias()
     assert len(substancias) == 33
@@ -133,7 +131,7 @@ def test_substancia_fora_do_catalogo_nao_e_adivinhada(base):
         ficha.contaminante(p)
 
 
-# ================================================================ restrição de uso
+# restrição de uso
 def test_tabela_de_restricao_completa_para_classe_fase_e_meio():
     classes = tuple(ficha.MEIOS_DA_CLASSE)
     assert set(ficha.RESTRICAO_BASE) == {(c, f) for c in classes for f in fase.FASES}
@@ -153,7 +151,7 @@ def test_restricao_segue_a_fase_e_o_meio():
     assert "CNEN" in ficha.restricao_de(sinteticos.RADIOATIVO, fase.INVESTIGACAO, ficha.FONTE)
 
 
-# ================================================================ uso anterior
+# uso anterior
 def test_toda_atividade_tem_uso_anterior_e_nada_sobra():
     codigos = {a.codigo for a in sinteticos.ATIVIDADES}
     assert len(codigos) == 13 and set(ficha.USO_ANTERIOR) == codigos
@@ -166,7 +164,7 @@ def test_atividade_fora_do_catalogo_nao_e_adivinhada(base):
         ficha.uso_anterior(dataclasses.replace(base[0][0], atividade="AG-99"))
 
 
-# ================================================================ uso pretendido
+# uso pretendido
 def test_uso_pretendido_so_na_area_contaminada(base):
     for p in base[0]:
         uso = ficha.uso_pretendido(p)
@@ -189,7 +187,7 @@ def test_uso_pretendido_deterministico_e_so_do_codigo(base):
     assert len(set(primeira)) == 3                               # os três cenários aparecem
 
 
-# ================================================================ todas as pendências e
+# todas as pendências e
 def test_toda_pendencia_tem_todos_os_atributos(base, r):
     for p in base[0]:
         a = ficha.atributos(p, r.custos)
@@ -210,7 +208,7 @@ def test_soma_das_categorias_e_o_custo_de_cada_pendencia(base, r):
         assert m.data_base == r.custos.data_base == "2026-10" and m.fonte == ficha.PARAMETRO
 
 
-# ================================================================ exportação (serviço)
+# exportação (serviço)
 def _csv(caminho) -> dict:
     linhas = list(csv.reader(io.StringIO(caminho.read_bytes().decode("utf-8-sig")), delimiter=";"))
     assert len(linhas) == 2

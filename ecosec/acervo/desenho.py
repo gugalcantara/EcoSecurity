@@ -66,15 +66,15 @@ class Tela:
     def fonte(self, tamanho: int, negrito: bool = False):
         return _fonte(self.fontes.negrito if negrito else self.fontes.regular, tamanho)
 
-    # ------------------------------------------------------------ regiões
+    # regiões
     def marcar(self, x0, y0, x1, y1, rotulo: str, nivel_minimo: int) -> None:
         self.regioes.append(RegiaoSensivel(int(x0) - FOLGA, int(y0) - FOLGA, int(x1 - x0) + 2 * FOLGA,
                                            int(y1 - y0) + 2 * FOLGA, rotulo, nivel_minimo))
 
-    # ------------------------------------------------------------ desenho
+    # desenho
     def texto(self, x, y, conteudo: str, tamanho: int = 15, negrito: bool = False, cor=TINTA,
               sensivel: tuple[str, int] | None = None, largura_max: int | None = None) -> int:
-        """Desenha (quebrando linhas se `largura_max`) e devolve a altura ocupada."""
+        """Desenha (quebrando linhas se largura_max) e devolve a altura ocupada."""
         fonte = self.fonte(tamanho, negrito)
         linhas = self._quebrar(str(conteudo), fonte, largura_max) if largura_max else [str(conteudo)]
         altura_linha = int(tamanho * 1.35)
@@ -125,7 +125,7 @@ class Tela:
         self.fundo = max(self.fundo, int(y) + camada.height)
 
     def cortar(self, altura: int) -> None:
-        """Encerra a página em `altura` (sem sobra em branco)."""
+        """Encerra a página em altura (sem sobra em branco)."""
         altura = int(min(max(altura, 200), self.img.height))
         self.img = self.img.crop((0, 0, self.largura, altura))
         self.d = ImageDraw.Draw(self.img)
@@ -137,7 +137,7 @@ class Tela:
 
 
 def desenhar_marca_visivel(imagem: np.ndarray, texto: str, fonte: str = "segoeuib.ttf") -> np.ndarray:
-    """Marca d'água visível: `texto` em diagonal, repetido pela página inteira, cinza a 22%. Devolve uma cópia (BGR).
+    """Marca d'água visível: texto em diagonal, repetido pela página inteira, cinza a 22%. Devolve uma cópia (BGR).
 
     Trabalha sobre a imagem pronta, fora da Tela: a marca não é conteúdo do relatório (não vira região sensível nem
     entra na conferência de sobreposição). Vem depois da tarja (S8) e antes da S9: pintar depois da S9 degradaria os

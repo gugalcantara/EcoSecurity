@@ -9,11 +9,11 @@
     .venv\\Scripts\\python.exe -m ferramentas.proteger_segredos --restaurar E:\\ecosec_segredos.bak
         devolve os segredos ao .env desta máquina (protegidos de novo pelo Windows dela)
 
-Por que o backup existe: com o DPAPI, o .env só abre nesta conta do Windows,
+O backup é necessário porque, com o DPAPI, o .env só abre nesta conta do Windows,
 neste computador. Reinstalar o Windows torna o arquivo ilegível também para
-nós, e sem a chave de cifragem o modelo facial não abre mais. O backup é o
-"envelope lacrado": guarde-o fora do computador (pen drive num lugar seguro),
-com a frase-senha anotada em outro lugar. Fazer de novo a cada segredo novo
+nós, e sem a chave de cifragem o modelo facial não abre mais. Guarde o backup
+fora do computador (num pen drive em lugar seguro, por exemplo), com a
+frase-senha anotada em outro lugar. Fazer de novo a cada segredo novo
 (por exemplo, depois de rodar o preparar_banco pela primeira vez).
 """
 import argparse
@@ -46,7 +46,7 @@ def _backup(destino: Path) -> int:
         return 2
     destino.write_bytes(segredos.exportar_backup(frase))
     print(f"[ OK ] Backup de {len(segredos.nomes())} segredo(s) gravado em {destino}.")
-    print("Guarde o arquivo FORA deste computador e a frase-senha em outro lugar.")
+    print("Guarde o arquivo fora deste computador e a frase-senha em outro lugar.")
     return 0
 
 
@@ -54,7 +54,7 @@ def _restaurar(origem: Path, sobrescrever: bool) -> int:
     valores = segredos.importar_backup(origem.read_bytes(), getpass.getpass("Frase-senha do backup: "))
     conflitos = [n for n, v in valores.items() if (atual := _ler_ou_none(n)) is not None and atual != v]
     if conflitos and not sobrescrever:
-        print("[FALHA] O .env já tem valores DIFERENTES para: " + ", ".join(conflitos) + ".\n"
+        print("[FALHA] O .env já tem valores diferentes para: " + ", ".join(conflitos) + ".\n"
               "Nada foi alterado. Se tiver certeza, rode de novo com --sobrescrever.")
         return 2
     for nome, valor in valores.items():

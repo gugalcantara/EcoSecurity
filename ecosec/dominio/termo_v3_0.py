@@ -9,7 +9,7 @@ A 3.0 foi apresentada sempre com o contato não preenchido abaixo (é o valor qu
 `[lgpd] contato` teve desde o primeiro commit até a 3.1): por isso ele fica fixo
 aqui, e a conferência de um aceite 3.0 não depende do contato configurado hoje.
 
-Só o necessário para reproduzir o texto (e o hash). A versão em vigor está em `termo.py`.
+Só o necessário para reproduzir o texto (e o hash). A versão em vigor está em termo.py.
 """
 VERSAO = "3.0"
 CONTATO = "[preencher: e-mail do grupo responsável]"

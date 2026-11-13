@@ -52,7 +52,7 @@ def anos(dias: float) -> str:
     return f"{numero(dias / DIAS_POR_ANO, 1)} anos"
 
 
-# ---------------------------------------------------------------- tipo de cada coluna
+# tipo de cada coluna
 CLASSE_DA_COLUNA = {titulo: classe for classe, titulo in analise.COLUNA_DA_CLASSE.items()}
 TIPO_DA_COLUNA = {
     "PENDENCIAS": "inteiro", analise.FORA_DA_PREVISAO: "inteiro", analise.CRITICAS: "inteiro",
@@ -67,7 +67,7 @@ TIPO_NA_PLANILHA = {"CUSTO ESTIMADO": "custo_caso"}       # o mesmo título, um 
 
 
 def exibir(titulo: str, valor, planilha: bool = False) -> str:
-    """Texto de uma célula pelo tipo da coluna `titulo`."""
+    """Texto de uma célula pelo tipo da coluna titulo."""
     if isinstance(valor, str):
         return valor                                   # SUPRIMIDO, nomes, códigos: intactos
     if isinstance(valor, date):
@@ -95,7 +95,7 @@ def exibir(titulo: str, valor, planilha: bool = False) -> str:
 
 
 def celula(titulos, valor_de, j: int, planilha: bool = False) -> str:
-    """Texto da coluna `j` de uma linha; `valor_de(k)` lê a coluna k da mesma linha (para o contexto)."""
+    """Texto da coluna j de uma linha; `valor_de(k)` lê a coluna k da mesma linha (para o contexto)."""
     titulo, valor = titulos[j], valor_de(j)
     if valor == analise.SUPRIMIDO:
         return valor

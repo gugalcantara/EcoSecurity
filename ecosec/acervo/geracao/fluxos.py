@@ -40,7 +40,7 @@ def contagens(esperado: dict[int, float], rng, modo: str) -> dict[int, int]:
 
 def sortear_saidas(registros, saidas_por_ano: dict[int, int], rng, data_base: float,
                    latencia: float = 1 / 12) -> int:
-    """Escolhe quem sai em cada ano entre os ativos com pelo menos `latencia` anos de casa; grava r.saida
+    """Escolhe quem sai em cada ano entre os ativos com pelo menos latencia anos de casa; grava r.saida
     (ano fracionário) ou deixa None. Devolve quantas saídas pedidas não acharam ninguém elegível.
 
     Latência: com risco constante desde a entrada, o tempo até a saída seria exponencial,

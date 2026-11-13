@@ -42,7 +42,7 @@ def _data_da_etapa(p: Pendencia, *nomes) -> date | None:
 
 
 def documentos_da_pendencia(p: Pendencia, hoje: date) -> list[Documento]:
-    """Metadados dos documentos da pendência, em ordem cronológica. Nada posterior a `hoje`."""
+    """Metadados dos documentos da pendência, em ordem cronológica. Nada posterior a hoje."""
     base = int(p.codigo.split("-")[1]) * 10
     fim = min(hoje, p.data_encerramento) if p.data_encerramento else hoje
     itens = []

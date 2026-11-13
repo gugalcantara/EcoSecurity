@@ -141,9 +141,9 @@ class LegendaQuantis(QWidget):
     def definir(self, limites: list[float], formato=lambda v: f"{v:.2f}".replace(".", ","), titulo: str = "",
                 inferiores: list[float | None] | None = None, contagens: list[int] | None = None,
                 supressao_minima: int = 3, formato_fino=None):
-        """`limites`: o maior valor de cada quintil; `inferiores`: o menor (None = quintil vazio); `contagens`:
-        UFs por quintil. Sem `inferiores`, o rótulo usa o limite anterior (compatível com a versão antiga).
-        `formato_fino` (mais casas) entra quando o arredondamento faria dois quintis vizinhos se tocarem."""
+        """limites: o maior valor de cada quintil; inferiores: o menor (None = quintil vazio); contagens:
+        UFs por quintil. Sem inferiores, o rótulo usa o limite anterior (compatível com a versão antiga).
+        formato_fino (mais casas) entra quando o arredondamento faria dois quintis vizinhos se tocarem."""
         if titulo:
             self.titulo.setText(f"Legenda: {titulo}")
         self.suprimida.definir("SUPRIMIDA")
@@ -165,7 +165,7 @@ class LegendaQuantis(QWidget):
             else:
                 texto = f"{formato(baixo)} a {formato(lim)}"
             caixa.setText(texto)
-            # o 1º quintil começa no mínimo real; sem `inferiores`, fica aberto embaixo
+            # o 1º quintil começa no mínimo real; sem inferiores, fica aberto embaixo
             self.intervalos.append((baixo if (k == 0 and inferiores is not None) or k else None,
                                     None if vazio else lim))
             nome = f"Quintil {k + 1}: {texto}"

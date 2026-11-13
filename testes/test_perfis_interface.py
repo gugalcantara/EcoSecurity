@@ -26,7 +26,7 @@ def outras_camadas(propria: int | None) -> re.Pattern:
 
 
 def identificacao_no_menu(janela) -> bool:
-    """A identificação 1:N saiu do menu: ela é uma seção do painel de Administração."""
+    """A identificação 1:N fica no painel de Administração, fora do menu."""
     return "paginaIdentificacao" in janela.navigationInterface.panel.items
 
 
@@ -58,7 +58,7 @@ def entrar_como(janela, perfil, uf=None):
     return u, fazer_login(janela, u, SENHA_FORTE, SEMENTE[perfil])
 
 
-# ================================================================ configuração inicial e assistente
+# configuração inicial e assistente
 def test_configuracao_inicial_so_oferece_administrador_e_cria_o_primeiro_admin(janela):
     from ecosec.interface.janela import Estado
     pa = destravar_admin(janela)
@@ -85,7 +85,7 @@ def test_assistente_do_admin_oferece_os_quatro_perfis(janela):
         "Externo", "Servidor", "Diretor", "Ministro"]
 
 
-# ================================================================ administrador
+# administrador
 def test_administrador_ve_so_a_administracao(janela):
     admin = admin_pela_configuracao(janela)
     sessao = fazer_login(janela, admin, SENHA_FORTE, SEMENTE["ADMINISTRADOR"])
@@ -128,7 +128,7 @@ def test_painel_do_admin_tem_perfil_identificacao_e_trilha_mascarada(janela):
     assert "MEMORIA_CUSTO_RESPONSAVEL" in celulas and "RESPONSAVEL FICTICIO" not in celulas
 
 
-# ================================================================ cada perfil, só o seu escopo
+# cada perfil, só o seu escopo
 @pytest.mark.parametrize("perfil, uf, camada", [("SERVIDOR", None, Nivel.N1), ("DIRETOR", "SP", Nivel.N2),
                                                 ("MINISTRO", None, Nivel.N3)])
 def test_inicio_mostra_so_o_cartao_do_proprio_perfil(janela, perfil, uf, camada):
@@ -156,7 +156,7 @@ def test_camadas_de_seguranca_nao_listam_os_niveis(janela):
     assert not any(t.startswith("Níveis:") for t in textos(janela.pagina_camadas))
 
 
-# ================================================================ textos fora das telas
+# textos fora das telas
 CODIGOS = {Nivel.N1: ("A1-01", "A1-02", "A1-05"), Nivel.N2: ("A2-01", "A2-02", "A2-04"),
            Nivel.N3: ("A3-01", "A3-02", "A3-03")}
 

@@ -3,7 +3,7 @@
 O serviço decide o que vai no documento (campos, hash, conteúdo do QR, texto da marca
 visível) e aplica a S9 por último; aqui só se desenha: HTML no QTextDocument, QR e
 brasão como recursos, marca visível diagonal, conversão para BGR. A montagem da
-aplicação injeta `rasterizar` no ServicoAcervo, e a camada de serviços continua sem
+aplicação injeta rasterizar no ServicoAcervo, e a camada de serviços continua sem
 importar PySide6 (testes/test_arquitetura.py).
 """
 import cv2

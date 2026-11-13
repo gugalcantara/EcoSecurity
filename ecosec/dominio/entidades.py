@@ -4,7 +4,7 @@ Imutáveis (frozen): para mudar um usuário, cria-se uma cópia com
 dataclasses.replace(). Assim nenhuma camada altera em silêncio um objeto que
 outra camada ainda está avaliando.
 
-As invariantes ficam aqui, não no formulário: um diretor de nível 2 sem região
+As invariantes ficam no domínio: um diretor de nível 2 sem região
 veria todas as UFs se algum filtro falhasse. Um objeto Usuario nesse estado
 simplesmente não pode existir.
 """
@@ -27,7 +27,7 @@ class ErroDominio(ValueError):
 
 @dataclass(frozen=True)
 class Usuario:
-    """Um cadastro tem um perfil (perfis.py). O `nivel` é a camada desse perfil: None para o Externo (inclusive o
+    """Um cadastro tem um perfil (perfis.py). O nivel é a camada desse perfil: None para o Externo (inclusive o
     administrador, que é um papel de um Externo). Quem cria pelo nível recebe o perfil equivalente."""
     matricula: str
     nome: str
@@ -168,7 +168,7 @@ class CodigoRecuperacao:
 class Consentimento:
     """Aceite do termo de uso da imagem facial (LGPD art. 11, I).
 
-    Guarda o HASH do texto apresentado, não só a versão: provar o consentimento
+    Guarda o hash do texto apresentado, além da versão: provar o consentimento
     é ônus de quem trata o dado (art. 8º, §2º), e "aceitou a v1.0" não provaria
     nada se o texto da v1.0 mudasse depois. A revogação é marcada, nunca
     apagada: a baixa também é evidência.

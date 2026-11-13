@@ -84,7 +84,7 @@ def _passivo_por_categoria(painel, linhas) -> tuple[float, dict]:
     return passivo, divisao
 
 
-# ================================================================ resumo com precisão
+# resumo com precisão
 class TestResumoComPrecisao:
     def test_cartoes_da_priorizacao_sem_fonte_nem_simulacao(self, orcamento):
         for chave, cartao in orcamento.cartoes.items():
@@ -121,7 +121,7 @@ class TestResumoComPrecisao:
             assert not re.search(r"(?<![\d.,/])\d{4,}(?![\d/])", texto), texto          # milhar sempre com ponto
 
 
-# ================================================================ custo por categoria
+# custo por categoria
 class TestCustoPorCategoria:
     def test_categorias_do_responsavel_somam_o_custo_da_linha(self, custo):
         assert list(custo.categorias) == [l.nome for l in custo.linhas[:10]]
@@ -198,7 +198,7 @@ class TestCustoPorCategoria:
         assert linhas.index("Total do caso") > soma                                      # o subtotal vem antes
 
 
-# ================================================================ regras de nível
+# regras de nível
 class TestRegrasDeNivel:
     def test_pessoa_fisica_aparece_no_n3(self, custo, tela):
         fisicas = {r.nome for r in tela.app.acervo.repo.responsaveis(3) if r.nivel_minimo == 3}
@@ -218,15 +218,15 @@ class TestRegrasDeNivel:
         assert (ultimo.resultado, ultimo.usuario_id) == ("NEGADO", BIA_N2.id)
 
 
-# ================================================================ casos para agir, por urgência
+# casos para agir, por urgência
 @pytest.fixture
 def urgencia(orcamento):
     return orcamento.urgencia
 
 
 def _caso(painel, codigo, classe, motivo, atraso_previsto, alem_legal, encerrado=False):
-    """Um caso montado sobre um caso real da mesma classe (o custo continua calculável): `atraso_previsto` dias
-    depois do prazo previsto (negativo: ainda não venceu) e `alem_legal` dias além do prazo legal da classe."""
+    """Um caso montado sobre um caso real da mesma classe (o custo continua calculável): atraso_previsto dias
+    depois do prazo previsto (negativo: ainda não venceu) e alem_legal dias além do prazo legal da classe."""
     hoje, r = painel.hoje, painel.regras
     modelo = next(p for p in painel.pendencias if p.classe_risco == classe and p.ativa(hoje))
     sla = r.sla_dias[classe]

@@ -18,8 +18,8 @@ Toda exportação grava o SHA-256 do arquivo na trilha.
 
 Filtro único: no N2 e no N3 há um EstadoFiltro, criado aqui e repassado a mapa,
 planilha, gráfico de risco, árvore de custódia, resumo e cabeçalho. A BarraFiltros acima das abas mostra os
-chips e "N dentro · M fora (de T)". Os combos são vistas do estado: mudá-los chama `estado.definir`, e cada
-`estado.mudou` reposiciona todos os combos sem emitir (blockSignals). No N1 o filtro do painel não existe:
+chips e "N dentro · M fora (de T)". Os combos são vistas do estado: mudá-los chama estado.definir, e cada
+estado.mudou reposiciona todos os combos sem emitir (blockSignals). No N1 o filtro do painel não existe:
 o panorama tem a sua própria barra, só com classe e ano (painel_n1.py), e o resumo do N1 não aceita filtro.
 """
 from datetime import date, datetime
@@ -60,7 +60,7 @@ _RECORTE: dict = {}
 
 
 def recorte(painel, filtro) -> list:
-    """As pendências do painel que passam no filtro. Cache de uma entrada: num `estado.mudou`, mapa, planilha,
+    """As pendências do painel que passam no filtro. Cache de uma entrada: num estado.mudou, mapa, planilha,
     barra e árvore pedem o mesmo recorte."""
     if _RECORTE.get("painel") is not painel or _RECORTE.get("filtro") != filtro:
         _RECORTE.clear()
@@ -75,7 +75,7 @@ def sem_dimensoes(filtro) -> bool:
 
 
 class VistaCombo:
-    """Um combo como VISTA de uma dimensão do filtro: `valor()` lê a escolha (conjunto vazio = todos) e
+    """Um combo como VISTA de uma dimensão do filtro: valor() lê a escolha (conjunto vazio = todos) e
     `mostrar(filtro)` reposiciona o combo sem emitir. Dimensão com mais de um valor aparece como "todos"."""
 
     def __init__(self, combo, dimensao: str, todos: str, codigo=None, texto=None):
@@ -173,9 +173,9 @@ def _caminho_exportacao(pai, extensao: str, sugestao: str) -> Path | None:
     return destino if destino.suffix.lower() == f".{extensao}" else destino.with_name(destino.name + f".{extensao}")
 
 
-# ================================================================ modelo de tabela (planilha e resumo)
+# modelo de tabela
 class ModeloTabela(QAbstractTableModel):
-    """Linhas ordenáveis; com `paginado`, a tabela mostra uma página de POR_PAGINA por vez."""
+    """Linhas ordenáveis; com paginado, a tabela mostra uma página de POR_PAGINA por vez."""
 
     def __init__(self, titulos=(), valor=lambda linha, j: linha[j], paginado=False, parent=None):
         super().__init__(parent)
@@ -276,7 +276,7 @@ def ModeloPlanilha(parent=None):  # noqa: N802
     return ModeloTabela(analise.TITULOS, lambda l, j: getattr(l, analise.COLUNAS[j]), paginado=True, parent=parent)
 
 
-# ================================================================ mapa (N2 e N3)
+# mapa
 class MapaInterativo(QWidget):
     """Mapa vetorial com camadas e ficha num painel lateral deslizante.
 
@@ -327,7 +327,7 @@ class MapaInterativo(QWidget):
         self.combo_uf.currentIndexChanged.connect(self._uf_escolhida)
         for vista in (self._vista_municipio, self._vista_classe, self._vista_risco, self._vista_atividade):
             vista.combo.currentIndexChanged.connect(lambda *_, vi=vista: self._combo_escolhido(vi))
-        # O botão de vista base é "Brasil" no N3 e "UF" no N2 (a UF do diretor); o texto sai em `carregar`
+        # O botão de vista base é "Brasil" no N3 e "UF" no N2 (a UF do diretor); o texto sai em carregar
         self.botao_mais, self.botao_menos, self.botao_base = PushButton("+"), PushButton("−"), PushButton("Brasil")
         self.botao_base.setIcon(FIF.HOME)
         self.botao_mais.clicked.connect(lambda *_: self.mapa.aproximar(1.6))
@@ -482,7 +482,7 @@ class MapaInterativo(QWidget):
         vdoc.addWidget(self.botao_abrir_documento)
         self.ficha.adicionar_aba("documentos", "Documentos", aba_docs)
         # ano (N3): a data de corte numa lista, como os outros filtros ("Todos" = a situação atual); à direita,
-        # na mesma linha, os marcos regulatórios do ano escolhido, só quando há marco (C-2). Os rótulos dos marcos
+        # na mesma linha, os marcos regulatórios do ano escolhido, só quando há marco. Os rótulos dos marcos
         # ficam como no acervo, em maiúsculas: a exibição é
         self.linha_tempo = QWidget()
         lt = QHBoxLayout(self.linha_tempo)
@@ -503,7 +503,7 @@ class MapaInterativo(QWidget):
         self._ano, self._eventos = None, []
         self.estado.mudou.connect(self._filtro_mudou)
 
-    # ------------------------------------------------------------ carga
+    # carga
     def carregar(self, painel):
         from ecosec.acervo import regras, sinteticos
         self.painel, self._filtro = None, None
@@ -574,7 +574,7 @@ class MapaInterativo(QWidget):
 
     def definir_ano(self, ano: int):
         """Lista do ano (N3): escreve o ano no filtro único (o ano corrente = sem chip, corte em hoje). Mapa,
-        planilha, resumo e árvore seguem pelo `estado.mudou`."""
+        planilha, resumo e árvore seguem pelo estado.mudou."""
         if self.painel is None:
             return
         self.estado.definir(ano=None if int(ano) >= self.painel.hoje.year else int(ano))
@@ -595,7 +595,7 @@ class MapaInterativo(QWidget):
         self.marcos_do_ano.setText(f"Marcos regulatórios em {ano}: " + "; ".join(marcos) if marcos else "")
         self.marcos_do_ano.setVisible(bool(marcos))
 
-    # ------------------------------------------------------------ filtro único
+    # filtro único
     def _uf_da_lista(self, filtro) -> str:
         """UF cujos municípios o combo lista: a UF filtrada, a dos municípios filtrados ou a única do painel."""
         if len(filtro.ufs) == 1:
@@ -614,7 +614,7 @@ class MapaInterativo(QWidget):
         self.combo_municipio.blockSignals(False)
 
     def _uf_escolhida(self, *_):
-        """Combo de UF: define o filtro de UF (os municípios de outra UF saem) e, pelo `estado.mudou`, enquadra."""
+        """Combo de UF: define o filtro de UF (os municípios de outra UF saem) e, pelo estado.mudou, enquadra."""
         if self.painel is None:
             return
         uf = self._vista_uf.valor()
@@ -713,7 +713,7 @@ class MapaInterativo(QWidget):
             elif anterior is not None or len(self._municipios) == 1:
                 self._vista_base()
 
-    # ------------------------------------------------------------ ficha (painel lateral)
+    # ficha (painel lateral)
     def mostrar_ficha(self, p):
         """Ficha do caso (N2 e N3), em blocos (n23_ficha.FichaTecnica): cabeçalho com classe, risco e
         score; situação e prazos; local; origem e causa; contaminação e uso; custo com a memória recolhível;
@@ -817,12 +817,12 @@ class MapaInterativo(QWidget):
                             duration=6000, position=InfoBarPosition.TOP, parent=self.tela)
 
 
-# ================================================================ priorização e custo por responsável (N3)
+# priorização e custo por responsável (N3)
 # As duas abas de decisão nacional do N3 moram em n23_custodia.py (padrão de precisão: base, corte,
 # totais que fecham, curva custo × risco). PriorizacaoOrcamento, CustoPorResponsavel e memoria_html continuam
 # importáveis daqui (import no topo do módulo).
 
-# ================================================================ planilha (N2 e N3)
+# planilha
 # A grade mostra só as 9 colunas de decisão, na ordem de quem decide (o caso e o risco, onde, em que
 # pé está, o porquê e o que fazer). O score vai na dica da faixa e a faixa ordena por ele. Substância,
 # quantidade, datas, atraso, andamento, atividade, quem paga, custo, endereço e coordenadas ficam nos detalhes do
@@ -1168,7 +1168,7 @@ class PlanilhaAnalitica(QWidget):
         self.painel = painel
         self._filtro_mudou(self.estado.filtro)
 
-    # ------------------------------------------------------------ município (o par UF, nome), como no mapa
+    # município (o par UF, nome), como no mapa
     def _uf_da_lista(self, filtro) -> str:
         if len(filtro.ufs) == 1:
             return next(iter(filtro.ufs))
@@ -1240,8 +1240,8 @@ class PlanilhaAnalitica(QWidget):
             cabecalho.resizeSection(j, max(MINIMO_MOTIVO, self.tabela.viewport().width() - outras))
 
     def _mostrar_detalhes(self, indice):
-        """Enter ou duplo clique na linha: a gaveta com a ficha do caso, sem sair da planilha (o
-        duplo clique levava ao mapa, que agora fica no botão "Abrir no mapa")."""
+        """Enter ou duplo clique na linha: a gaveta com a ficha do caso, sem sair da planilha. O mapa
+        abre pelo botão "Abrir no mapa"."""
         from ecosec.acervo import regras
         if self.painel is None or not indice.isValid():
             return
@@ -1304,7 +1304,7 @@ class PlanilhaAnalitica(QWidget):
         self.exportada.emit(resumo)
 
 
-# ================================================================ resumo agregado (todos os níveis)
+# resumo agregado
 def filtro_do_resumo(filtro):
     """O recorte que o resumo pede ao serviço. O resumo é ESTOQUE, como os indicadores: com a situação Todos
     (o padrão) ele conta os casos ATIVOS do recorte, porque as medidas dele (prazo vencido,
@@ -1437,7 +1437,7 @@ class ResumoAgregado(QWidget):
         return self._codigos[i] if 0 <= i < len(self._codigos) else ""
 
     def carregar(self, resumo, filtro=None):
-        """`filtro`: o recorte com que o serviço agregou (N2 e N3). O N1 nunca recebe filtro: o aviso diz."""
+        """filtro: o recorte com que o serviço agregou (N2 e N3). O N1 nunca recebe filtro: o aviso diz."""
         self.resumo, self._filtro = resumo, filtro
         if resumo.nivel is Nivel.N1:
             self.aviso_filtro.setText("Totais sem filtro; números muito pequenos ficam ocultos para proteger poucos "
@@ -1523,13 +1523,12 @@ class ResumoAgregado(QWidget):
                         duration=6000, position=InfoBarPosition.TOP, parent=self.tela)
 
 
-# ================================================================ contêiner
+# contêiner
 class PainelAnalitico(QWidget):
     """As seções de cada nível: N1 = panorama, resumo e glossário; N2 = mapa da UF, painéis da UF, planilha,
     resumo e glossário; N3 = mapa, priorização, custo por responsável, planilha, resumo e glossário. No N2 e no
     N3, um filtro único (EstadoFiltro) e a barra de chips acima das abas que o seguem (mapa, planilha e resumo).
-    "Painéis temáticos" e "Evolução" saíram do N3; o Glossário entrou em todos os
-    níveis; o panorama do N1 não tem custo."""
+    O panorama do N1 não tem custo."""
 
     SECOES = (("panorama", "Painéis temáticos"), ("mapa", "Mapa interativo"), ("paineis_uf", "Painéis da UF"),
               ("orcamento", "Priorização"), ("responsaveis", "Custo por responsável"),
@@ -1594,7 +1593,7 @@ class PainelAnalitico(QWidget):
         return self.resumo is not None
 
     def _reiniciar_filtro(self):
-        """Sessão nova: filtro vazio, sem avisar as vistas (cada `carregar` lê o estado)."""
+        """Sessão nova: filtro vazio, sem avisar as vistas (cada carregar lê o estado)."""
         self._espera_resumo.stop()
         self.estado.blockSignals(True)
         self.estado.limpar()
@@ -1634,7 +1633,7 @@ class PainelAnalitico(QWidget):
         self.abas.setVisible(len(secoes) > 1)
         self.mostrar(secoes[0][0])
 
-    # ------------------------------------------------------------ filtro único
+    # filtro único
     def _filtro_mudou(self, filtro):
         if self.painel is None:
             return

@@ -34,7 +34,7 @@ from PySide6.QtWidgets import (QApplication, QHBoxLayout, QLabel, QMainWindow, Q
 from ecosec.configuracao import carregar
 
 ETAPAS = (
-    ("PARADO", 6, "Fique PARADO olhando para a câmera, sem piscar se conseguir."),
+    ("PARADO", 6, "Fique parado olhando para a câmera, sem piscar se conseguir."),
     ("PISCAR", 10, "Pisque normalmente, umas 5 vezes, olhando para a câmera."),
     ("ESQUERDA", 6, "Deslize o rosto para a SUA esquerda (sem girar a cabeça) e volte."),
     ("DIREITA", 6, "Deslize o rosto para a SUA direita (sem girar a cabeça) e volte."),
@@ -94,7 +94,7 @@ def reproduzir_detector(registros: list[Registro], pg) -> dict[str, int]:
 
 
 def picos(valores: list[float | None], minimo: float = 0.3, distancia: int = 4) -> list[float]:
-    """Os picos de uma série de pontuações: máximos locais a partir de `minimo`, com pelo menos `distancia` quadros
+    """Os picos de uma série de pontuações: máximos locais a partir de minimo, com pelo menos distancia quadros
     entre um e outro (uma piscada dura alguns quadros e daria vários máximos seguidos)."""
     achados: list[tuple[int, float]] = []
     for i, v in enumerate(valores):
@@ -198,8 +198,8 @@ def analisar(registros: list[Registro], fps: float, atual: dict, pg=None) -> dic
     if len(deslocamentos) == 2:
         menor = min(deslocamentos.values())
         if menor < 0.1:
-            out["avisos"].append("Quase não houve deslocamento lateral. Lembre: é DESLIZAR o rosto (o corpo "
-                                 "acompanha), não girar a cabeça; girada, a face deixa de ser detectada.")
+            out["avisos"].append("Quase não houve deslocamento lateral. O gesto é deslizar o rosto, com o corpo "
+                                 "acompanhando; com a cabeça girada, a face deixa de ser detectada.")
         # só sugere reduzir: exigir mais deslocamento não traz segurança (deslizar uma foto custa
         # o mesmo) e só dificulta para quem se move menos
         alvo = round(max(0.12, menor * 0.7), 2)

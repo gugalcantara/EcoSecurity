@@ -40,7 +40,7 @@ class ArvoreCustodia(TreeWidget):
         return item
 
     def montar(self, painel, ano: int, tipos_visiveis, dentro: frozenset | None = None):
-        """`dentro`: códigos do recorte do filtro (None = sem recorte). Os filhos de cada nó só mostram
+        """dentro: códigos do recorte do filtro (None = sem recorte). Os filhos de cada nó só mostram
         pendências do recorte; o IN SITU agrupa só as UFs que sobram. A ocupação das custódias é a do ano."""
         self.painel = painel
         self.ano = ano

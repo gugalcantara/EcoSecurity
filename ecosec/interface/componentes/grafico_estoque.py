@@ -33,9 +33,9 @@ TODAS = "Todas as classes"
 SUPRIMIDO = "SUPRIMIDO"
 
 
-# ---------------------------------------------------------------- eixos redondos
+# eixos redondos
 def passo_redondo(bruto: float) -> float:
-    """O menor passo 1, 2 ou 5 vezes 10^k que seja >= `bruto`."""
+    """O menor passo 1, 2 ou 5 vezes 10^k que seja >= bruto."""
     if bruto <= 0:
         return 1.0
     k = math.floor(math.log10(bruto))
@@ -108,7 +108,7 @@ def _data(d) -> str:
     return f"{MESES[d.month - 1]}/{d.year}"
 
 
-# ---------------------------------------------------------------- um gráfico com a camada de anotações
+# um gráfico com a camada de anotações
 class VistaEstoque(QChartView):
     """Um QChart com eventos numerados, o marcador do ano e (opcional) a linha do zero desenhados na cena."""
 
@@ -207,7 +207,7 @@ class VistaEstoque(QChartView):
         self._itens.append(linha)
 
 
-# ---------------------------------------------------------------- o componente
+# o componente
 class GraficoEstoque(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -238,10 +238,10 @@ class GraficoEstoque(QWidget):
     def vistas_visiveis(self) -> list[VistaEstoque]:
         return [v for v in self.vistas if not v.isHidden()]
 
-    # ------------------------------------------------------------ entrada
+    # entrada
     def mostrar(self, serie: dict, eventos=(), ano: int | None = None, modo: str | None = None,
                 classe: str | None = None):
-        """`serie` = analise.serie_estoque(...) (já no recorte de `classe`). `modo`: um de MODOS."""
+        """serie = analise.serie_estoque(...) (já no recorte de classe). modo: um de MODOS."""
         self.modo = modo or self.modo
         self._serie, self._ano = serie, ano
         self._classe = classe or (next(iter(serie.get("ativas", {}))) if len(serie.get("ativas", {})) == 1 else None)
@@ -313,7 +313,7 @@ class GraficoEstoque(QWidget):
         anos = self._serie.get("anos") or []
         return self._ano if self._ano in self.total else (anos[-1] if anos else None)
 
-    # ------------------------------------------------------------ estoque (áreas empilhadas, sem linha de total)
+    # estoque
     def _mostrar_estoque(self):
         vista, serie = self.vistas[0], self._serie
         ano_t = self._ano_titulo()
@@ -372,7 +372,7 @@ class GraficoEstoque(QWidget):
         vista.anexar(area, eixo_x, eixo_y)
         return area
 
-    # ------------------------------------------------------------ small multiples
+    # small multiples
     def _mostrar_multiplos(self):
         serie = self._serie
         anos = serie.get("anos") or []
@@ -406,7 +406,7 @@ class GraficoEstoque(QWidget):
             if self._ano in self.total:
                 vista.marca = (self._ano, f"{self._ano}: {_contagem(valores[self._ano])}")
 
-    # ------------------------------------------------------------ saldo: fluxos e saldo em dois gráficos
+    # saldo: fluxos e saldo em dois gráficos
     def _mostrar_saldo(self):
         serie = self._serie
         anos = serie.get("anos") or []
@@ -490,7 +490,7 @@ class GraficoEstoque(QWidget):
         for vista, largura in zip(vistas, larguras):
             vista.chart().setMargins(QMargins(6 + round(topo - largura), 6, 6, 6))
 
-    # ------------------------------------------------------------ dicas
+    # dicas
     def dica_estoque(self, ano: int, classe: str) -> str:
         if not self._serie or ano not in self.total or classe not in self._serie["ativas"]:
             return ""
@@ -525,7 +525,7 @@ class GraficoEstoque(QWidget):
         else:
             QToolTip.hideText()
 
-    # ------------------------------------------------------------ legenda de eventos
+    # legenda de eventos
     def texto_suprimidas(self) -> str:
         """As células do estoque que o k escondeu, por classe, em faixas de anos (o gráfico deixa o vão)."""
         if not self.suprimidas or self.modo == MODOS[1]:

@@ -1,4 +1,4 @@
-"""Endereço granular, padrão de texto, geografia real, painel analítico e planilha (13/10/2026)."""
+"""Endereço granular, padrão de texto, geografia real, painel analítico e planilha."""
 import hashlib
 import re
 from datetime import date, datetime
@@ -43,7 +43,7 @@ def ultimo(servico):
     return servico.trilha.recentes(1)[0].evento
 
 
-# ================================================================ padrão de texto
+# padrão de texto
 @pytest.mark.parametrize("entrada, esperado", [
     ("São Bernardo do Campo", "SAO BERNARDO DO CAMPO"), ("Césio-137 (fonte)", "CESIO 137 FONTE"),
     ("Dias d'Ávila", "DIAS D AVILA"), ("  ação   civil  ", "ACAO CIVIL"), ("Ltda.", "LTDA")])
@@ -78,7 +78,7 @@ def test_trilha_padroniza_o_detalhe_antes_do_hash():
     assert trilha.verificar().integra                         # o hash cobre o texto como ficou gravado
 
 
-# ================================================================ base gerada
+# base gerada
 def test_volume_e_distribuicao(base):
     pendencias, responsaveis = base
     assert len(pendencias) >= 200 and len(responsaveis) > len(pendencias)
@@ -140,7 +140,7 @@ def test_anel_fora_do_continente_e_ignorado():
     assert all(a[:, 0].mean() < -38 for a in vitoria.aneis)          # a Ilha da Trindade (lon ~ -29) fica de fora
 
 
-# ================================================================ análise
+# análise
 def test_categorias_de_risco_por_faixa(base):
     p = base[0][0]
     assert analise.categoria(p, p.data_identificacao) in analise.CATEGORIAS
@@ -166,7 +166,7 @@ def test_csv_tem_todas_as_colunas(base):
     assert conteudo[0].split(";") == list(analise.TITULOS) and len(conteudo) == 4
 
 
-# ================================================================ painel e exportação
+# painel e exportação
 def test_n1_nao_tem_painel(acervo):
     with pytest.raises(ErroAcervo):
         acervo.painel(ANA_N1, 1)
@@ -230,7 +230,7 @@ def test_mapa_filtrado_registra_o_filtro_e_desenha_menos(acervo):
     assert vermelho(filtrado.imagem) < vermelho(inteiro.imagem)
 
 
-# ================================================================ banco real (pula sem MySQL)
+# banco real
 def test_banco_recusa_texto_fora_do_padrao(acervo_mysql):
     with pytest.raises(Exception), acervo_mysql.transacao() as c:
         c.execute("INSERT INTO responsavel (pendencia_id, nome, vinculo) VALUES (1, 'Empresa Ltda.', 'SUCESSOR')")
@@ -244,7 +244,7 @@ def test_repositorio_mysql_devolve_o_endereco_granular(acervo_mysql):
     assert pendencias == sinteticos.gerar()[0]
 
 
-# ================================================================ interface
+# interface
 @pytest.fixture
 def tela(qt, tmp_path):
     from ecosec.aplicacao import montar
@@ -305,7 +305,7 @@ def test_filtro_do_mapa_aplica_sem_botao(tela):
     assert visiveis and set(visiveis) == {"ES"}
 
 
-# ================================================================ resumo agregado
+# resumo agregado
 def test_resumo_n1_so_tem_totais_e_exporta_livre(acervo, tmp_path):
     resumo = acervo.resumo_agregado(ANA_N1, 1)
     codigos = {p.codigo for p in sinteticos.gerar()[0]}
@@ -377,7 +377,7 @@ def test_planilha_ordena_e_pagina(tela, qt):
     tela.iniciar(CAIO_N3, Nivel.N3)
     tela.mostrar_modo("painel")
     pl = tela.painel_analitico.planilha
-    coluna = pl.modelo.titulos.index("NIVEL DE RISCO")        # O score saiu da grade; a faixa ordena por ele
+    coluna = pl.modelo.titulos.index("NIVEL DE RISCO")        # o score não aparece na grade; a faixa ordena por ele
     from PySide6.QtCore import Qt
     pl.modelo.sort(coluna, Qt.SortOrder.DescendingOrder)
     valores = [l.CRITICIDADE for l in pl.modelo.todas]

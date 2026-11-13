@@ -55,7 +55,7 @@ def usuario(perfil_nome, id_, uf=None):
                    perfil=Perfil()[perfil_nome], senha_hash="$2b$x", uf=uf, id=id_)
 
 
-# ================================================================ acervo
+# acervo
 @pytest.fixture
 def acervo():
     trilha = ServicoTrilha(RepositorioTrilhaMemoria())
@@ -178,7 +178,7 @@ def test_trilha_nao_grava_o_nome_do_responsavel(acervo):
     assert texto.referencia(nome) not in (ev.detalhe or "") and nome not in (ev.detalhe or "")
 
 
-# ================================================================ sessão
+# sessão
 def test_sessao_do_admin_nao_tem_aba_e_cada_perfil_tem_so_a_sua():
     from ecosec.servicos.sessao import SessaoAplicacao
     casos = [("EXTERNO", True, (), "Administrador"), ("EXTERNO", False, (), "Externo"),
@@ -192,7 +192,7 @@ def test_sessao_do_admin_nao_tem_aba_e_cada_perfil_tem_so_a_sua():
     assert not hasattr(modulo, "Situacao")                         # sem "incluído no seu nível" nem "sem acesso"
 
 
-# ================================================================ administração
+# administração
 class Relogio:
     def __init__(self):
         self.agora = AGORA
@@ -348,7 +348,7 @@ def test_trilha_para_o_admin_mascara_o_detalhe_do_acervo(g):
     assert g.verificar_trilha().integra
 
 
-# ================================================================ autenticação
+# autenticação
 def _criar(amb, perfil, nome, senha=SENHA_FORTE, uf=None):
     from ecosec.seguranca.acesso import s2_conhecimento
     hash_ = s2_conhecimento.gerar_hash(senha, CUSTO)
@@ -397,7 +397,7 @@ def test_step_up_so_abre_a_camada_do_perfil(ambiente, perfil, uf, abre, nao_abre
         assert ambiente.servico.abrir_nivel(identidade, nivel).motivo is Motivo.NIVEL_INSUFICIENTE
 
 
-# ================================================================ cadastro
+# cadastro
 def test_cadastro_externo_exige_senha_forte_e_nao_tem_camada(cadastro):
     from ecosec.servicos.cadastro import DadosCadastro
     fraca = DadosCadastro("Zeca Lima", None, None, "senha1234", "senha1234", perfil=Perfil().EXTERNO)
@@ -417,7 +417,7 @@ def test_cadastro_dos_perfis_sensiveis_exige_senha_forte(cadastro, perfil):
                                           perfil=Perfil()[perfil]))
 
 
-# ================================================================ identificação e relatórios do sistema
+# identificação e relatórios do sistema
 @pytest.fixture
 def app(tmp_path):
     from ecosec.aplicacao import montar

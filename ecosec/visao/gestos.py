@@ -5,11 +5,11 @@ Piscar: o FacemarkLBF ajusta 68 pontos ao rosto e localiza os olhos. No sinal pa
 reconhecida quando a imagem da região dos olhos muda em relação aos olhos abertos e a parte escura (íris e
 pupila) diminui, as duas coisas juntas, por pelo menos dois quadros, e depois volta ao normal. A razão de
 aspecto do olho (EAR, Soukupová e Čech, 2016) continua disponível como alternativa no config
-(`sinal_piscada`), para câmeras em que o contorno do olho fecha bem. Quadros com o rosto em movimento não
+(sinal_piscada), para câmeras em que o contorno do olho fecha bem. Quadros com o rosto em movimento não
 contam.
 
 Mover: vale deslizar o rosto (o centro anda uma fração da largura da face) ou virar a cabeça (o nariz se
-afasta do meio dos olhos). Com `direcao_livre`, qualquer lado vale. Uma foto deslizada também cumpre esse
+afasta do meio dos olhos). Com direcao_livre, qualquer lado vale. Uma foto deslizada também cumpre esse
 gesto; quem barra a foto é a piscada, que é obrigatória.
 
 Quadros inconclusivos (rosto fora do quadro, olhos não localizados) não contam para nenhum gesto. A imagem da
@@ -216,7 +216,7 @@ class DetectorOlhos:
 
 
 class DetectorGesto:
-    """Acompanha UM gesto. `alimentar` devolve True quando ele se completa."""
+    """Acompanha UM gesto. alimentar devolve True quando ele se completa."""
 
     def __init__(self, gesto: Gesto, p: ParametrosGestos, detector_olhos=None):
         self.gesto = Gesto(gesto)

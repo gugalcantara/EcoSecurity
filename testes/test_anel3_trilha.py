@@ -31,7 +31,7 @@ def adulterar(r: RegistroTrilha, **campos) -> RegistroTrilha:
     return RegistroTrilha(EventoTrilha(**{**r.evento.__dict__, **campos}), r.hash_anterior, r.hash_registro, r.id)
 
 
-# ================================================================ lógica pura
+# lógica pura
 def test_primeiro_registro_aponta_a_genese():
     assert cadeia(1)[0].hash_anterior == s10_trilha.GENESE
 
@@ -86,7 +86,7 @@ def test_mensagem_da_verificacao():
     assert "registro 2" in str(s10_trilha.verificar(registros))
 
 
-# ================================================================ repositório (memória e MySQL)
+# repositório
 @pytest.fixture(params=["memoria", "mysql"])
 def trilha(request):
     if request.param == "memoria":
@@ -127,7 +127,7 @@ def test_gravacoes_concorrentes_nao_bifurcam_a_corrente(trilha):
 
 
 def test_adulteracao_real_no_mysql_e_localizada(banco_mysql_limpo):
-    """O que se demonstra na banca: alterar uma linha direto no banco (como root)."""
+    """Alterar uma linha direto no banco (como root) é detectado."""
     from ecosec.repositorios.mysql import RepositorioTrilhaMySQL
     trilha = ServicoTrilha(RepositorioTrilhaMySQL(banco_mysql_limpo))
     ids = [trilha.registrar("AUTENTICACAO", "NEGADO", "SENHA_INCORRETA", matricula_informada=f"M{i}").id
@@ -138,7 +138,7 @@ def test_adulteracao_real_no_mysql_e_localizada(banco_mysql_limpo):
     assert (resultado.integra, resultado.id_rompido) == (False, ids[3])
 
 
-# ================================================================ integração com os serviços
+# integração com os serviços
 def test_login_registra_o_desfecho_na_trilha(tmp_path):
     from ecosec.aplicacao import montar
     app = montar(caminho_env=tmp_path / ".env", modo="memoria")

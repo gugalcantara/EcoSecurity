@@ -11,7 +11,7 @@ Especificações fixas: barra de no máximo 20 px com ponta arredondada de 4 px 
 e eixos em linha fina contínua, texto sempre nas cores de texto (nunca na cor da série), um eixo só, nenhum eixo
 duplo. A paleta categórica foi conferida quanto à separação para daltonismo e ao contraste, no tema claro e no
 escuro (contraste abaixo de 3:1 em dois tons do claro, por isso todo segmento tem rótulo visível).
-As cores de risco e de classe vêm de `componentes.simbologia` (fonte única do mapa).
+As cores de risco e de classe vêm de componentes.simbologia (fonte única do mapa).
 
 Toda peça tem nome e descrição acessíveis com os valores (a alternativa em texto do gráfico) e dica no hover.
 """
@@ -61,7 +61,7 @@ def fonte(px: int = 11, peso: QFont.Weight = QFont.Weight.Normal) -> QFont:
 
 
 def passo_redondo(maximo: float, alvo: int = 4) -> float:
-    """Passo da grade em {1, 2, 5} × 10^k com cerca de `alvo` divisões até `maximo`."""
+    """Passo da grade em {1, 2, 5} × 10^k com cerca de alvo divisões até maximo."""
     if maximo <= 0:
         return 1.0
     bruto = maximo / alvo
@@ -121,7 +121,7 @@ class _Grafico(QWidget):
         QToolTip.hideText()
 
 
-# ================================================================ barras horizontais
+# barras horizontais
 @dataclass
 class Barra:
     rotulo: str
@@ -200,7 +200,7 @@ class BarrasH(_Grafico):
         p.end()
 
 
-# ================================================================ linhas por ano
+# linhas por ano
 @dataclass
 class Serie:
     nome: str
@@ -361,7 +361,7 @@ class LinhasAno(_Grafico):
         QToolTip.hideText()
 
 
-# ================================================================ halteres (UF × país)
+# halteres
 @dataclass
 class Haltere:
     rotulo: str
@@ -464,7 +464,7 @@ class Halteres(_Grafico):
         p.end()
 
 
-# ================================================================ parte do todo
+# parte do todo
 class BarraPartes(QWidget):
     """Uma barra 100% (vão de 2 px entre os segmentos) e, abaixo, a legenda com o nome, o valor exato e a fração.
     A soma dos segmentos é o total escrito no título de quem chama."""
@@ -563,7 +563,7 @@ def _retangulo_path(r: QRectF) -> QPainterPath:
     return c
 
 
-# ================================================================ curva acumulada (priorização)
+# curva acumulada (priorização)
 @dataclass
 class Curva:
     nome: str
@@ -716,7 +716,7 @@ class CurvaAcumulada(_Grafico):
         QToolTip.hideText()
 
 
-# ================================================================ cartão de valor e cartão de gráfico
+# cartão de valor e cartão de gráfico
 class CartaoValor(QWidget):
     """Stat tile: rótulo (frase), valor (semibold, figuras proporcionais) e uma linha de contexto (base,
     comparação). Sem cor de série no texto."""

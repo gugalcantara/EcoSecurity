@@ -5,12 +5,12 @@ escurecidos até contraste ≥ 3:1 (WCAG 1.4.11, luminância relativa) contra o 
 redundante: raio crescente por faixa (BAIXO e ALTO têm quase a mesma luminância; o tamanho os separa no
 daltonismo) e ANEL escuro só no crítico.
 
-Quem desenha usa as funções daqui: o ponto do mapa (`_Ponto.paint`), a legenda dinâmica e os ícones do painel
-de camadas chamam o mesmo `desenhar_ponto`. Assim a legenda nunca diverge do mapa e as constantes de
+Quem desenha usa as funções daqui: o ponto do mapa (_Ponto.paint), a legenda dinâmica e os ícones do painel
+de camadas chamam o mesmo desenhar_ponto. Assim a legenda nunca diverge do mapa e as constantes de
 cor deixam de estar duplicadas.
 
 Temáticas de simbologia dos pontos (faixa de risco, classe, fase) e o símbolo do
-AGREGADO por zoom. Classe: as cores de identidade das classes nos gráficos (`COR_IDENTIDADE_CLASSE`),
+AGREGADO por zoom. Classe: as cores de identidade das classes nos gráficos (COR_IDENTIDADE_CLASSE),
 escurecidas até 3:1, e uma FORMA por classe (quadrado, círculo, triângulo de mesma área), para não depender da
 cor. Fase: tons da paleta já usada nos painéis, escurecidos até 3:1, e preenchimento progressivo (um terço,
 dois terços, cheio; a ENCERRADA só com o contorno, como toda encerrada no mapa). Agregado: disco BRANCO com a
@@ -18,7 +18,7 @@ contagem em #1A1A1A (17:1) e um anel em setores proporcionais à composição pe
 presente com pelo menos 20°), mais o anel escuro quando há crítico na temática de faixa. Não se confunde com o
 ponto de risco, que é um disco cheio de cor sem número.
 
-Sem dependência de segurança nem de repositórios; só QtGui (e o `acervo.fase`, puro, para os códigos de fase).
+Sem dependência de segurança nem de repositórios; só QtGui (e o acervo.fase, puro, para os códigos de fase).
 """
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ from ecosec.acervo import vocabulario as _vocabulario
 FAIXAS = ("BAIXO", "MEDIO", "ALTO", "CRITICO")
 FUNDO_MAPA = "#EEF3EE"                    # preenchimento do país, onde os pontos são desenhados
 CONTRASTE_ALVO = 3.3                      # folga sobre o mínimo (arredondamento de cor e antisserrilhado)
-COR_TEXTO = "#1A1A1A"                     # texto da legenda: 17:1 sobre o branco (antes, na cor da faixa: 2,44:1)
+COR_TEXTO = "#1A1A1A"                     # texto da legenda: contraste de 17:1 sobre o branco
 COR_TEXTO_SECUNDARIO = "#4A4A4A"
 COR_ANEL = "#1A1A1A"
 COR_CONTORNO_PONTO = "#FFFFFF"
@@ -66,7 +66,7 @@ COR_CONTORNO_PAIS = "#7A8A7A"
 RAMPA_DENSIDADE = ("#DCE4F7", "#9DB8E6", "#5580CC", "#24519E", "#0B2C66")
 
 
-# ---------------------------------------------------------------- contraste (WCAG 2.1)
+# contraste (WCAG 2.1)
 def _linear(c: float) -> float:
     return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
 
@@ -100,7 +100,7 @@ def escurecer_ate(cor: str, fundo: str = FUNDO_MAPA, alvo: float = CONTRASTE_ALV
 # cor dos pontos no mapa (e na legenda): BAIXO #2A9562, MEDIO #AC7A18, ALTO #DD5D1E, CRITICO #D2384F
 COR_FAIXA = {faixa: escurecer_ate(cor) for faixa, cor in COR_IDENTIDADE.items()}
 
-# ---------------------------------------------------------------- temáticas
+# temáticas
 TEMATICAS = ("faixa", "classe", "fase")
 NOME_TEMATICA = {"faixa": "Faixa de risco", "classe": "Classe", "fase": "Fase"}
 
@@ -110,7 +110,7 @@ CLASSES = (AREA, CLASSE_I, RADIOATIVO)
 COR_IDENTIDADE_CLASSE = {AREA: "#4e79a7", CLASSE_I: "#f28e2b", RADIOATIVO: "#e15759"}
 COR_CLASSE = {c: escurecer_ate(cor) for c, cor in COR_IDENTIDADE_CLASSE.items()}
 MARCA_CLASSE = {AREA: "quadrado", CLASSE_I: "circulo", RADIOATIVO: "triangulo"}
-ROTULO_CLASSE = {c: _vocabulario.rotulo(c, "classe") for c in CLASSES}            # vocabulário
+ROTULO_CLASSE = {c: _vocabulario.rotulo(c, "classe") for c in CLASSES}
 RAIO_CLASSE = 4.5                          # raio equivalente: as três formas têm a mesma área
 
 # FASE (acervo.fase): tons da paleta dos painéis, escurecidos até 3:1
@@ -152,7 +152,7 @@ def tabela_densidade():
                     np.uint8)
 
 
-# ---------------------------------------------------------------- símbolos
+# símbolos
 @dataclass(frozen=True)
 class Simbolo:
     """Descrição de um símbolo, desenhado igual no mapa, na legenda e no painel de camadas.
@@ -161,7 +161,7 @@ class Simbolo:
     em sequência), "linha" (contorno), "caixas" (amostras de cor lado a lado) ou "nenhum" (só texto).
     marca: desenho do ponto ("circulo", "quadrado" ou "triangulo", de mesma área para o mesmo raio).
     preenchimento: fração do disco pintada (fase: 1/3, 2/3 ou 1), a partir do meio-dia, no sentido horário.
-    Agregado: `cores` e `pesos` dos setores do anel, `texto` com a contagem."""
+    Agregado: cores e pesos dos setores do anel, texto com a contagem."""
     forma: str
     cor: str = "#000000"
     raio: float = 5.0
@@ -269,7 +269,7 @@ def setores(pesos) -> list[float]:
 
 
 def simbolo_agregado(contagem: dict, tematica: str = "faixa", texto: str | None = None) -> Simbolo:
-    """Agregado com `contagem` {categoria: n} na temática: setores do anel na ordem de `categorias(tematica)`;
+    """Agregado com contagem {categoria: n} na temática: setores do anel na ordem de `categorias(tematica)`;
     anel escuro quando há crítico na temática de faixa (a mesma codificação do ponto crítico)."""
     ordem = categorias(tematica) + ((ENCERRADO,) if tematica == "faixa" else ())
     presentes = [c for c in ordem if contagem.get(c)]
@@ -305,7 +305,7 @@ def forma_custodia(tipo: str, r: float = 8.0) -> QPainterPath:
 
 
 def caminho_marca(marca: str, centro: QPointF, r: float) -> QPainterPath:
-    """Contorno da marca de mesma área do círculo de raio `r` (quadrado; triângulo com a ponta para cima)."""
+    """Contorno da marca de mesma área do círculo de raio r (quadrado; triângulo com a ponta para cima)."""
     caminho = QPainterPath()
     if marca == "quadrado":
         meio = r * sqrt(pi) / 2
@@ -331,8 +331,8 @@ def _anel_de_foco(painter: QPainter, centro: QPointF, externo: float):
 
 def desenhar_ponto(painter: QPainter, simbolo: Simbolo, centro: QPointF = QPointF(0, 0), foco: bool = False):
     """Marca na cor da categoria com contorno branco (ou só o contorno, se vazada; ou parcialmente preenchida,
-    na fase) e, no crítico, um anel escuro por fora. `foco`: anel duplo (branco e escuro) do foco do teclado,
-    visível sobre qualquer fundo. O agregado também passa por aqui (`desenhar_agregado`)."""
+    na fase) e, no crítico, um anel escuro por fora. foco: anel duplo (branco e escuro) do foco do teclado,
+    visível sobre qualquer fundo. O agregado também passa por aqui (desenhar_agregado)."""
     if simbolo.forma == "agregado":
         desenhar_agregado(painter, simbolo, centro, foco)
         return
@@ -419,7 +419,7 @@ def desenhar_agregado(painter: QPainter, simbolo: Simbolo, centro: QPointF = QPo
 
 
 def desenhar(painter: QPainter, simbolo: Simbolo, caixa: QRectF):
-    """Desenha `simbolo` centrado em `caixa` (legenda e ícones)."""
+    """Desenha simbolo centrado em caixa (legenda e ícones)."""
     painter.save()
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     centro = caixa.center()

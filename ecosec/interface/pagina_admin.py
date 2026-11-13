@@ -17,9 +17,8 @@ Três situações:
 
 Sair da página bloqueia o painel de novo e encerra qualquer cadastro em
 andamento (com descarte das faces). O painel também se tranca sozinho depois
-de alguns minutos sem uso ([administracao] no config). Um painel aberto e
-esquecido é uma porta destrancada para a próxima pessoa que sentar ao
-computador.
+de alguns minutos sem uso ([administracao] no config), para que um painel
+esquecido não fique aberto para a próxima pessoa que sentar ao computador.
 """
 from pathlib import Path
 
@@ -199,7 +198,7 @@ class PaginaAdministracao(QWidget):
         InfoBar.info("Painel trancado", "Tempo sem uso esgotado. Confirme de novo para continuar.",
                      duration=5000, position=InfoBarPosition.TOP, parent=self)
 
-    # ============================================================ 1ª execução
+    # 1ª execução
     def _tela_definir(self):
         icone = QLabel()
         icone.setPixmap(pixmap_logo(48))
@@ -240,7 +239,7 @@ class PaginaAdministracao(QWidget):
                         duration=4000, position=InfoBarPosition.TOP, parent=self)
         self.bloquear()
 
-    # ============================================================ bloqueada
+    # bloqueada
     def _tela_bloqueada(self):
         icone = IconWidget(FIF.PEOPLE)
         icone.setFixedSize(48, 48)
@@ -284,7 +283,7 @@ class PaginaAdministracao(QWidget):
             InfoBar.error("Bloqueado", "Tentativas esgotadas. Aguarde alguns minutos.",
                           duration=5000, position=InfoBarPosition.TOP, parent=self)
         else:
-            InfoBar.warning("Senha incorreta", "Confira a senha do administrador.",
+            InfoBar.warning("Senha incorreta", "Confira a senha de instalação.",
                             duration=3000, position=InfoBarPosition.TOP, parent=self)
 
     def _abrir_painel(self):
@@ -307,7 +306,7 @@ class PaginaAdministracao(QWidget):
         else:
             self.pilha.setCurrentIndex(BLOQUEADA if self.servico.configurado else DEFINIR)
 
-    # ============================================================ painel
+    # painel
     def _tela_painel(self):
         w = QWidget()
         v = QVBoxLayout(w)
@@ -424,7 +423,7 @@ class PaginaAdministracao(QWidget):
         self._selecao_mudou()
         return w
 
-    # ============================================================ trilha
+    # trilha
     def _aba_trilha(self):
         w = QWidget()
         v = QVBoxLayout(w)
@@ -551,7 +550,7 @@ class PaginaAdministracao(QWidget):
         self.resultado_trilha.setText(str(conferencia))
         self.resultado_trilha.setStyleSheet(f"color:{VERDE if conferencia.valida else VERMELHO};")
 
-    # ============================================================ relatórios do sistema
+    # relatórios do sistema
     def _aba_relatorios(self):
         from ecosec.servicos.relatorios_sistema import RELATORIOS
         w = QWidget()
@@ -712,7 +711,7 @@ class PaginaAdministracao(QWidget):
         self.botao_tirar_admin.setEnabled(logado and e_admin)
         self.botao_refazer_celular.setEnabled(logado and e_admin)
 
-    # ------------------------------------------------------------ ações críticas (aprovação de outro admin)
+    # ações críticas
     def pedir_aprovacao(self, acao: str, alvo: str | None) -> str | None:
         """Separado para os testes trocarem (o diálogo é modal)."""
         return pedir_aprovacao(self.window(), self.servico, acao, alvo)
@@ -847,7 +846,7 @@ class PaginaAdministracao(QWidget):
         Path(caminho).write_text(self.servico.dados_do_titular(usuario.id), encoding="utf-8")
         InfoBar.success("Relatório salvo", caminho, duration=4000, position=InfoBarPosition.TOP, parent=self)
 
-    # ============================================================ cadastro
+    # cadastro
     def _novo_cadastro(self):
         self._encerrar_assistente()
         # configuração inicial: o primeiro cadastro, Externo, vira o primeiro administrador

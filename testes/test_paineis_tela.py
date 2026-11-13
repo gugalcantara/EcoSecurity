@@ -74,7 +74,7 @@ def _montar_pequeno(tela):
     repo._pendencias = montado
 
 
-# ---------------------------------------------------------------- verificações de estrutura
+# verificações de estrutura
 def _redondo(x: float) -> bool:
     if x <= 0:
         return False
@@ -130,7 +130,7 @@ def _textos(widget) -> list[str]:
 # Os testes dos "Painéis da UF" do N2 (n23_paineis_uf.PaineisUF) estão em testes/test_analitico.py.
 
 
-# ================================================================ segurança: None é SUPRIMIDO
+# segurança: None é SUPRIMIDO
 # Do N1: test_n1.py::test_none_do_servico_aparece_suprimido_e_nunca_zero e ::test_estoque_e_fluxos_do_n1_seguem_o_cubo.
 
 

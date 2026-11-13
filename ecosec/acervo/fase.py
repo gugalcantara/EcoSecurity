@@ -1,8 +1,8 @@
-"""Fase do processo: derivada 100% da etapa, sem campo novo no acervo nem no banco.
+"""Fase do processo: derivada só da etapa, sem campo novo no acervo nem no banco.
 
-Antes, 395 pendências ativas apareciam como "EM PROCESSO" (a situação genérica de `ciclo.situacao` para as
-etapas sem rótulo próprio), o que não informa nada. A fase agrupa as etapas de TODOS os ciclos
-(`geracao.ciclo.CICLOS`) em quatro códigos, na ordem do processo:
+A situação genérica "EM PROCESSO" (de ciclo.situacao, para as etapas sem rótulo próprio) não diz em que
+ponto o caso está. A fase agrupa as etapas de todos os ciclos (geracao.ciclo.CICLOS) em quatro códigos, na
+ordem do processo:
 
     IDENTIFICACAO  o passivo foi registrado e a autoridade começou a agir (sem investigação nem obra)
     INVESTIGACAO   caracterização: investigação, avaliação de risco, inspeção, inventário
@@ -13,7 +13,7 @@ etapas sem rótulo próprio), o que não informa nada. A fase agrupa as etapas d
 Regras (verificadas em `testes/test_fase_ciclo.py`):
   - toda etapa de todo ciclo tem fase; a fase não decresce ao longo da ordem das etapas de cada ciclo;
   - ENCERRADA é exatamente a etapa final de cada ciclo;
-  - etapa desconhecida levanta `EtapaDesconhecida` (nunca um chute).
+  - etapa desconhecida levanta EtapaDesconhecida.
 
 Critérios da tabela:
   - Área contaminada (CONAMA 420/2009, art. 23): avaliação preliminar e investigação confirmatória ficam na
@@ -25,10 +25,8 @@ Critérios da tabela:
   - Notificação e declaração de fonte fora de uso são atos administrativos sem caracterização: IDENTIFICACAO.
 
 Uso compartilhado: o mapa temático e a ficha chamam `fase(p)` / `fase_da_etapa(etapa)`.
-Com data de corte (linha do tempo), `fase(p, em)` usa a etapa vigente naquela data (`etapa_em`), para o mapa de
+Com data de corte (linha do tempo), `fase(p, em)` usa a etapa vigente naquela data (etapa_em), para o mapa de
 um ano passado não mostrar a fase de hoje.
-
-Sem Qt: `acervo/` não importa a interface.
 """
 from __future__ import annotations
 
@@ -87,8 +85,8 @@ def fase_da_etapa(etapa: str) -> str:
 
 
 def etapa_em(p, em: date | None = None) -> str:
-    """Etapa vigente na data `em` (a última com data até `em`); sem data, a `etapa_atual`. Pendência ainda não
-    identificada em `em` fica na primeira etapa; sem histórico de etapas, vale a `etapa_atual`."""
+    """Etapa vigente na data em (a última com data até em); sem data, a etapa_atual. Pendência ainda não
+    identificada em em fica na primeira etapa; sem histórico de etapas, vale a etapa_atual."""
     if em is None or not p.etapas:
         return p.etapa_atual
     vigente = p.etapas[0][0]
@@ -100,7 +98,7 @@ def etapa_em(p, em: date | None = None) -> str:
 
 
 def fase(p, em: date | None = None) -> str:
-    """Fase da pendência `p` hoje (pela `etapa_atual`) ou na data de corte `em` (pela etapa vigente)."""
+    """Fase da pendência p hoje (pela etapa_atual) ou na data de corte em (pela etapa vigente)."""
     return fase_da_etapa(etapa_em(p, em))
 
 

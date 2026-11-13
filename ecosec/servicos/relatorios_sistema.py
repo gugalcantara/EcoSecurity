@@ -43,8 +43,8 @@ class Tabela:
 
 
 class ServicoRelatoriosSistema:
-    def __init__(self, trilha, tentativas, administracao, relogio=datetime.now):
-        self.trilha, self.tentativas, self.admin = trilha, tentativas, administracao
+    def __init__(self, trilha, tentativas, administracao, monitor, relogio=datetime.now):
+        self.trilha, self.tentativas, self.admin, self.monitor = trilha, tentativas, administracao, monitor
         self.relogio = relogio
 
     def gerar(self, codigo: str) -> Tabela:
@@ -52,7 +52,7 @@ class ServicoRelatoriosSistema:
                 "S-05": self._s05, "S-06": self._s06, "S-07": self._s07, "S-08": self._s08,
                 "S-09": self._s09, "S-10": self._s10}[codigo]()
 
-    # ------------------------------------------------------------ apoio
+    # apoio
     def _eventos(self, *tipos):
         """A trilha como o ADMINISTRADOR a vê: o detalhe das consultas e exportações do acervo mascarado."""
         return [r for r in self.trilha.recentes_para_administrador(5000) if not tipos or r.evento.evento in tipos]
@@ -61,7 +61,7 @@ class ServicoRelatoriosSistema:
     def _momento(r):
         return f"{r.evento.momento:%d/%m/%Y %H:%M:%S}"
 
-    # ------------------------------------------------------------ relatórios
+    # relatórios
     def _s01(self):
         linhas = tuple((r.id, self._momento(r), r.evento.nivel_solicitado or "", r.evento.resultado, r.evento.motivo,
                         r.evento.camadas, r.evento.usuario_id or "", r.evento.matricula_informada or "")
@@ -139,7 +139,7 @@ class ServicoRelatoriosSistema:
 
     def _s08(self):
         from ecosec.seguranca.evidencia import monitor
-        alertas = monitor.detectar(self.trilha.recentes_para_administrador(5000))
+        alertas = monitor.detectar(self.trilha.recentes_para_administrador(5000), self.monitor)
         linhas = tuple((a.gravidade, a.regra, f"{a.momento:%d/%m/%Y %H:%M:%S}", a.usuario_id or "", a.matricula or "",
                         a.descricao) for a in alertas)
         return Tabela("S-08", RELATORIOS["S-08"], "O monitor lê a trilha e aponta padrões de risco: varredura de "
@@ -154,7 +154,7 @@ class ServicoRelatoriosSistema:
                   "NEGADO": "Negado"}
         linhas = tuple((papel, classificacao, operacao.replace("_", " ").lower(), rotulo[efeito])
                        for papel, classificacao, operacao, efeito in autorizacao.tabela())
-        return Tabela("S-09", RELATORIOS["S-09"], "A matriz que decide TODA operação sobre o acervo (confiança "
+        return Tabela("S-09", RELATORIOS["S-09"], "A matriz que decide toda operação sobre o acervo (confiança "
                       "zero: o que não está aqui é negado). Com risco de contexto ALTO, exportações e dados SECRETOS "
                       "são negados mesmo onde a matriz permitiria.",
                       ("Papel", "Classificação", "Operação", "Efeito"), linhas)

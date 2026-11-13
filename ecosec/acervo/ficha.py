@@ -1,6 +1,6 @@
 """Atributos da ficha da pendência, todos DERIVADOS.
 
-Nenhum campo novo no acervo nem no banco: `sinteticos.gerar()` continua produzindo exatamente as mesmas
+Nenhum campo novo no acervo nem no banco: sinteticos.gerar() continua produzindo exatamente as mesmas
 pendências (o teste guarda o hash de antes). Cada atributo vem de uma fonte só:
 
     Fase              acervo/fase.py (etapa atual; CONAMA 420/2009, art. 23)
@@ -21,7 +21,7 @@ percorrer as etapas do ciclo da área, mas um rejeito de amalgamação não é t
 restrição é a de resíduo (padrão mais conservador, anotado para).
 
 Sem Qt: `acervo/` não importa a interface. Textos na convenção do acervo (maiúsculas, sem acento); a fase usa o
-rótulo de `fase.rotulo`.
+rótulo de fase.rotulo.
 """
 from __future__ import annotations
 
@@ -35,7 +35,7 @@ from ecosec.acervo.sinteticos import AREA, CLASSE_I, RADIOATIVO
 
 PARAMETRO = "PARAMETRO"
 
-# ---------------------------------------------------------------- contaminante e meio
+# contaminante e meio
 GRUPOS = (
     "METAIS", "INORGANICOS (CIANETO E SULFETO)", "HIDROCARBONETOS AROMATICOS (BTEX)",
     "HIDROCARBONETOS POLICICLICOS AROMATICOS (PAH)", "HIDROCARBONETOS DE PETROLEO", "SOLVENTES HALOGENADOS",
@@ -123,7 +123,7 @@ def contaminante(p) -> Contaminante:
     return Contaminante(grupo, meio)
 
 
-# ---------------------------------------------------------------- restrição de uso (PARAMETRO)
+# restrição de uso (PARAMETRO)
 I, N, R, E = _fase.IDENTIFICACAO, _fase.INVESTIGACAO, _fase.REMEDIACAO, _fase.ENCERRADA
 _AREA_DIAGNOSTICO = "ACESSO CONTROLADO E MUDANCA DE USO SUSPENSA ATE O DIAGNOSTICO"
 _RESIDUO_GUARDA = "LOCAL DE GUARDA ISOLADO; MANUSEIO E REMOCAO SO COM PLANO APROVADO"
@@ -170,7 +170,7 @@ def restricao(p) -> str:
     return restricao_de(p.classe_risco, _fase.fase(p), contaminante(p).meio)
 
 
-# ---------------------------------------------------------------- uso anterior
+# uso anterior
 # código da atividade -> uso anterior do local (o uso que gerou o passivo)
 USO_ANTERIOR = {
     "AG-01": "COMERCIAL (POSTO DE COMBUSTIVEIS)",
@@ -196,7 +196,7 @@ def uso_anterior(p) -> str:
         raise SemCatalogo(f"Atividade sem uso anterior no catálogo: {p.atividade!r}") from None
 
 
-# ---------------------------------------------------------------- uso pretendido (PARAMETRO)
+# uso pretendido (PARAMETRO)
 # Cenários de uso da CONAMA 420/2009 (agrícola, residencial, industrial). Pesos: PARAMETRO de simulação, sem fonte.
 USOS_PRETENDIDOS = ("AGRICOLA", "RESIDENCIAL", "INDUSTRIAL")
 PESO_USO_PRETENDIDO = {"AGRICOLA": 0.20, "RESIDENCIAL": 0.35, "INDUSTRIAL": 0.45}
@@ -209,7 +209,7 @@ def semente_uso_pretendido(codigo: str) -> int:
 
 
 def uso_pretendido(p) -> str:
-    """Só na área contaminada; nas outras classes, "não se aplica". O sorteio usa um `random.Random` local com a
+    """Só na área contaminada; nas outras classes, "não se aplica". O sorteio usa um random.Random local com a
     semente do código: não toca no gerador global nem na sequência do acervo."""
     if p.classe_risco != AREA:
         return NAO_SE_APLICA
@@ -217,7 +217,7 @@ def uso_pretendido(p) -> str:
     return rng.choices(USOS_PRETENDIDOS, weights=[PESO_USO_PRETENDIDO[u] for u in USOS_PRETENDIDOS])[0]
 
 
-# ---------------------------------------------------------------- memória de cálculo por categoria
+# memória de cálculo por categoria
 @dataclass(frozen=True)
 class CategoriaCusto:
     nome: str                          # uma de custos.CATEGORIAS_EEA
@@ -248,7 +248,7 @@ def memoria(p, c: custos.ParametrosCustos) -> MemoriaCategorizada:
     return MemoriaCategorizada(rota.nome, categorias, custos.custo(p, c), c.data_base, rota.fonte)
 
 
-# ---------------------------------------------------------------- a ficha
+# a ficha
 @dataclass(frozen=True)
 class AtributosFicha:
     fase: str                          # código (IDENTIFICACAO, ...); a tela mostra fase.rotulo
