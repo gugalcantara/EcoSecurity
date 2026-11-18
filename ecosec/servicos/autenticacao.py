@@ -60,7 +60,7 @@ FALHAS_DE_IDENTIDADE = {Motivo.USUARIO_INEXISTENTE, Motivo.SENHA_INCORRETA,
 class Finalidade(str, Enum):
     ENTRADA = "ENTRADA"            # login de entrada (fatores do N2, S5 com piso N1)
     NIVEL = "NIVEL"                # abrir um nível de conteúdo
-    ADMIN = "ADMIN"                # conferir o rosto do administrador ao abrir o painel
+    ADMIN = "ADMIN"                # conferir o rosto e o gesto do administrador ao abrir o painel
     OPERACAO = "OPERACAO"          # conferir o rosto antes de uma operação crítica (exportar dados nominais)
 
 
@@ -316,6 +316,10 @@ class SessaoAutenticacao:
         # sessão de risco ALTO: vale só para consulta, sem N3, sem painel e sem exportação (a S1 nega)
         ev.restrito_a_consulta = idt.risco.so_consulta and (
             self.nivel is Nivel.N3 or self.finalidade in (Finalidade.ADMIN, Finalidade.OPERACAO))
+        # o painel também pede a prova de vida: sem ela, uma foto passaria no rosto e o celular faria o resto
+        if self.finalidade is Finalidade.ADMIN:
+            ev.exigir_vivacidade = True
+            self._camadas = camadas_exigidas(self.nivel, self.p.acesso.exigir_segunda_pessoa, True)
         falha = primeira_falha(ev, self.p.acesso, C.S2_CONHECIMENTO)
         if falha:
             self._etapa = Etapa.CREDENCIAIS              # _finalizar precisa de uma etapa definida

@@ -142,13 +142,23 @@ class ColunasResponsivas(QObject):
     def ajustar(self):
         disponivel = self.tabela.viewport().width()
         ocultas = set()
+
+        def visiveis():
+            return sum(l for c, l in self.larguras.items() if c not in ocultas)
+
         for coluna in self.ocultaveis:
-            visiveis = sum(l for c, l in self.larguras.items() if c not in ocultas)
-            if visiveis + self.minima <= disponivel:
+            if visiveis() + self.minima <= disponivel:
                 break
             ocultas.add(coluna)
         for coluna in self.larguras:
             self.tabela.setColumnHidden(coluna, coluna in ocultas)
+        # se nem sem as colunas ocultáveis couber, a elástica fica na largura mínima e a tabela rola na horizontal
+        cabecalho = self.tabela.horizontalHeader()
+        if visiveis() + self.minima <= disponivel:
+            cabecalho.setSectionResizeMode(self.elastica, QHeaderView.ResizeMode.Stretch)
+        else:
+            cabecalho.setSectionResizeMode(self.elastica, QHeaderView.ResizeMode.Fixed)
+            cabecalho.resizeSection(self.elastica, self.minima)
 
 
 class Selo(QLabel):

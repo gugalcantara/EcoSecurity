@@ -267,6 +267,15 @@ def autenticar_pessoa_n3(amb, sessao, usuario, senha=SENHA_N3):
     return andamento
 
 
+def conferir_admin(amb, sessao):
+    """Abertura do painel: rosto e, depois, os gestos da prova de vida."""
+    alimentar(sessao, amb.p.frames_confirmacao)                # rosto
+    andamento = None
+    for _ in range(amb.p.quantidade_desafios):
+        andamento = alimentar(sessao, 2 + amb.p.conferidos_minimos)
+    return andamento
+
+
 def test_n3_completo_com_duas_pessoas(ambiente):
     caio, dora = ambiente.criar("caio", 3, SENHA_N3), ambiente.criar("dora", 3, SENHA_N3)
     ambiente.rec.distancias = {caio.id: 30.0, dora.id: 30.0}
@@ -549,12 +558,18 @@ def test_step_up_n3_com_senha_fraca_no_login_e_negado(ambiente):
 
 
 def test_conferencia_do_administrador_exige_o_rosto_do_logado(ambiente):
+    from ecosec.dominio.camadas import CamadaSeguranca as C
     caio = ambiente.criar("caio", 3, SENHA_N3)
     _, identidade = entrar(ambiente, caio, SENHA_N3)
     sessao = ambiente.servico.nova_verificacao_admin(identidade)
     assert sessao.andamento.etapa is Etapa.ROSTO
+    assert C.S6_VIVACIDADE in sessao.andamento.camadas         # o painel também pede a prova de vida
     ambiente.rec.distancias = {caio.id: 30.0}
-    assert alimentar(sessao, ambiente.p.frames_confirmacao).decisao.concedido
+    so_rosto = alimentar(sessao, ambiente.p.frames_confirmacao)
+    assert so_rosto.etapa is Etapa.DESAFIO and so_rosto.decisao is None   # o rosto parado não basta
+    for _ in range(ambiente.p.quantidade_desafios):
+        andamento = alimentar(sessao, 2 + ambiente.p.conferidos_minimos)
+    assert andamento.decisao.concedido and "S6" in andamento.decisao.fatores_avaliados
     outra = ambiente.servico.nova_verificacao_admin(identidade)
     ambiente.rec.distancias = {caio.id: 95.0}
     alimentar(outra, 5)
@@ -567,7 +582,7 @@ def test_trilha_distingue_entrada_step_up_e_administrador(ambiente):
     _, identidade = entrar(ambiente, bia, SENHA_N2)
     ambiente.servico.abrir_nivel(identidade, 2)
     sessao = ambiente.servico.nova_verificacao_admin(identidade)
-    alimentar(sessao, ambiente.p.frames_confirmacao)
+    conferir_admin(ambiente, sessao)
     eventos = [(e, r, c.get("nivel_solicitado"), c.get("detalhe")) for e, r, _, c in trilha.eventos]
     assert eventos[0][:3] == ("ENTRADA", "CONCEDIDO", None)
     assert eventos[1][:3] == ("AUTENTICACAO", "CONCEDIDO", 2) and "step-up" in eventos[1][3]

@@ -641,8 +641,13 @@ def conferir_rosto_no_painel(janela, semente=700):
     pa.tela_rosto._ligar_video = lambda: None
     janela.switchTo(pa)
     assert pa.pilha.currentIndex() == 3                                     # direto na conferência do rosto
-    assert pa.tela_rosto.sessao.andamento.etapa is Etapa.ROSTO
+    sessao = pa.tela_rosto.sessao
+    assert sessao.andamento.etapa is Etapa.ROSTO
+    sessao.s.criar_detector = lambda _: type("G", (), {"alimentar": lambda s, r: True, "progresso": 1.0})()
     alimentar_tela(pa.tela_rosto, semente, janela.app.autenticacao.p.frames_confirmacao)
+    assert sessao.andamento.etapa is Etapa.DESAFIO and sessao.andamento.decisao is None   # o rosto não basta
+    alimentar_tela(pa.tela_rosto, semente, 20)                             # gestos, cada um com conferência
+    assert sessao.andamento.decisao is not None and sessao.andamento.decisao.concedido
     pa.tela_rosto._entrar()
     return pa
 
@@ -908,3 +913,22 @@ def test_uso_reinicia_o_prazo(qt):
     vigia().atividade.emit()
     assert prazo.restante_ms() > antes
     prazo.parar()
+
+
+@pytest.mark.parametrize("largura, cabe", [(1400, True), (900, False)])
+def test_nome_nunca_fica_espremido_na_tabela_de_usuarios(qt, largura, cabe):
+    """Com a janela larga, o nome fica com a sobra; se nem sem as colunas opcionais couber, o nome mantém a
+    largura mínima e a tabela rola na horizontal."""
+    from PySide6.QtWidgets import QTableWidget
+
+    from ecosec.interface.componentes import ColunasResponsivas
+    tabela = QTableWidget(1, 10)
+    tabela.resize(largura, 300)
+    tabela.show()
+    colunas = ColunasResponsivas(tabela, {0: 110, 2: 150, 3: 60, 4: 100, 5: 140, 6: 100, 7: 145, 8: 150, 9: 150},
+                                 elastica=1, minima_elastica=220, ocultaveis=(8, 6))
+    colunas.ajustar()
+    qt.processEvents()
+    assert tabela.columnWidth(1) >= 220
+    assert tabela.isColumnHidden(8) is not cabe                     # "Criado em" só some quando falta espaço
+    tabela.close()

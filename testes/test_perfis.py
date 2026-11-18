@@ -31,7 +31,7 @@ def test_quatro_perfis_cada_um_com_no_maximo_uma_camada():
 
 
 def test_escopo_exclusivo_cada_perfil_ve_so_a_propria_camada():
-    """Substitui test_hierarquia_cada_nivel_alcanca_os_de_baixo (test_dominio.py)."""
+    """Não há hierarquia entre os níveis: cada perfil vê só a própria camada."""
     Perfil = _perfis()
     assert not hasattr(Nivel, "alcanca")                         # o domínio não tem regra de hierarquia
     assert Perfil.MINISTRO.ve(Nivel.N3) and not Perfil.MINISTRO.ve(Nivel.N1) and not Perfil.MINISTRO.ve(Nivel.N2)
@@ -93,7 +93,7 @@ def test_s5_no_login_exige_camada_ou_o_papel_de_administrador(perfil, administra
     ("DIRETOR", False, Nivel.N1, False), ("DIRETOR", False, Nivel.N2, True), ("SERVIDOR", False, Nivel.N1, True),
     ("EXTERNO", True, Nivel.N1, False), ("EXTERNO", True, Nivel.N2, False), ("EXTERNO", True, Nivel.N3, False)])
 def test_s5_ao_abrir_uma_camada_exige_que_seja_a_do_perfil(perfil, administrador, nivel, concede):
-    """Substitui test_usuario_n3_pode_pedir_nivel_1 (test_politica.py). O administrador não abre camada nenhuma."""
+    """A S5 só abre a camada do perfil; o administrador não abre camada nenhuma."""
     from ecosec.seguranca.acesso import s5_habilitacao
     Perfil = _perfis()
     uf = "SP" if perfil == "DIRETOR" else None

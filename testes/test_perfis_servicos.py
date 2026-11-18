@@ -28,7 +28,7 @@ from ecosec.seguranca.acesso import totp
 from ecosec.servicos.acervo import ErroAcervo, ServicoAcervo
 from ecosec.servicos.administracao import ServicoAdministracao
 from ecosec.servicos.trilha import ServicoTrilha
-from test_servico_autenticacao import CUSTO, alimentar, ambiente, entrar  # noqa: F401
+from test_servico_autenticacao import CUSTO, alimentar, ambiente, conferir_admin, entrar  # noqa: F401
 from test_servico_cadastro_admin import cadastro, coleta_completa  # noqa: F401
 
 CFG = carregar()
@@ -129,7 +129,7 @@ def test_administrador_e_recusado_em_cada_metodo_do_acervo(acervo, tmp_path, met
 
 
 def test_catalogo_e_exclusivo_por_camada(acervo):
-    """Substitui test_catalogo_por_nivel (test_acervo.py: 6 no N2 e 9 no N3)."""
+    """Cada nível vê só os relatórios da própria camada."""
     for nivel in Nivel:
         assert {r.codigo[:2] for r in acervo.catalogo(nivel)} == {f"A{nivel.value}"}, nivel
         assert len(acervo.catalogo(nivel)) == 3
@@ -379,15 +379,14 @@ def test_administrador_entra_mas_nao_abre_camada_nenhuma(ambiente):
     assert sessao.andamento.decisao.concedido
     for nivel in (1, 2, 3):
         assert ambiente.servico.abrir_nivel(identidade, nivel).motivo is Motivo.NIVEL_INSUFICIENTE, nivel
-    verificacao = ambiente.servico.nova_verificacao_admin(identidade)      # o painel continua pedindo o rosto
-    alimentar(verificacao, ambiente.p.frames_confirmacao)
-    assert verificacao.andamento.decisao.concedido
+    verificacao = ambiente.servico.nova_verificacao_admin(identidade)      # o painel pede o rosto e o gesto
+    assert conferir_admin(ambiente, verificacao).decisao.concedido
 
 
 @pytest.mark.parametrize("perfil, uf, abre, nao_abre", [("MINISTRO", None, (), (1, 2)),
                                                         ("DIRETOR", "SP", (2,), (1,))])
 def test_step_up_so_abre_a_camada_do_perfil(ambiente, perfil, uf, abre, nao_abre):
-    """Substitui test_step_up_n1_e_n2_abrem_com_as_evidencias_do_login (test_servico_autenticacao.py)."""
+    """Com as evidências do login, só a camada do perfil abre."""
     u = _criar(ambiente, perfil, "pessoa", uf=uf)
     _, identidade = entrar(ambiente, u, SENHA_FORTE)
     assert identidade is not None

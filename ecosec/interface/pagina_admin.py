@@ -1,4 +1,4 @@
-"""Área administrativa: senha de instalação (1ª execução) -> bloqueada -> [rosto] -> [celular] -> painel.
+"""Área administrativa: senha de instalação (1ª execução) -> bloqueada -> [rosto e gesto] -> [celular] -> painel.
 
 Três situações:
 - Configuração inicial (instalação nova, sem administrador): a senha de
@@ -164,7 +164,7 @@ class PaginaAdministracao(QWidget):
         return self.sessao is not None and self.sessao.em_emergencia
 
     def _modo_administrador(self) -> bool:
-        """Login único: um administrador logado. O painel pede o rosto e o código do celular."""
+        """Login único: um administrador logado. O painel pede o rosto, o gesto e o código do celular."""
         return (self.servico.administrador_vinculado and self.sessao is not None and self.sessao.administrador
                 and not self._em_emergencia())
 
@@ -528,7 +528,7 @@ class PaginaAdministracao(QWidget):
     def _gerar_ancora(self):
         codigo = self.pedir_codigo_proprio(
             "Gerar a âncora da trilha",
-            "Digite o código do seu aplicativo autenticador.")
+            "Digite o código do seu aplicativo autenticador ou um código de recuperação.")
         if codigo is None:
             return
         ancorada, recusa = self.servico.gerar_ancora(self._eu(), codigo)
