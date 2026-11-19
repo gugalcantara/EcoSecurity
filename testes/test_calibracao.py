@@ -2,7 +2,8 @@
 import json
 from datetime import datetime
 
-from ferramentas.calibrar_vivacidade import Registro, analisar, nome_arquivo, parametros_gravaveis, relatorio
+from ferramentas.calibrar_vivacidade import (Registro, analisar, caixa_do_registro, deslocamento_maximo,
+                                             nome_arquivo, parametros_gravaveis, quadros_por_segundo, relatorio)
 
 ATUAL = {"vizinhos_olhos": 3, "queda_ear_minima": 0.30, "deslocamento_minimo": 0.25}
 PG = __import__("ecosec.visao.gestos", fromlist=["x"]).ParametrosGestos.de_configuracao(
@@ -11,12 +12,14 @@ PG = __import__("ecosec.visao.gestos", fromlist=["x"]).ParametrosGestos.de_confi
 
 def _etapa(nome, aberturas, centros=None):
     centros = centros or [3.0] * len(aberturas)
-    return [Registro(nome, i, True, 1, 100.0, c, ear=e) for i, (e, c) in enumerate(zip(aberturas, centros))]
+    # 30 quadros/s: o detector mede a piscada em tempo
+    return [Registro(nome, i / 30, True, 1, 100.0, c, ear=e) for i, (e, c) in enumerate(zip(aberturas, centros))]
 
 
 def _sessao(deslize=0.4, piscadas=5, fechado=0.12):
     parado = [0.30 + 0.01 * ((i % 3) - 1) for i in range(30)]
-    piscar = ([0.30] * 6 + [fechado, fechado, 0.29]) * piscadas + [0.30] * 3
+    # cada piscada é um desafio novo: 0,5 s de olho aberto (16 quadros) antes dela
+    piscar = ([0.30] * 16 + [fechado, fechado, 0.29]) * piscadas + [0.30] * 3
     passos = int(deslize * 10) + 1
     return (_etapa("PARADO", parado) + _etapa("PISCAR", piscar)
             + _etapa("ESQUERDA", [0.30] * passos, [3.0 + d / 10 for d in range(passos)])
@@ -31,7 +34,7 @@ def test_detector_real_reproduzido_sobre_a_gravacao():
 
 def test_piscadas_fracas_geram_aviso_e_sugestao_de_queda():
     r = analisar(_sessao(fechado=0.24), 30.0, ATUAL, PG)              # fecha só 20%: abaixo dos 30%
-    assert r["detector"]["PISCAR"] == 0 and any("reduza" in a for a in r["avisos"])
+    assert r["detector"]["PISCAR"] == 0 and any("só 0 piscadas" in a for a in r["avisos"])
     assert 0.15 <= r["sugerido"]["queda_ear_minima"] < 0.30
 
 
@@ -79,42 +82,6 @@ def test_nao_sugere_aumentar_o_deslocamento():
     assert "deslocamento_minimo" not in r["sugerido"]
 
 
-# detector padrão
-def _serie_regiao(parado, piscar, deslizar):
-    regs = [Registro("PARADO", i, True, regiao=v) for i, v in enumerate(parado)]
-    regs += [Registro("PISCAR", 100 + i, True, regiao=v) for i, v in enumerate(piscar)]
-    regs += [Registro("ESQUERDA", 200 + i, True, regiao=v) for i, v in enumerate(deslizar)]
-    return regs
-
-
-def test_picos_separam_cada_piscada():
-    from ferramentas.calibrar_vivacidade import picos
-    serie = [0.1, 0.2, 0.9, 1.1, 0.8, 0.1, None, 0.1, 0.05, 0.7, 0.75, 0.2, 0.1, 0.1, 0.1, 0.25]
-    assert picos(serie) == [1.1, 0.75]
-
-
-def test_sugere_limiar_entre_o_pior_sem_piscar_e_a_piscada_mais_fraca():
-    from ferramentas.calibrar_vivacidade import analisar_regiao
-    piscar = []
-    for pico in (1.2, 0.95, 0.7, 0.66, 0.62):
-        piscar += [0.1, 0.1, 0.1, pico, pico - 0.1, 0.1, 0.1, 0.1]
-    r = analisar_regiao(_serie_regiao([0.1, 0.15, 0.2], piscar, [0.3, 0.4, 0.1]), 0.85)
-    assert r["pior_sem_piscar"] == 0.4 and r["picos_piscando"] == [1.2, 0.95, 0.7, 0.66, 0.62]
-    assert r["limiar_sugerido"] == 0.51 and not r["avisos"]
-    resultado = analisar(_serie_regiao([0.1, 0.15, 0.2], piscar, [0.3, 0.4, 0.1]), 27.0,
-                         {"vizinhos_olhos": 3, "queda_ear_minima": 0.4, "deslocamento_minimo": 0.15,
-                          "limiar_regiao": 0.85})
-    assert resultado["sugerido"]["limiar_regiao"] == 0.51
-    assert "picos das piscadas: 1.20, 0.95" in relatorio(resultado)
-
-
-def test_sem_separacao_nao_sugere_limiar():
-    from ferramentas.calibrar_vivacidade import analisar_regiao
-    piscar = [0.1, 0.5, 0.1, 0.1, 0.1, 0.55, 0.1, 0.1, 0.1, 0.5, 0.1]
-    r = analisar_regiao(_serie_regiao([0.1], piscar, [0.5]), 0.85)
-    assert "limiar_sugerido" not in r and r["avisos"]
-
-
 # gravação: um arquivo por medição, com os parâmetros em uso e só números
 def test_cada_medicao_tem_um_arquivo_proprio():
     assert nome_arquivo(datetime(2026, 11, 19, 14, 5, 9)) == "calibracao_vivacidade_2026-11-19_140509.json"
@@ -124,12 +91,33 @@ def test_cada_medicao_tem_um_arquivo_proprio():
 def test_parametros_gravados_bastam_para_reanalisar_a_serie():
     gravados = parametros_gravaveis(PG)
     json.dumps(gravados)
-    for chave in ("sinal_piscada", "limiar_regiao", "escala_mudanca", "escala_escuro", "frames_olho_aberto",
-                  "frames_olho_fechado", "movimento_maximo"):
+    for chave in ("referencia_ms", "queda_ear_minima", "fechado_minimo_ms", "fechado_maximo_ms",
+                  "janela_movimento_ms", "movimento_maximo"):
         assert chave in gravados, chave
 
 
 def test_registro_guarda_so_numeros():
-    r = Registro("PISCAR", 1.0, True, 1, 100.0, 0.5, regiao=0.9, mudanca=0.7, escuro_regiao=0.1)
+    r = Registro("PISCAR", 1.0, True, 1, 100.0, 0.5, ear=0.3, x=120.0, w=150.0)
     assert all(v is None or isinstance(v, (bool, int, float, str)) for v in r.__dict__.values())
     json.dumps(r.__dict__)
+
+
+def test_deslocamento_pela_largura_tipica_ignora_a_caixa_que_cresce_e_encolhe():
+    """Centro parado em 300 px, caixa de 100 e 130 px: na conta antiga, (x + w/2)/w, isso andava 0,7."""
+    parado = [Registro("ESQUERDA", i / 30, True, x=300 - w / 2, w=w) for i, w in enumerate([100, 130] * 10)]
+    assert deslocamento_maximo(parado, 1) == 0.0
+    andando = [Registro("ESQUERDA", i / 30, True, x=200 + 10 * i, w=100) for i in range(5)]
+    assert deslocamento_maximo(andando, 1) == 0.4
+
+
+def test_gravacao_antiga_sem_caixa_usa_o_centro():
+    assert caixa_do_registro(Registro("PARADO", 0.0, True, centro=3.0)) == (250, 0, 100, 100)
+    assert caixa_do_registro(Registro("PARADO", 0.0, True, x=120.0, w=150.0)) == (120, 0, 150, 150)
+
+
+def test_quadros_por_segundo_sem_intervalo_medido_e_zero():
+    assert quadros_por_segundo([]) == 0.0
+    assert quadros_por_segundo([5.0]) == 0.0
+    assert quadros_por_segundo([5.0, 5.0]) == 0.0              # dois quadros no mesmo instante do relógio
+    assert quadros_por_segundo([0.0, 0.05, 0.10]) == 20.0
+

@@ -620,7 +620,7 @@ class OlhosGravados:
         return MedidaOlhos(1, 100.0, ear=self.ear)
 
 
-OLHO_PISCANDO = [0.30] * 6 + [0.12, 0.12] + [0.30]      # aberto, fechado em 2 quadros, reaberto
+OLHO_PISCANDO = [0.30] * 16 + [0.12, 0.12] + [0.30]     # 0,5 s aberto (a referência), fechado em 2 quadros, reaberto
 OLHO_DE_FOTO = [0.30]                                     # a abertura do olho numa foto não muda
 
 
@@ -632,10 +632,8 @@ def quadro_em(x):
 
 
 def detector_real(amb):
-    import dataclasses
     olhos = OlhosGravados()
-    gestos = dataclasses.replace(amb.p.gestos, sinal_piscada="ear")        # a medida falsa é a do contorno (EAR)
-    amb.servico.criar_detector = lambda gesto: DetectorGesto(gesto, gestos, olhos)
+    amb.servico.criar_detector = lambda gesto: DetectorGesto(gesto, amb.p.gestos, olhos)
     return olhos
 
 

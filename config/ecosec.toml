@@ -175,34 +175,28 @@ timeout_desafio_segundos = 10
 # olho fechado). Só localiza os olhos para os sinais comparados na calibração.
 haar_olhos = "haarcascade_eye_tree_eyeglasses.xml"
 vizinhos_olhos = 3
-# Landmarks (FacemarkLBF, 68 pontos): localizam os olhos para a PISCADA (os dois modos,
-# abaixo) e o nariz para o giro do MOVER.
+# Landmarks (FacemarkLBF, 68 pontos): o contorno dos olhos para a PISCADA e o nariz para o
+# giro do MOVER.
 # Modelo baixado por ferramentas.baixar_modelo_landmarks; o SHA-256 é conferido
 # na carga (arquivo trocado = vivacidade recusada, nunca aprovada).
 modelo_landmarks = "modelo/lbfmodel.yaml"
 modelo_landmarks_sha256 = "70dd8b1657c42d1595d6bd13d97d932877b3bed54a95d3c4733a0f740d1fd66b"
-# Sinal da piscada: "ear" mede o contorno do olho (abertura pelos landmarks); "regiao" mede
-# os pixels da região dos olhos, localizada pelos landmarks. A escolha depende da câmera:
-# nas webcams de 20 quadros/s testadas, só a região separou as piscadas. Numa câmera nova,
-# rode python -m ferramentas.calibrar_vivacidade e compare as duas contagens.
-sinal_piscada = "regiao"
-# pontuação = o menor entre (subida da "mudança" / escala_mudanca) e (queda do "escuro" /
-# escala_escuro); olho fechado quando >= limiar_regiao, reaberto abaixo da metade
-limiar_regiao = 0.85
-escala_mudanca = 0.40
-escala_escuro = 0.30
-# quadros abertos para formar a referência do EAR (no modo "regiao", o dobro, mínimo 10)
-frames_olho_aberto = 5
-# fechado: EAR <= referência x (1 - queda), por M quadros seguidos. A calibração sugeriu
-# 0,47, o máximo sem margem; 0,40 deixa folga. Recalibre se a câmera ou a luz mudarem.
-# Abaixo de 0,21, revise test_calibracao.py ("fechar 20% não é piscada"); acima de 0,50,
-# test_visao.py.
-queda_ear_minima = 0.40
-frames_olho_fechado = 2
-# reaberto: o EAR recuperou esta fração da queda, a partir do mínimo
-recuperacao_ear = 0.5
-# rosto que se desloca mais que isto (em larguras de face) entre quadros: inconclusivo
-movimento_maximo_piscada = 0.08
+# PISCADA pelo contorno do olho (EAR), medida em tempo, e não em quadros: a câmera cai de 30
+# para 10 quadros/s na luz fraca, e a mesma piscada passa de 3 quadros para 1. Valores
+# escolhidos com as gravações de duas câmeras, em luz boa e ruim, e de duas pessoas (pele
+# clara e escura): todas acima de 25% e abaixo de 40% de queda reconheceram as piscadas,
+# sem nenhuma falsa com o rosto parado.
+# referência: abertura do olho aberto, com o rosto parado, no início do desafio
+referencia_ms = 500
+# fechado: EAR <= referência x (1 - queda); reaberto: acima de referência x (1 - queda/2)
+queda_ear_minima = 0.30
+# fechado por menos que isto é ruído de um quadro; por mais que o máximo, não é piscada
+fechado_minimo_ms = 60
+fechado_maximo_ms = 800
+# rosto que se desloca mais que isto (em larguras típicas do rosto) dentro da janela: nada
+# conta e a referência é refeita. É o que impede uma foto deslizada de virar piscada.
+janela_movimento_ms = 300
+movimento_maximo_piscada = 0.15
 # MOVER: vale DESLIZAR o rosto esta fração da largura da face ou virar a cabeça
 # (giro_minimo, nariz x meio dos olhos, em distâncias entre os olhos). Com a câmera
 # real, parado, o giro oscilou até 0,06; virando, de 0,10 a 0,34. 0 em giro_minimo

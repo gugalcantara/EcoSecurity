@@ -14,6 +14,7 @@ cadastro, é guardada para o treinamento.
 O resultado só traz face_normalizada quando há exatamente uma face, visível por inteiro e aprovada na
 qualidade; qualquer outra situação não chega ao reconhecimento.
 """
+import time
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -33,6 +34,7 @@ class ResultadoQuadro:
     problemas: tuple[ProblemaQualidade, ...] = ()
     recorte_cinza: np.ndarray | None = field(default=None, repr=False)     # cru, para a vivacidade
     face_normalizada: np.ndarray | None = field(default=None, repr=False)  # 200×200, para o LBPH
+    instante: float | None = None                    # relógio monotônico do processamento, em segundos
 
     @property
     def quantidade_faces(self) -> int:
@@ -79,7 +81,7 @@ class PipelineVisao:
         alt, larg = quadro_bgr.shape[:2]
         cinza = self.preprocessador.cinza(quadro_bgr)
         faces, fonte = self.segmentador.processar(quadro_bgr, cinza)
-        base = dict(faces=tuple(faces), fonte=fonte, largura=larg, altura=alt)
+        base = dict(faces=tuple(faces), fonte=fonte, largura=larg, altura=alt, instante=time.monotonic())
         if len(faces) != 1:
             return ResultadoQuadro(**base)
 

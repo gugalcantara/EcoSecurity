@@ -122,7 +122,7 @@ def _conferir_vivacidade(cfg: Configuracao) -> None:
     from ecosec.visao.gestos import ErroModeloLandmarks, ParametrosGestos, carregar_landmarks
     try:
         pg = ParametrosGestos.de_configuracao(cfg)
-    except ValueError as erro:                       # ex.: sinal_piscada escrito errado
+    except ValueError as erro:                       # ex.: um tempo da piscada negativo
         raise ErroConfiguracao(str(erro)) from None
     try:
         carregar_landmarks(pg.modelo_landmarks, pg.modelo_landmarks_sha256)

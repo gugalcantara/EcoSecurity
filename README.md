@@ -126,7 +126,7 @@ As configurações ficam em [`config/ecosec.toml`](config/ecosec.toml). Se a câ
 | Banco indisponível | Inicie o serviço **MySQL84** (ou **MySQL80**) em *Serviços* do Windows |
 | "Câmera indisponível" | Feche outros programas que usam a webcam e rode o `verificar_ambiente` |
 | Rosto não reconhecido | Luz de frente, rosto dentro do oval, uma pessoa por vez |
-| A piscada não é detectada | Rode `.venv\Scripts\python.exe -m ferramentas.calibrar_vivacidade` e ajuste o valor sugerido no config |
+| A piscada não é detectada | Luz de frente e rosto parado ao piscar. `.venv\Scripts\python.exe -m ferramentas.calibrar_vivacidade` mostra se a câmera reconhece as piscadas |
 | Código do celular não é aceito | Ative a hora automática no celular e no computador |
 | "O segredo ... não abre nesta conta do Windows" | Restaure o backup com `proteger_segredos --restaurar ARQUIVO` |
 
@@ -139,7 +139,7 @@ Todas com `.venv\Scripts\python.exe -m` antes:
 | `ferramentas.verificar_ambiente` | Confere Python, bibliotecas, modelo e webcam |
 | `ferramentas.preparar_banco` | Cria ou atualiza os bancos e as contas. `--recriar-acervo` reimporta o acervo |
 | `ferramentas.proteger_segredos` | Protege o `.env`; `--backup` e `--restaurar` |
-| `ferramentas.calibrar_vivacidade` | Calibra a detecção da piscada para a sua câmera |
+| `ferramentas.calibrar_vivacidade` | Confere se a câmera reconhece a piscada, com o mesmo detector do nível 3 |
 | `ferramentas.verificar_trilha` | Verifica a integridade da trilha de auditoria |
 | `ferramentas.extrair_marca ARQ.png` | Identifica a origem de um arquivo exportado |
 | `ferramentas.experimento_det` | Experimento da curva DET (`coletar`, `base` e `analisar`); pede o login de um administrador |

@@ -266,13 +266,14 @@ def test_confirmador_zera_com_divergencia():
 
 
 # Gestos (vivacidade)
-# os testes do contorno do olho (EAR) fixam o modo "ear"; os do modo "regiao" (o padrão) ficam mais abaixo
-PG = dataclasses.replace(ParametrosGestos.de_configuracao(CFG), sinal_piscada="ear")
+PG = ParametrosGestos.de_configuracao(CFG)
+# quadros montados à mão, sem instante, contam como a 30 quadros/s: 0,5 s de referência = 16 quadros abertos
+ABRE = [0.30] * 16
 
 
-def _quadro_com_face(x, w=100):
+def _quadro_com_face(x, w=100, instante=None):
     return ResultadoQuadro(faces=((x, 100, w, w),), fonte="HAAR", largura=640, altura=480,
-                           recorte_cinza=np.zeros((w, w), np.uint8))
+                           recorte_cinza=np.zeros((w, w), np.uint8), instante=instante)
 
 
 class OlhosFalsos:
@@ -285,15 +286,17 @@ class OlhosFalsos:
         return MedidaOlhos(1, 100.0, ear=next(self.sequencia))
 
 
-def _piscadas(sequencia, xs=None):
+def _piscadas(sequencia, xs=None, ws=None, instantes=None):
     gesto = DetectorGesto(Gesto.PISCAR, PG, OlhosFalsos(sequencia))
     xs = xs or [200] * len(sequencia)
-    return [gesto.alimentar(_quadro_com_face(x)) for x in xs]
+    ws = ws or [100] * len(sequencia)
+    instantes = instantes or [None] * len(sequencia)
+    return [gesto.alimentar(_quadro_com_face(x, w, t)) for x, w, t in zip(xs, ws, instantes)]
 
 
 def test_piscada_aberto_fechado_reaberto_por_ear():
-    resultados = _piscadas([0.30] * 5 + [0.15, 0.14] + [0.25])
-    assert resultados == [False] * 7 + [True]
+    resultados = _piscadas(ABRE + [0.15, 0.14] + [0.28])
+    assert resultados == [False] * 18 + [True]
 
 
 def test_foto_nunca_pisca():
@@ -303,20 +306,52 @@ def test_foto_nunca_pisca():
 
 
 def test_um_quadro_isolado_nao_fecha():
-    assert not any(_piscadas([0.30] * 5 + [0.15] + [0.30] * 5))
+    """A 30 quadros/s, um quadro só dura 33 ms: abaixo de fechado_minimo_ms, é ruído."""
+    assert not any(_piscadas(ABRE + [0.15] + [0.30] * 5))
+
+
+def test_piscada_de_um_quadro_a_10_quadros_por_segundo():
+    """Na luz fraca a câmera cai para 10 quadros/s e a piscada inteira cabe num quadro de 100 ms."""
+    sequencia = [0.30] * 6 + [0.15] + [0.30]
+    instantes = [i / 10 for i in range(len(sequencia))]
+    assert _piscadas(sequencia, instantes=instantes) == [False] * 7 + [True]
 
 
 def test_piscada_com_deriva_lenta_do_sinal():
-    """Com a câmera real o patamar desce devagar: a reabertura vale pela RECUPERAÇÃO, não pela volta ao antigo."""
-    deriva = [0.30 - 0.004 * i for i in range(12)]                  # 0,30 -> 0,256
-    assert _piscadas(deriva + [0.12, 0.11, 0.20])[-1] is True       # reabriu em 0,20 (bem abaixo dos 0,30 antigos)
+    """Com a câmera real o patamar desce devagar: a referência acompanha a deriva do olho aberto."""
+    deriva = [0.30 - 0.004 * i for i in range(20)]                  # 0,30 -> 0,224
+    # reabriu em 0,25: abaixo dos 0,255 que a referência antiga (0,30) exigiria
+    assert _piscadas(deriva + [0.12, 0.11, 0.25])[-1] is True
 
 
 def test_rosto_deslizando_nao_vira_piscada():
     """Mover o rosto atrapalha o ajuste dos pontos: quadros em deslocamento não contam."""
-    sequencia = [0.30] * 5 + [0.12, 0.12, 0.30]
-    xs = [200] * 5 + [230, 260, 290]                                 # 0,3 largura por quadro
+    sequencia = ABRE + [0.12, 0.12, 0.30]
+    xs = [200] * 16 + [230, 260, 290]                                # 0,3 largura por quadro
     assert not any(_piscadas(sequencia, xs))
+
+
+def test_caixa_do_rosto_que_cresce_e_encolhe_nao_e_movimento():
+    """O Haar redesenha a caixa um pouco maior ou menor com o rosto parado. O centro, em pixels, não anda, e a
+    piscada continua valendo (com a largura de cada quadro na conta, isso parecia movimento)."""
+    sequencia = ABRE + [0.15, 0.14, 0.28]
+    ws = [100 if i % 2 else 130 for i in range(len(sequencia))]
+    xs = [300 - w // 2 for w in ws]                                  # centro fixo em 300 px
+    assert _piscadas(sequencia, xs, ws)[-1] is True
+
+
+def test_depois_de_mover_a_referencia_e_refeita():
+    """Logo depois de um deslize, a piscada só vale com a referência nova, medida na posição nova."""
+    # o deslize segue na janela de 0,3 s por uns 10 quadros; depois, 0,5 s de olho aberto formam a referência nova
+    sequencia = ABRE + [0.30] * 3 + [0.15, 0.14, 0.28] + [0.30] * 30 + [0.15, 0.14, 0.28]
+    xs = [200] * 16 + [230, 260, 290] + [290] * 3 + [290] * 30 + [290] * 3
+    resultados = _piscadas(sequencia, xs)
+    assert not any(resultados[:22]) and resultados[-1] is True
+
+
+def test_olho_fechado_tempo_demais_nao_e_piscada():
+    """Mão na frente ou olhar para baixo: fechado por mais de fechado_maximo_ms não conta."""
+    assert not any(_piscadas(ABRE + [0.12] * 30 + [0.30]))
 
 
 def test_formula_do_ear():
@@ -433,83 +468,12 @@ def test_salvar_nao_cria_arquivo_temporario(tmp_path, monkeypatch):
     assert [a.name for a in tmp_path.iterdir()] == ["m.enc"]                # nem .tmp sobrou
 
 
-# piscada pela região dos olhos (modo padrão)
-PG_REGIAO = dataclasses.replace(ParametrosGestos.de_configuracao(CFG), sinal_piscada="regiao")
-_ABERTO = np.random.default_rng(7).normal(0, 1, (16, 64)).astype(np.float32)     # íris e esclera: um padrão
-_FECHADO = np.random.default_rng(8).normal(0, 1, (16, 64)).astype(np.float32)    # pálpebra: outro padrão
-
-
-def _olho(padrao, escuro, ruido=0.05, semente=0):
-    regiao = padrao + np.random.default_rng(semente).normal(0, ruido, padrao.shape).astype(np.float32)
-    return MedidaOlhos(1, 100.0, ear=0.30, regiao=regiao, escuro_regiao=escuro)
-
-
-class OlhosRegiao:
-    def __init__(self, medidas):
-        self.medidas = iter(medidas)
-
-    def medir(self, _):
-        return next(self.medidas)
-
-
-def _piscadas_regiao(medidas, xs=None):
-    gesto = DetectorGesto(Gesto.PISCAR, PG_REGIAO, OlhosRegiao(medidas))
-    xs = xs or [200] * len(medidas)
-    return [gesto.alimentar(_quadro_com_face(x)) for x in xs]
-
-
-ABERTOS = [_olho(_ABERTO, 0.20, semente=i) for i in range(15)]
-
-
-def test_regiao_piscada_fechou_e_reabriu():
-    fechados = [_olho(_FECHADO, 0.10, semente=100 + i) for i in range(2)]
-    resultados = _piscadas_regiao(ABERTOS + fechados + [_olho(_ABERTO, 0.20, semente=200)])
-    assert resultados[-1] is True and not any(resultados[:-1])
-
-
-def test_regiao_expoe_a_mudanca_de_cada_quadro_para_a_calibracao():
-    gesto = DetectorGesto(Gesto.PISCAR, PG_REGIAO, OlhosRegiao(ABERTOS + [_olho(_FECHADO, 0.10, semente=300)]))
-    mudancas = []
-    for _ in range(len(ABERTOS) + 1):
-        gesto.ultima_mudanca = None
-        gesto.alimentar(_quadro_com_face(200))
-        mudancas.append(gesto.ultima_mudanca)
-    assert all(m is None for m in mudancas[:6])                 # a referência ainda se forma
-    abertas = [m for m in mudancas[6:-1] if m is not None]
-    assert abertas and mudancas[-1] > 3 * max(abertas)          # o olho fechado muda bem mais que o aberto
-
-
-def test_regiao_foto_parada_nunca_pisca():
-    assert not any(_piscadas_regiao([_olho(_ABERTO, 0.20, semente=i) for i in range(80)]))
-
-
-def test_regiao_so_o_escuro_mudando_nao_pisca():
-    """Deslizar muda a luz e o "escuro" cai; sem a região mudar junto, não é piscada."""
-    luz = [_olho(_ABERTO, 0.08, semente=300 + i) for i in range(4)]
-    assert not any(_piscadas_regiao(ABERTOS + luz + ABERTOS[:3]))
-
-
-def test_regiao_um_quadro_isolado_nao_fecha():
-    um = [_olho(_FECHADO, 0.10, semente=400)]
-    assert not any(_piscadas_regiao(ABERTOS + um + ABERTOS[:5]))
-
-
-def test_regiao_rosto_deslizando_nao_vira_piscada():
-    fechados = [_olho(_FECHADO, 0.10, semente=500 + i) for i in range(3)]
-    xs = [200] * 15 + [230, 260, 290] + [320]
-    assert not any(_piscadas_regiao(ABERTOS + fechados + [_olho(_ABERTO, 0.20)], xs))
-
-
-def test_regiao_sem_olhos_localizados_e_inconclusivo():
-    assert not any(_piscadas_regiao([MedidaOlhos(1, 100.0, ear=0.30)] * 30))
-
-
-def test_sinal_da_piscada_errado_no_config_impede_a_abertura(tmp_path):
+def test_queda_da_piscada_invalida_no_config_impede_a_abertura(tmp_path):
     import copy
 
     from ecosec.aplicacao import montar
     from ecosec.configuracao import Configuracao, ErroConfiguracao
     dados = copy.deepcopy(CFG._dados)
-    dados["s6_vivacidade"]["sinal_piscada"] = "olhos"
-    with pytest.raises(ErroConfiguracao, match="sinal_piscada"):
+    dados["s6_vivacidade"]["queda_ear_minima"] = 1.5
+    with pytest.raises(ErroConfiguracao, match="queda_ear_minima"):
         montar(Configuracao(dados, CFG.origem), tmp_path / ".env", modo="memoria")
