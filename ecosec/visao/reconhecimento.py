@@ -1,16 +1,18 @@
-"""Fases 4 e 5 do processamento: extração de características (LBPH) e classificação (distância e confirmação).
+"""Fase 4: Extração de características e Fase 5: Classificação e interpretação.
 
-O LBP compara cada pixel com os 8 vizinhos e forma um código que descreve a textura local. A face é dividida
-numa grade 8x8, e os histogramas desses códigos, juntos, formam a assinatura da face. Como compara vizinhos
-entre si, o LBP é pouco sensível a mudanças uniformes de iluminação.
+Extração (LBPH): o LBP compara cada pixel com os 8 vizinhos e forma um código que descreve a textura local.
+A face é dividida numa grade 8x8, e os histogramas desses códigos, juntos, formam a assinatura da face.
+Como compara vizinhos entre si, o LBP é pouco sensível a mudanças uniformes de iluminação.
 
-A classificação usa a distância qui-quadrado entre assinaturas (menor = mais parecido); o limiar é decidido
-pela camada S4. Na identificação 1:N vale o vizinho mais próximo da galeria; na verificação 1:1, a menor
-distância às amostras da identidade alegada, para que um vizinho de outra pessoa não negue o dono legítimo.
+Classificação e interpretação: a distância qui-quadrado entre assinaturas (menor = mais parecido) é
+comparada ao limiar, que a camada S4 decide, e a identidade só é confirmada após vários quadros seguidos
+(ConfirmadorQuadros). Na identificação 1:N vale o vizinho mais próximo da galeria; na verificação 1:1, a
+menor distância às amostras da identidade alegada, para que um vizinho de outra pessoa não negue o dono
+legítimo.
 
 Um cadastro novo usa a atualização incremental (update()), sem retreinar as outras pessoas. O modelo é
-serializado em memória, comprimido e cifrado antes de ir para o disco, sem arquivo temporário em claro. Como o
-LBPH não remove uma pessoa, a revogação reescreve o modelo sem os histogramas daquele rótulo.
+serializado em memória, comprimido e cifrado antes de ir para o disco, sem arquivo temporário em claro.
+Como o LBPH não remove uma pessoa, a revogação reescreve o modelo sem os histogramas daquele rótulo.
 """
 import os
 import threading

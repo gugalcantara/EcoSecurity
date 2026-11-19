@@ -3,7 +3,7 @@
 Funções puras sobre pendências já autorizadas e registradas pelo ServicoAcervo:
 nada aqui consulta o banco nem decide permissão.
 
-Nível de risco: a criticidade do relatório A3-02 (risco da substância × peso do
+Nível de risco: a criticidade do relatório A3-02 (peso da classe de risco × peso do
 motivo × (1 + anos de atraso)) em quatro faixas. Como o atraso cresce com o
 tempo, a criticidade de uma pendência não resolvida sobe sozinha: a série
 temporal mostra justamente isso, o passivo envelhecendo.
@@ -177,7 +177,8 @@ def indice_pressao(pendencias, ufs, em: date, r: regras.ParametrosRegras | None 
 @dataclass(frozen=True)
 class LinhaPlanilha:
     CODIGO: str
-    SUBSTANCIA: str
+    PASSIVO: str
+    COMPONENTE_QUIMICO: str
     CLASSE_DE_RISCO: str
     QUANTIDADE: float
     UNIDADE: str
@@ -214,9 +215,10 @@ TITULOS = tuple(nome.replace("_", " ") for nome in COLUNAS)
 def linhas(pendencias, hoje: date, r: regras.ParametrosRegras | None = None, atividades: dict | None = None,
            motivos: dict | None = None) -> list[LinhaPlanilha]:
     """Com o catálogo (atividades, motivos), as colunas ATIVIDADE e MOTIVO saem como "código · nome"."""
+    from ecosec.acervo import ficha
     from ecosec.dominio.acervo import rotulo
     r = r or regras.ParametrosRegras.padrao()
-    return [LinhaPlanilha(p.codigo, p.substancia, p.classe_risco, p.quantidade, p.unidade,
+    return [LinhaPlanilha(p.codigo, p.substancia, ficha.componente(p), p.classe_risco, p.quantidade, p.unidade,
                           rotulo(p.atividade, atividades or {}), rotulo(p.motivo, motivos or {}),
                           p.logradouro, p.numero, p.complemento or "", p.bairro, p.municipio, p.uf, p.cep,
                           p.latitude, p.longitude, p.data_identificacao, p.prazo_coleta, p.dias_de_atraso(hoje),

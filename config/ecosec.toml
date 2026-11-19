@@ -34,7 +34,7 @@ animacoes = true
 # =============================================================================
 
 [captura]
-# Fase 1: Aquisição
+# Fase 1: Sensor (aquisição)
 # índice da webcam no sistema (0 = a primeira)
 indice_camera = 0
 largura = 640
@@ -48,8 +48,8 @@ frames_aquecimento = 5
 backend = "dshow"
 
 [preprocessamento]
-# Fase 2: Pré-processamento (sobre o recorte da face)
-# CLAHE: equalização de histograma LOCAL, por blocos, com limite de contraste.
+# Fase 2: Pré-processamento (cinza antes da segmentação; normalização do recorte depois dela)
+# CLAHE: equalização de histograma local, por blocos, com limite de contraste.
 # A equalização global estouraria o fundo claro; o limite evita amplificar ruído.
 clahe_clip_limit = 2.0
 clahe_grade = [8, 8]
@@ -60,7 +60,7 @@ ruido_kernel = 3
 dimensao_face = [200, 200]
 
 [segmentacao]
-# Fase 3, Segmentação: Haar Cascade (Viola-Jones) + rastreamento KCF
+# Fase 3: Segmentação. Haar Cascade (Viola-Jones) e rastreamento KCF
 haar_face = "haarcascade_frontalface_default.xml"
 # cada passada reduz a imagem em 10%: menor = mais lento e mais sensível
 scale_factor = 1.1
@@ -78,9 +78,8 @@ escala_deteccao = 0.5
 fracao_minima_visivel = 0.9
 
 [qualidade]
-# Medido no recorte cru, antes do CLAHE: o realce mascararia justamente a
-# imagem escura e sem contraste que este portão existe para barrar.
-# Valores iniciais: calibrar com a câmera real.
+# Fase 2: Pré-processamento (portão de qualidade). Medido no recorte original, antes
+# do CLAHE, que faria uma imagem escura e sem contraste parecer aceitável.
 # variância do Laplaciano: baixa = borrada
 nitidez_minima = 60.0
 # média dos tons de cinza (0-255)
@@ -92,14 +91,14 @@ contraste_minimo = 25.0
 ruido_maximo = 12.0
 
 [lbph]
-# Fase 4, Extração: Local Binary Patterns Histograms
+# Fase 4: Extração de características. Local Binary Patterns Histograms (LBPH)
 # raio e vizinhos do operador LBP; grade de células com um histograma cada
 radius = 1
 neighbors = 8
 grid = [8, 8]
 
 [reconhecimento]
-# Fase 5: Classificação e pós-processamento
+# Fase 5: Classificação e interpretação
 # quadros seguidos com a mesma identidade dentro do limiar antes de decidir:
 # um quadro isolado pode acertar por acaso; cinco seguidos, dificilmente
 frames_confirmacao = 5

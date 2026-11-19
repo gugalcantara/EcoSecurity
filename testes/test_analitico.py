@@ -175,8 +175,8 @@ def test_faixa_mostra_o_score_na_dica_e_ordena_pelo_score(tela, qt):
     assert [l.CRITICIDADE for l in modelo.todas] == sorted(scores)
 
 
-def test_exportacao_da_planilha_continua_com_as_29_colunas_cruas(tela, qt, tmp_path):
-    """A grade mostra 9 colunas; o arquivo exportado continua com as 29 de analise.TITULOS."""
+def test_exportacao_da_planilha_continua_com_as_30_colunas_cruas(tela, qt, tmp_path):
+    """A grade mostra 9 colunas; o arquivo exportado continua com as 30 de analise.TITULOS."""
     from openpyxl import load_workbook
 
     from ecosec.interface.painel_analitico import TITULOS_PLANILHA
@@ -185,7 +185,7 @@ def test_exportacao_da_planilha_continua_com_as_29_colunas_cruas(tela, qt, tmp_p
     codigos = [l.CODIGO for l in pl.modelo.todas[:5]]
     servico.exportar_planilha(pa.painel, BIA_N2, codigos, tmp_path / "p.xlsx", verificado_em=servico.relogio())
     cabecalho = next(load_workbook(tmp_path / "p.xlsx")["PASSIVOS"].iter_rows(max_row=1, values_only=True))
-    assert len(analise.TITULOS) == 29 and tuple(cabecalho) == analise.TITULOS
+    assert len(analise.TITULOS) == 30 and tuple(cabecalho) == analise.TITULOS
     assert len(TITULOS_PLANILHA) == 9 and set(TITULOS_PLANILHA) < set(analise.TITULOS)
 
 

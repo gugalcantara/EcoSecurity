@@ -3,8 +3,9 @@
 Funções puras (sem banco, sem tela), com os parâmetros em config/ecosec.toml
 [regras_negocio]. Relatórios e painel usam todas daqui: uma régua só.
 
-1. CRITICIDADE: peso da substância × peso do tipo de ação × (1 + anos de atraso),
-   em quatro faixas (BAIXO, MEDIO, ALTO, CRITICO). Sem coleta, sobe sozinha.
+1. CRITICIDADE: peso da classe de risco (radioativo 3, Classe I 2, área contaminada 1)
+   × peso do grupo do motivo × (1 + anos de atraso), em quatro faixas (BAIXO, MEDIO,
+   ALTO, CRITICO). Sem coleta, sobe sozinha.
 2. PRAZO-LIMITE (SLA) por classe: quanto tempo, desde a identificação, a norma
    tolera até a coleta. Estourado = descumprimento, independentemente do prazo
    que o órgão negociou com o responsável.

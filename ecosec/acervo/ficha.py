@@ -4,6 +4,8 @@ Nenhum campo novo no acervo nem no banco: sinteticos.gerar() continua produzindo
 pendências (o teste guarda o hash de antes). Cada atributo vem de uma fonte só:
 
     Fase              acervo/fase.py (etapa atual; CONAMA 420/2009, art. 23)
+    Componente        COMPONENTE: catálogo por substância (as 33 do gerador), com o componente químico
+    químico
     Contaminante      CONTAMINANTE: catálogo por substância (as 33 do gerador), com o grupo do contaminante e o
     e meio            meio afetado, coerente com a classe. Sem concentração nem excedência: exigiriam transcrever
                       os valores orientadores da CONAMA 420, o que está fora do escopo
@@ -104,6 +106,49 @@ CONTAMINANTE = {
     "BALSA DE GARIMPO ABANDONADA": ("METAIS", EQUIPAMENTO),
 }
 
+# substância (o passivo, exatamente como em sinteticos.PERFIS) -> componente químico que o torna perigoso. Onde o
+# passivo reúne resíduos sem um componente principal, fica MISTURA.
+MISTURA = "TOXINA: MISTURA DE RESIDUOS PERIGOSOS"
+_HTP = "HIDROCARBONETOS TOTAIS DE PETROLEO"
+_HCH_DDT = "HEXACLOROCICLO-HEXANO (HCH) E DDT"
+_PCBS = "BIFENILAS POLICLORADAS (PCBS)"
+_PCE = "TETRACLOROETENO (PCE)"
+COMPONENTE = {
+    "BTEX EM AGUA SUBTERRANEA": "BENZENO, TOLUENO, ETILBENZENO E XILENOS",
+    "PAH E BORRA DE TANQUE SUBTERRANEO": "BENZO(A)PIRENO E OUTROS HIDROCARBONETOS POLICICLICOS AROMATICOS",
+    "BENZENO EM SOLO SOB A PISTA": "BENZENO",
+    "ORGANOCLORADOS HCH DDT EM SOLO": _HCH_DDT,
+    "PESTICIDAS OBSOLETOS EM TAMBORES": _HCH_DDT,
+    "SOLVENTES CLORADOS PCE TCE": "TETRACLOROETENO (PCE) E TRICLOROETENO (TCE)",
+    "LODO GALVANICO COM CROMO VI": "CROMO HEXAVALENTE",
+    "BANHO DE CIANETO EXAURIDO": "CIANETO",
+    "METAIS PESADOS NI ZN CU": "NIQUEL, ZINCO E COBRE",
+    "ESCORIA COM CHUMBO E CADMIO": "CHUMBO E CADMIO",
+    "OLEO BPF E BORRA OLEOSA DE FORNOS": _HTP,
+    "PCBS EM SOLO DA SUBESTACAO INTERNA": _PCBS,
+    "CHORUME CLASSE I EM LAGOA": MISTURA,
+    "RESIDUOS EM CELULA SEM MANTA": MISTURA,
+    "ASCAREL PCBS EM TRANSFORMADORES": _PCBS,
+    "CARCACAS CONTAMINADAS COM PCBS": _PCBS,
+    "REJEITO COM URANIO E TORIO NORM": "URANIO-238 E TORIO-232",
+    "DRENAGEM ACIDA DE PILHA DE ESTERIL": "ACIDO SULFURICO E METAIS DISSOLVIDOS",
+    "PRODUTOS PERIGOSOS EM GALPAO": MISTURA,
+    "FONTE SELADA DE CESIO 137": "CESIO-137",
+    "FONTE DE COBALTO 60 DE TELETERAPIA": "COBALTO-60",
+    "PARA RAIOS COM AMERICIO 241": "AMERICIO-241",
+    "LODO DE CURTIMENTO COM CROMO": "CROMO TRIVALENTE",
+    "BANHO DE CALEIRO COM SULFETO": "SULFETO DE SODIO",
+    "HIDROCARBONETOS EM FASE LIVRE": _HTP,
+    "BORRA DE FUNDO DE TANQUE": _HTP,
+    "LICOR NEGRO EM LAGOA DESATIVADA": MISTURA,
+    "DIOXINAS E FURANOS EM SEDIMENTO": "DIBENZO-P-DIOXINAS E DIBENZOFURANOS POLICLORADOS",
+    "PERCLOROETILENO PCE NO AQUIFERO": _PCE,
+    "RESIDUO DE DESTILACAO DE SOLVENTE": _PCE,
+    "MERCURIO EM SEDIMENTO DE GARIMPO": "MERCURIO",
+    "REJEITO DE AMALGAMACAO COM MERCURIO": "MERCURIO",
+    "BALSA DE GARIMPO ABANDONADA": "MERCURIO",
+}
+
 
 class SemCatalogo(KeyError):
     """Substância ou atividade fora do catálogo: o atributo não é adivinhado."""
@@ -121,6 +166,11 @@ def contaminante(p) -> Contaminante:
     except KeyError:
         raise SemCatalogo(f"Substância sem contaminante no catálogo: {p.substancia!r}") from None
     return Contaminante(grupo, meio)
+
+
+def componente(p) -> str:
+    """O componente químico do passivo, ou "" fora do catálogo (não é adivinhado)."""
+    return COMPONENTE.get(p.substancia, "")
 
 
 # restrição de uso (PARAMETRO)

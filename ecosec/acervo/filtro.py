@@ -15,7 +15,7 @@ A semântica reproduz os predicados que já existiam (para a ligação nas telas
     o corte é hoje. ATIVAS = `p.ativa(corte)` (os pontos do mapa); ENCERRADAS = `p.encerrada(corte)`;
     TODAS = identificadas até o corte. Sem ano e com o cadastro todo datado até hoje, isso coincide com a
     planilha (ENCERRAMENTO vazio / preenchido / qualquer);
-  - busca: o termo (sem espaços nas pontas, em maiúsculas) contido em código, substância, município,
+  - busca: o termo (sem espaços nas pontas, em maiúsculas) contido em código, passivo, município,
     bairro, logradouro ou CEP, como na planilha, e também na classe ("REJEITO" acha os rejeitos
     radioativos).
 Dimensões só desta vista: município (par UF, município: há nomes repetidos entre

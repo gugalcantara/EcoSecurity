@@ -1,5 +1,5 @@
-"""Detecção dos gestos da prova de vivacidade. Aqui só se percebe, quadro a quadro, se o gesto aconteceu; o
-sorteio e a decisão ficam na camada S6.
+"""Fase 5: Classificação e interpretação dos gestos da prova de vivacidade. Aqui só se percebe, quadro a
+quadro, se o gesto aconteceu; o sorteio e a decisão ficam na camada S6.
 
 Piscar: o FacemarkLBF ajusta 68 pontos ao rosto e localiza os olhos. No sinal padrão, a piscada é
 reconhecida quando a imagem da região dos olhos muda em relação aos olhos abertos e a parte escura (íris e
@@ -80,8 +80,10 @@ _TRAVA_MODELOS = threading.Lock()
 
 
 def carregar_landmarks(caminho: str, sha256: str):
-    """Carrega uma vez (0,7 s, 54 MB) e reaproveita. Confere o SHA-256 antes: um
-    arquivo trocado poderia devolver pontos que fazem qualquer coisa "piscar"."""
+    """Carrega o FacemarkLBF de 68 pontos (lbfmodel.yaml, treinado na base HELEN e publicado no projeto
+    GSOC2017 da OpenCV). O ajuste dos pontos usa florestas aleatórias e regressão linear, sem rede neural.
+    Carrega uma vez (0,7 s, 54 MB) e reaproveita. Confere o SHA-256 antes de carregar: um arquivo trocado
+    poderia fazer qualquer coisa "piscar"."""
     with _TRAVA_MODELOS:
         if caminho in _MODELOS:
             return _MODELOS[caminho]
@@ -237,6 +239,7 @@ class DetectorGesto:
         self._mudancas: deque = deque(maxlen=20)
         self._escuros: deque = deque(maxlen=20)
         self.ultima_pontuacao = 0.0     # para a calibração e os testes
+        self.ultima_mudanca = None      # modo "regiao": a mudança medida no quadro, para a calibração
         self._centro_anterior = None
         self._x_inicial = None          # MOVER
         self.progresso = 0.0            # 0..1 para a tela
@@ -318,14 +321,15 @@ class DetectorGesto:
             return False
         if self._fase == "ABERTOS":                       # forma o histórico do olho aberto
             if len(self._regioes) >= 6:                   # a referência deixa de fora os 3 mais recentes
-                self._mudancas.append(self._pontuacao(m)[1])
+                self.ultima_mudanca = self._pontuacao(m)[1]
+                self._mudancas.append(self.ultima_mudanca)
             self._regioes.append(m.regiao)
             self._escuros.append(m.escuro_regiao)
             if len(self._regioes) >= max(10, 2 * self.p.frames_olho_aberto):
                 self._fase, self.progresso = "PRONTO", 0.33
             return False
         pontuacao, mudanca = self._pontuacao(m)
-        self.ultima_pontuacao = pontuacao
+        self.ultima_pontuacao, self.ultima_mudanca = pontuacao, mudanca
         if self._fase == "PRONTO":
             if pontuacao >= self.p.limiar_regiao:
                 self._seguidos += 1

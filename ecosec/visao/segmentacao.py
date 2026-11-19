@@ -1,17 +1,16 @@
-"""Fase 3, Segmentação: encontrar a face e separá-la do resto da cena.
+"""Fase 3: Segmentação. Localiza a face e a separa do resto da cena.
 
-Haar Cascade (Viola-Jones): uma cascata de classificadores simples sobre
-retângulos claros/escuros. Rápido em CPU, sem rede neural: e cada etapa é
-inspecionável, o que importa numa disciplina sobre as fases do PDI.
+A detecção usa o classificador em cascata de Haar (Viola-Jones): uma sequência de classificadores simples
+sobre retângulos claros e escuros, rápida em CPU e sem rede neural. O detector varre uma cópia do quadro
+reduzida e equalizada pelo histograma, e as coordenadas voltam à escala original.
 
-Rastreamento KCF entre detecções: o Haar varre a imagem inteira em
-várias escalas (~10-15 ms); o KCF só procura a face perto de onde ela estava
-(~2 ms). Haar a cada N quadros + KCF nos intermediários = a mesma face estável
-por uma fração do custo.
+Entre as detecções, o rastreador KCF acompanha a face. O Haar percorre a imagem inteira em várias escalas
+(10 a 15 ms), enquanto o KCF só procura perto da posição anterior (cerca de 2 ms). Com o Haar a cada N
+quadros e o KCF nos intermediários, a face fica estável por uma fração do custo.
 
-Cuidado de segurança: o KCF segue uma face e não vê quem entrou na cena. A
-contagem de faces (uma pessoa por vez) só vale nos quadros de Haar: por isso
-eles nunca deixam de acontecer, e quem decide exige vários quadros seguidos.
+O KCF segue uma única face e não percebe quem entra na cena. Por isso a contagem de faces (uma pessoa por
+vez) é feita nos quadros do Haar, que nunca deixam de acontecer, e as decisões exigem vários quadros
+seguidos.
 """
 from dataclasses import dataclass
 
@@ -29,7 +28,7 @@ class ParametrosSegmentacao:
     min_size: tuple[int, int]
     detectar_a_cada: int
     fracao_minima_visivel: float
-    escala_deteccao: float = 1.0     # o Haar varre uma cópia reduzida (custo ~ pixels); coordenadas voltam à escala cheia
+    escala_deteccao: float = 1.0     # o Haar varre uma cópia reduzida; as coordenadas voltam à escala original
 
     @classmethod
     def de_configuracao(cls, cfg) -> "ParametrosSegmentacao":
@@ -40,6 +39,8 @@ class ParametrosSegmentacao:
 
 
 def carregar_cascata(arquivo: str) -> cv2.CascadeClassifier:
+    """Carrega um classificador em cascata de Haar que vem com a OpenCV
+    (cv2.data.haarcascades), treinado por AdaBoost no método de Viola-Jones."""
     cascata = cv2.CascadeClassifier(cv2.data.haarcascades + arquivo)
     if cascata.empty():
         raise RuntimeError(f"Classificador Haar não carregou: {arquivo}")

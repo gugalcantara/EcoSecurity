@@ -1173,6 +1173,7 @@ def _ficha(t: Tela, y: int, p: Pendencia, dados: DadosRelatorio, medir=False) ->
         ("Custo estimado", f"{formatos.custo_caso(regras.custo_estimado(p, r))} · quem paga: "
                            f"{_rot_resp(regras.responsabilidade(p)).lower()}", None),
         ("Fase", fase.rotulo(fase.fase(p)), None),
+        ("Componente químico", ficha.componente(p), None),
         ("Contaminante", f"{ct.grupo} ({ct.meio})", None),
         ("Restrição de uso", ficha.restricao(p), None),
         ("Motivo da permanência", _rot_motivo(p.motivo) + (f" · base legal: {mp.base_legal}" if mp is not None
@@ -1374,7 +1375,7 @@ def a2_02(item, dados: DadosRelatorio, fontes: Fontes) -> Documento:
                            _anos(p.dias_de_atraso(hoje)), _rot_motivo(p.motivo),
                            _rot_acao(regras.acao_recomendada(p, hoje, r))])
         restantes += max(0, len(grupo) - 10)
-    y = _tabela(t, y, [("Código", 66), ("Município", 112), ("Substância", 168), ("Classe", 112),
+    y = _tabela(t, y, [("Código", 66), ("Município", 112), ("Passivo", 168), ("Classe", 112),
                        ("Atraso", 74, "d"), ("Motivo da permanência", 176), ("Ação recomendada", 180)], linhas,
                 tamanho=11)
     if restantes:
@@ -1844,7 +1845,7 @@ def a3_02(item, dados: DadosRelatorio, fontes: Fontes) -> Documento:
                f"{RISCO_CLASSE[p.classe_risco]} × {brg(PESO_GRUPO[grupo_do_motivo(p.motivo)])} × "
                f"{br(fator_atraso(p, hoje))}", score[p.codigo], _rot_acao(regras.acao_recomendada(p, hoje, r))]
               for i, p in enumerate(topo, 1)]
-    y = _tabela(t, y, [("Nº", 36), ("Código", 76), ("Local", 150), ("Substância", 200), ("Composição", 122),
+    y = _tabela(t, y, [("Nº", 36), ("Código", 76), ("Local", 150), ("Passivo", 200), ("Composição", 122),
                        ("Score", 70), ("Ação recomendada", 234)], linhas, tamanho=11)
     if topo:
         p = topo[0]

@@ -10,7 +10,8 @@ Protocolo guiado (~30 s), com a pessoa diante da câmera:
   3. DESLIZAR para a esquerda e 4. para a direita (6 s cada), sem girar a
      cabeça: mede quanto o centro do rosto se desloca.
 No fim, mostra os valores medidos e os sugeridos para [s6_vivacidade] no
-config/ecosec.toml, e grava os números em resultados/calibracao_vivacidade.json.
+config/ecosec.toml, e grava os números em resultados/calibracao_vivacidade_<data>_<hora>.json, um arquivo
+por medição: o resumo, os parâmetros em uso e a série de cada quadro (só números, nenhuma imagem).
 
 SINAIS CANDIDATOS da piscada: o Haar de olhos acha "olho" até com o olho
 fechado, então a presença dele não serve. Quatro sinais medidos dentro da faixa
@@ -54,6 +55,9 @@ class Registro:
     brilho: float | None = None
     ear: float | None = None
     regiao: float | None = None   # pontuação do detector padrão (região dos olhos) neste quadro, se ele pontuou
+    # os dois componentes da pontuação da região, crus: a mudança em relação ao olho aberto e a fração escura
+    mudanca: float | None = None
+    escuro_regiao: float | None = None
 
 
 # sinal candidato -> sentido na piscada (+1: cai ao fechar o olho; -1: sobe)
@@ -280,6 +284,17 @@ def relatorio(resultado: dict) -> str:
     return "\n".join(linhas)
 
 
+def nome_arquivo(momento: datetime) -> str:
+    """Um arquivo por medição: a data e a hora no nome, para uma medição não apagar a anterior."""
+    return f"calibracao_vivacidade_{momento:%Y-%m-%d_%H%M%S}.json"
+
+
+def parametros_gravaveis(pg) -> dict:
+    """Os parâmetros da vivacidade em uso na medição (números e textos), para reanalisar a série depois."""
+    import dataclasses
+    return {k: v for k, v in dataclasses.asdict(pg).items() if isinstance(v, (bool, int, float, str))}
+
+
 class JanelaCalibracao(QMainWindow):
     def __init__(self, cfg):
         super().__init__()
@@ -338,19 +353,20 @@ class JanelaCalibracao(QMainWindow):
             return Registro(self.etapa or "", time.monotonic(), False)
         m = self.olhos.medir(r.recorte_cinza)
         self._medida_atual.valor = m
-        pontuacao = None
+        pontuacao = mudanca = None
         if self.etapa:
             gesto = self._gesto_regiao
-            gesto.ultima_pontuacao = None                          # só vale o que ele pontuar neste quadro
+            gesto.ultima_pontuacao = gesto.ultima_mudanca = None   # só vale o que ele medir neste quadro
             if gesto.alimentar(r):
                 self.piscadas_regiao[self.etapa] = self.piscadas_regiao.get(self.etapa, 0) + 1
                 self._gesto_regiao = self._novo_gesto()             # rearma, como um gesto novo
-            pontuacao = gesto.ultima_pontuacao
+            pontuacao, mudanca = gesto.ultima_pontuacao, gesto.ultima_mudanca
         x, _, w, _ = face
         if m is None:
-            return Registro(self.etapa or "", time.monotonic(), True, centro=(x + w / 2) / w, regiao=pontuacao)
+            return Registro(self.etapa or "", time.monotonic(), True, centro=(x + w / 2) / w, regiao=pontuacao,
+                            mudanca=mudanca)
         return Registro(self.etapa or "", time.monotonic(), True, m.olhos, m.energia, (x + w / 2) / w,
-                        m.energia_crua, m.escuro, m.brilho, m.ear, pontuacao)
+                        m.energia_crua, m.escuro, m.brilho, m.ear, pontuacao, mudanca, m.escuro_regiao)
 
     def _quadro(self, imagem, resultado, registro):        # thread da interface
         self.visor.mostrar(imagem, resultado)
@@ -401,15 +417,18 @@ class JanelaCalibracao(QMainWindow):
         resultado["detector_regiao"] = dict(self.piscadas_regiao)
         texto = relatorio(resultado)
         self.saida.setPlainText(texto)
-        self.instrucao.setText("Pronto. O resultado está abaixo e foi gravado em resultados/calibracao_vivacidade.json.")
         pasta = self.cfg.caminho("resultados")
         pasta.mkdir(parents=True, exist_ok=True)
-        resultado["momento"] = datetime.now().isoformat(timespec="seconds")
+        agora = datetime.now()
+        resultado["momento"] = agora.isoformat(timespec="seconds")
+        resultado["parametros"] = parametros_gravaveis(self.pg)
         # a série (só números) permite reanalisar sem repetir o protocolo
         resultado["serie"] = [{k: v for k, v in r.__dict__.items()} for r in self.registros if r.face]
-        (pasta / "calibracao_vivacidade.json").write_text(json.dumps(resultado, ensure_ascii=False, indent=2),
-                                                         encoding="utf-8")
+        arquivo = pasta / nome_arquivo(agora)
+        arquivo.write_text(json.dumps(resultado, ensure_ascii=False, indent=2), encoding="utf-8")
+        self.instrucao.setText(f"Pronto. O resultado está abaixo e foi gravado em resultados/{arquivo.name}.")
         print(texto)
+        print(f"\nGravado em {arquivo}")
         self.botao.setText("Repetir")
         self.botao.setEnabled(True)
 

@@ -824,11 +824,11 @@ class MapaInterativo(QWidget):
 
 # planilha
 # A grade mostra só as 9 colunas de decisão, na ordem de quem decide (o caso e o risco, onde, em que
-# pé está, o porquê e o que fazer). O score vai na dica da faixa e a faixa ordena por ele. Substância,
-# quantidade, datas, atraso, andamento, atividade, quem paga, custo, endereço e coordenadas ficam nos detalhes do
-# caso (a ficha numa gaveta sobre a grade, com Enter ou duplo clique na linha) e na exportação, que continua
-# com as 29 colunas cruas de analise.TITULOS. "Dias além do prazo legal" vale também para os encerrados (o atraso
-# que ficou registrado), como na exportação.
+# pé está, o porquê e o que fazer). O score vai na dica da faixa e a faixa ordena por ele. Passivo,
+# componente químico, quantidade, datas, atraso, andamento, atividade, quem paga, custo, endereço e coordenadas
+# ficam nos detalhes do caso (a ficha numa gaveta sobre a grade, com Enter ou duplo clique na linha) e na
+# exportação, que continua com as 30 colunas cruas de analise.TITULOS. "Dias além do prazo legal" vale também
+# para os encerrados (o atraso que ficou registrado), como na exportação.
 COLUNAS_PLANILHA = ("CODIGO", "NIVEL_DE_RISCO", "CLASSE_DE_RISCO", "UF", "MUNICIPIO", "ETAPA_ATUAL",
                     "DIAS_ALEM_DO_PRAZO_LIMITE", "ACAO_RECOMENDADA", "MOTIVO")
 TITULOS_PLANILHA = tuple(c.replace("_", " ") for c in COLUNAS_PLANILHA)
@@ -991,7 +991,7 @@ class PlanilhaAnalitica(QWidget):
         v.setContentsMargins(0, 8, 0, 0)
         v.setSpacing(8)
         self.busca = SearchLineEdit()
-        self.busca.setPlaceholderText("Código, substância, classe, município, bairro, CEP…")
+        self.busca.setPlaceholderText("Código, passivo, classe, município, bairro, CEP…")
         self.busca.setMinimumWidth(300)
         self.busca.textChanged.connect(lambda texto: self.painel is not None and self.estado.definir(busca=texto))
         self.combo_uf = _combo([TODAS_UFS], 120)
@@ -1046,7 +1046,7 @@ class PlanilhaAnalitica(QWidget):
             botao.clicked.connect(lambda *_, e=extensao: self.exportar(e))
         topo = QHBoxLayout()
         topo.setSpacing(10)
-        topo.addLayout(_coluna_campo("Buscar", self.busca, "Procura o texto no código, na substância, na classe, no "
+        topo.addLayout(_coluna_campo("Buscar", self.busca, "Procura o texto no código, no passivo, na classe, no "
                                                            "município, no bairro, no logradouro e no CEP."))
         topo.addLayout(_coluna_campo(vocabulario.CAMPO_SITUACAO, self.combo_situacao, DICA_SITUACAO))
         topo.addStretch(1)

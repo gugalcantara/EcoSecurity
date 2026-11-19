@@ -27,7 +27,7 @@ from html import escape
 from PySide6.QtCore import QIdentityProxyModel, Qt
 from PySide6.QtWidgets import QHBoxLayout, QHeaderView, QLabel, QStackedWidget, QVBoxLayout, QWidget
 
-from ecosec.acervo import custos, formatos, regras, vocabulario
+from ecosec.acervo import custos, ficha, formatos, regras, vocabulario
 from ecosec.interface.estilo import cor_borda, cor_texto_secundario
 from ecosec.interface.fluent import CaptionLabel, ComboBox, FlowLayout, SegmentedWidget, SpinBox, StrongBodyLabel
 from ecosec.interface.n23_graficos import (Barra, BarraPartes, BarrasH, CartaoGrafico, CartaoValor, Curva,
@@ -315,7 +315,8 @@ class PriorizacaoOrcamento(QWidget):
     altura). "Por urgência" (CasosParaAgir, padrão) traz a própria base; em "Pelo orçamento público" a linha mostra
     o orçamento, o critério e a base da fila. As duas carregam juntas, qualquer que seja a visão aberta."""
     VISOES = (("urgencia", "Por urgência"), ("orcamento", "Pelo orçamento público"))
-    TITULOS = ("ORDEM", "CODIGO", "NIVEL DE RISCO", "SCORE", "CLASSE DE RISCO", "SUBSTANCIA", "MUNICIPIO", "UF",
+    TITULOS = ("ORDEM", "CODIGO", "NIVEL DE RISCO", "SCORE", "CLASSE DE RISCO", "PASSIVO", "COMPONENTE QUIMICO",
+               "MUNICIPIO", "UF",
                "CUSTO (R$)", "ACUMULADO NA FILA (R$)", "RISCO ELIMINADO ACUMULADO (%)")
     # o que cada cartão mede (a dica; a fonte e o corte entram em atualizar)
     DICAS = {"casos": "Casos que a fila leva com o orçamento escolhido, sobre todos os casos ativos pagos pelo poder "
@@ -445,6 +446,7 @@ class PriorizacaoOrcamento(QWidget):
             acumulado += custo
             score += s
             linhas.append([ordem, p.codigo, regras.faixa_do_score(s), round(s, 2), p.classe_risco, p.substancia,
+                           ficha.componente(p),
                            p.municipio, p.uf, round(float(custo), 2), round(acumulado, 2),
                            round(100 * score / total_score, 2)])           # dinheiro: float, um formato só
         self.modelo.definir(linhas)

@@ -34,7 +34,7 @@ def variacao(img, semente):
     return np.clip(img + ruido, 0, 255).astype(np.uint8)
 
 
-# Fase 1: Aquisição
+# Fase 1: Sensor (aquisição)
 class CapturaFalsa:
     def __init__(self, aberta=True, quadros=True):
         self.aberta, self.quadros, self.n = aberta, quadros, 0
@@ -200,7 +200,7 @@ def test_pipeline_so_normaliza_com_uma_face_boa():
     assert pipe.processar(quadro).dica.startswith("Posicione")
 
 
-# Fases 4 e 5: LBPH
+# Fases 4 e 5: extração de características (LBPH) e classificação e interpretação
 def _reconhecedor():
     rec = ReconhecedorLBPH(ParametrosLBPH.de_configuracao(CFG))
     rec.adicionar([variacao(textura(10), s) for s in range(5)], rotulo=1)
@@ -465,6 +465,18 @@ def test_regiao_piscada_fechou_e_reabriu():
     fechados = [_olho(_FECHADO, 0.10, semente=100 + i) for i in range(2)]
     resultados = _piscadas_regiao(ABERTOS + fechados + [_olho(_ABERTO, 0.20, semente=200)])
     assert resultados[-1] is True and not any(resultados[:-1])
+
+
+def test_regiao_expoe_a_mudanca_de_cada_quadro_para_a_calibracao():
+    gesto = DetectorGesto(Gesto.PISCAR, PG_REGIAO, OlhosRegiao(ABERTOS + [_olho(_FECHADO, 0.10, semente=300)]))
+    mudancas = []
+    for _ in range(len(ABERTOS) + 1):
+        gesto.ultima_mudanca = None
+        gesto.alimentar(_quadro_com_face(200))
+        mudancas.append(gesto.ultima_mudanca)
+    assert all(m is None for m in mudancas[:6])                 # a referência ainda se forma
+    abertas = [m for m in mudancas[6:-1] if m is not None]
+    assert abertas and mudancas[-1] > 3 * max(abertas)          # o olho fechado muda bem mais que o aberto
 
 
 def test_regiao_foto_parada_nunca_pisca():

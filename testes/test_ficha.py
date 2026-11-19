@@ -18,7 +18,7 @@ from datetime import datetime
 
 import pytest
 
-from ecosec.acervo import custos, fase, ficha, formatos, regras, sinteticos
+from ecosec.acervo import custos, fase, ficha, formatos, regras, sinteticos, vocabulario
 from ecosec.acervo.geracao.ciclo import CICLOS
 from ecosec.configuracao import carregar
 from ecosec.dominio.acervo import Pendencia
@@ -129,6 +129,27 @@ def test_substancia_fora_do_catalogo_nao_e_adivinhada(base):
     p = dataclasses.replace(base[0][0], substancia="SUBSTANCIA INVENTADA")
     with pytest.raises(ficha.SemCatalogo):
         ficha.contaminante(p)
+
+
+# componente químico
+def test_catalogo_de_componentes_cobre_exatamente_as_substancias_do_gerador():
+    assert set(ficha.COMPONENTE) == set(_substancias())
+    assert all(ficha.COMPONENTE.values())
+    misturas = {s for s, c in ficha.COMPONENTE.items() if c == ficha.MISTURA}
+    assert misturas == {"CHORUME CLASSE I EM LAGOA", "RESIDUOS EM CELULA SEM MANTA", "PRODUTOS PERIGOSOS EM GALPAO",
+                        "LICOR NEGRO EM LAGOA DESATIVADA"}
+
+
+def test_componente_exibido_com_acentos_e_siglas():
+    assert vocabulario.frase(ficha.COMPONENTE["LODO GALVANICO COM CROMO VI"]) == "Cromo hexavalente"
+    assert vocabulario.frase(ficha.COMPONENTE["FONTE SELADA DE CESIO 137"]) == "Césio-137"
+    assert vocabulario.frase(ficha.COMPONENTE["METAIS PESADOS NI ZN CU"]) == "Níquel, zinco e cobre"
+    assert vocabulario.frase(ficha.MISTURA) == "Toxina: mistura de resíduos perigosos"
+
+
+def test_componente_fora_do_catalogo_fica_vazio(base):
+    p = dataclasses.replace(base[0][0], substancia="SUBSTANCIA INVENTADA")
+    assert ficha.componente(p) == ""
 
 
 # restrição de uso

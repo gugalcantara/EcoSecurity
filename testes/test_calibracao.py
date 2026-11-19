@@ -1,5 +1,8 @@
 """Análise da ferramenta de calibração da vivacidade (função pura, sem câmera)."""
-from ferramentas.calibrar_vivacidade import Registro, analisar, relatorio
+import json
+from datetime import datetime
+
+from ferramentas.calibrar_vivacidade import Registro, analisar, nome_arquivo, parametros_gravaveis, relatorio
 
 ATUAL = {"vizinhos_olhos": 3, "queda_ear_minima": 0.30, "deslocamento_minimo": 0.25}
 PG = __import__("ecosec.visao.gestos", fromlist=["x"]).ParametrosGestos.de_configuracao(
@@ -110,3 +113,23 @@ def test_sem_separacao_nao_sugere_limiar():
     piscar = [0.1, 0.5, 0.1, 0.1, 0.1, 0.55, 0.1, 0.1, 0.1, 0.5, 0.1]
     r = analisar_regiao(_serie_regiao([0.1], piscar, [0.5]), 0.85)
     assert "limiar_sugerido" not in r and r["avisos"]
+
+
+# gravação: um arquivo por medição, com os parâmetros em uso e só números
+def test_cada_medicao_tem_um_arquivo_proprio():
+    assert nome_arquivo(datetime(2026, 11, 19, 14, 5, 9)) == "calibracao_vivacidade_2026-11-19_140509.json"
+    assert nome_arquivo(datetime(2026, 11, 19, 14, 5, 9)) != nome_arquivo(datetime(2026, 11, 19, 14, 5, 10))
+
+
+def test_parametros_gravados_bastam_para_reanalisar_a_serie():
+    gravados = parametros_gravaveis(PG)
+    json.dumps(gravados)
+    for chave in ("sinal_piscada", "limiar_regiao", "escala_mudanca", "escala_escuro", "frames_olho_aberto",
+                  "frames_olho_fechado", "movimento_maximo"):
+        assert chave in gravados, chave
+
+
+def test_registro_guarda_so_numeros():
+    r = Registro("PISCAR", 1.0, True, 1, 100.0, 0.5, regiao=0.9, mudanca=0.7, escuro_regiao=0.1)
+    assert all(v is None or isinstance(v, (bool, int, float, str)) for v in r.__dict__.values())
+    json.dumps(r.__dict__)

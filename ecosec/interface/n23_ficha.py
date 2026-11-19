@@ -1,11 +1,12 @@
 """Ficha do caso, aba "Dados técnicos" do mapa interativo (N2 e N3).
 
 Blocos com hierarquia, do que decide para o que detalha:
-  cabeçalho      código e substância, selos de classe e de risco, score de risco, andamento e fase
+  cabeçalho      código e passivo, selos de classe e de risco, score de risco, andamento e fase
   Situação e prazos   etapa atual, identificado em, prazo previsto, prazo legal, encerrado em, ação, quem paga
   Local          município/UF, endereço e coordenadas (o N2 e o N3 veem o endereço; o N1 não tem ficha)
   Origem e causa atividade de origem, motivo da permanência e base legal
-  Contaminação e uso  classe, quantidade, contaminante, meio afetado, restrição de uso, usos anterior e pretendido
+  Contaminação e uso  classe, quantidade, componente químico, contaminante, meio afetado, restrição de uso,
+                      usos anterior e pretendido
   Custo estimado total, rota, divisão nas quatro categorias e a memória de cálculo recolhível
   Histórico de etapas linha do tempo
 Rótulos e textos de exibição pelo vocabulário (`acervo/vocabulario.py`): textos de catálogo do acervo passam por
@@ -309,6 +310,9 @@ class FichaTecnica(QWidget):
         sigla = vocabulario.rotulo_unidade(p.unidade)
         b.linha(vocabulario.rotulo("QUANTIDADE", "campo"), f"{formatos.numero(p.quantidade, 2)}&nbsp;{sigla}",
                 vocabulario.dica("QUANTIDADE", "campo"))
+        from ecosec.acervo import ficha
+        b.linha(vocabulario.rotulo("COMPONENTE_QUIMICO", "campo"), escape(vocabulario.frase(ficha.componente(p))),
+                vocabulario.dica("COMPONENTE_QUIMICO", "campo"))
         b.linha(vocabulario.rotulo("CONTAMINANTE", "campo"), escape(vocabulario.frase(a.grupo_contaminante)),
                 vocabulario.dica("CONTAMINANTE", "campo"))
         b.linha(vocabulario.rotulo("MEIO", "campo"), escape(vocabulario.frase(a.meio)), vocabulario.dica("MEIO", "campo"))

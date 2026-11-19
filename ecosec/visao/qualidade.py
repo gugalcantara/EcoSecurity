@@ -1,19 +1,18 @@
-"""Portão de qualidade: medir se o recorte da face serve para decidir.
+"""Fase 2: Pré-processamento (portão de qualidade). Mede se o recorte da face serve para decidir.
 
-As medidas são feitas no recorte cru, antes do CLAHE. O realce existe para
-salvar imagens medianas; aplicado antes da medição, ele faria uma imagem quase
-preta parecer aceitável: e é justamente essa que o portão precisa barrar.
+As medidas são feitas no recorte original, antes do CLAHE: o realce aplicado antes da medição faria uma
+imagem quase preta parecer aceitável.
 
 Medidas:
-- Nitidez: variância do Laplaciano. O Laplaciano realça bordas; numa imagem
-  borrada (movimento, foco) quase não há bordas, e a variância despenca.
-- Brilho: média dos tons. Escura demais esconde textura; clara demais estoura.
-- Contraste: desvio-padrão dos tons. Baixo = imagem "lavada", sem textura.
-- Ruído: método de Immerkær (1996). Convolui com uma máscara que anula
-  regiões lisas e bordas lineares, sobrando essencialmente o ruído do sensor.
+- Nitidez: variância do Laplaciano. O Laplaciano realça bordas; numa imagem borrada (movimento ou foco)
+  quase não há bordas, e a variância cai.
+- Brilho: média dos tons. Muito escura, esconde a textura; muito clara, estoura.
+- Contraste: desvio-padrão dos tons. Baixo indica imagem "lavada", sem textura.
+- Ruído: método de Immerkær (1996). Uma máscara de convolução anula regiões lisas e bordas lineares, e
+  sobra principalmente o ruído do sensor.
 
-Cada problema traz uma dica com a ação a tomar ("acenda uma luz à sua frente"),
-não o diagnóstico ("imagem escura"): é isso que a pessoa consegue corrigir.
+Cada problema vem com uma orientação do que a pessoa pode fazer diante da câmera, como "acenda uma luz à
+sua frente".
 """
 import math
 from dataclasses import dataclass

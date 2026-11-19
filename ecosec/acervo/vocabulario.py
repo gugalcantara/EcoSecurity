@@ -344,7 +344,11 @@ ATIVIDADES = tuple(_t("atividade", c, r, d) for c, (r, d) in _ATIVIDADES.items()
 # campos da ficha e categorias de custo
 CAMPOS = (
     _t("campo", "CODIGO", "Código do caso", "Identificador do caso no cadastro: as letras PD e um número de quatro dígitos."),
-    _t("campo", "SUBSTANCIA", "Substância", "O que contamina ou o que está guardado, como registrado no caso."),
+    _t("campo", "PASSIVO", "Passivo", "O que contamina ou o que está guardado, como registrado no caso."),
+    _t("campo", "COMPONENTE_QUIMICO", "Componente químico", "A substância química que torna o passivo perigoso. "
+                                                            "Quando o passivo reúne resíduos sem um componente "
+                                                            "principal, aparece como mistura de resíduos "
+                                                            "perigosos."),
     _t("campo", "QUANTIDADE", "Quantidade", "Volume ou massa do passivo, na unidade da classe: toneladas para "
                                             "resíduo perigoso, m³ para área contaminada e material radioativo. "
                                             "Unidades diferentes nunca se somam."),
@@ -352,7 +356,7 @@ CAMPOS = (
                                                     "mineração...)."),
     _t("campo", "MOTIVO", "Motivo da permanência", "Por que o caso continua sem solução. O motivo define quem paga e "
                                                    "que ação resolve."),
-    _t("campo", "CONTAMINANTE", "Contaminante", "O grupo químico ou radiológico da substância (metais, "
+    _t("campo", "CONTAMINANTE", "Contaminante", "O grupo químico ou radiológico do componente (metais, "
                                                 "hidrocarbonetos, PCB, radionuclídeos...)."),
     _t("campo", "MEIO", "Meio afetado", "Onde o contaminante está: solo, água subterrânea ou sedimento, na área "
                                         "contaminada; no resíduo e no material radioativo, a própria matriz "
@@ -535,7 +539,8 @@ def dica_ano(ano: int | None, hoje) -> str:
 
 # títulos de coluna
 _TITULOS = {
-    "CODIGO": "Código", "SUBSTANCIA": "Substância", "CLASSE DE RISCO": "Classe", "QUANTIDADE": "Quantidade",
+    "CODIGO": "Código", "PASSIVO": "Passivo", "COMPONENTE QUIMICO": "Componente químico",
+    "CLASSE DE RISCO": "Classe", "QUANTIDADE": "Quantidade",
     "UNIDADE": "Unidade", "ATIVIDADE": "Atividade de origem", "MOTIVO": "Motivo da permanência",
     "LOGRADOURO": "Logradouro", "NUMERO": "Número", "COMPLEMENTO": "Complemento", "BAIRRO": "Bairro",
     "MUNICIPIO": "Município", "UF": "UF", "CEP": "CEP", "LATITUDE": "Latitude", "LONGITUDE": "Longitude",
@@ -577,7 +582,8 @@ _DICA_DA_COLUNA = {
     "ATRASO DIAS": ("ATRASO", "campo"), "CUSTO ESTIMADO": ("CUSTO_ESTIMADO", "campo"),
     "ATIVIDADE": ("ATIVIDADE", "campo"), "MOTIVO": ("MOTIVO", "campo"), "SITUACAO": ("SITUACAO_CASO", "campo"),
     "ETAPA ATUAL": ("ETAPA", "campo"), "QUANTIDADE": ("QUANTIDADE", "campo"),
-    "IDENTIFICACAO": ("IDENTIFICACAO", "campo"),
+    "IDENTIFICACAO": ("IDENTIFICACAO", "campo"), "PASSIVO": ("PASSIVO", "campo"),
+    "COMPONENTE QUIMICO": ("COMPONENTE_QUIMICO", "campo"),
 }
 
 
@@ -718,6 +724,7 @@ _ACENTOS = {
     "subterraneo": "subterrâneo", "torio": "tório", "uranio": "urânio", "armazem": "armazém",
     "quadrilatero": "quadrilátero", "metalurgicos": "metalúrgicos", "oratorio": "oratório", "regiao": "região",
     "acao": "ação", "situacao": "situação", "permanencia": "permanência", "pendencia": "caso",
+    "acido": "ácido", "niquel": "níquel", "sodio": "sódio", "sulfurico": "sulfúrico",
 }
 
 

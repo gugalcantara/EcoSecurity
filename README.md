@@ -19,6 +19,19 @@ informação:
 
 Nenhuma imagem de rosto é guardada e nada é enviado para a internet.
 
+## Processamento da imagem
+
+Cada quadro da câmera passa pelas cinco fases do processamento digital de imagens, nesta ordem:
+
+- Fase 1, sensor (aquisição): a câmera é lida numa thread própria, com uma fila que guarda só o quadro mais recente (`ecosec/visao/aquisicao.py`).
+- Fase 2, pré-processamento: o quadro é convertido para níveis de cinza (`preprocessamento.py`).
+- Fase 3, segmentação: o classificador de Haar localiza a face e o rastreador KCF a acompanha entre as detecções; o quadro com mais de uma face é recusado (`segmentacao.py`).
+- Fase 2 de novo, pré-processamento do recorte: a face passa pelo portão de qualidade (nitidez pelo Laplaciano, brilho, contraste e ruído) e é normalizada com redimensionamento, CLAHE e filtro gaussiano (`qualidade.py` e `preprocessamento.py`).
+- Fase 4, extração de características: o LBPH transforma a face em histogramas de padrões binários locais (`reconhecimento.py`).
+- Fase 5, classificação e interpretação: a distância até as amostras da pessoa é comparada ao limiar e precisa se confirmar em quadros seguidos (`reconhecimento.py`). No nível 3 e na Administração, os gestos da prova de vida são interpretados pelos pontos faciais do FacemarkLBF (`gestos.py`).
+
+O pré-processamento aparece duas vezes porque o tratamento da face depende de ela já estar localizada. O encadeamento completo está em `PipelineVisao.processar()`, em `ecosec/visao/pipeline.py`. O sistema não usa redes neurais: o Haar e o FacemarkLBF são modelos pré-treinados carregados do próprio computador, e o LBPH é treinado com as faces do cadastro.
+
 ## Requisitos
 
 - Windows 10 ou 11, com webcam;
