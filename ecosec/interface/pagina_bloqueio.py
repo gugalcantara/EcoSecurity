@@ -1,13 +1,4 @@
-"""Tela de bloqueio por inatividade.
-
-Depois de [sessao] inatividade_minutos sem uso, a sessão não é encerrada: a
-tela é bloqueada. A pessoa digita a própria senha e volta exatamente para onde
-estava. Nada fecha no meio de uma atividade; só uma inatividade real bloqueia.
-
-Enquanto bloqueada, o menu some e nada do conteúdo fica visível. O Nível 3 e o
-painel de administração, que exigem o rosto, se fecham no bloqueio: ao voltar,
-pedem o rosto de novo. Erros de senha aqui contam para a contenção da conta.
-"""
+"""Tela de bloqueio por inatividade."""
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 

@@ -1,14 +1,4 @@
-"""Vídeo na interface: a thread que alimenta a tela e o visor que desenha.
-
-TrabalhadorVideo (QThread): roda a câmera e o pipeline fora da thread da
-interface, e entrega cada quadro por sinal. A tela nunca chama camera.read():
-se chamasse, congelaria 30-50 ms a cada quadro. Também chama, na mesma thread,
-o processamento de quem consome (autenticação ou coleta do cadastro).
-
-VisorVideo, desenha o quadro espelhado (como um espelho: levantar a mão
-direita levanta a mão do lado direito da tela), a moldura-guia e o retângulo
-da face: verde quando a imagem serve, âmbar quando não.
-"""
+"""Vídeo da câmera na interface."""
 import logging
 
 import cv2
@@ -39,7 +29,7 @@ class TrabalhadorVideo(QThread):
         self.camera, self.pipeline = camera, pipeline
         self.processar = processar                    # pode ser trocado em andamento
 
-    def run(self):                                    # thread SECUNDÁRIA
+    def run(self):                                    # thread secundária
         try:
             self.camera.iniciar()
         except ErroCamera as erro:

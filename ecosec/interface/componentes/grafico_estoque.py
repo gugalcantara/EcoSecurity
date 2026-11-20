@@ -1,17 +1,4 @@
-"""Estoque ATIVO por classe, com os eventos numerados (3.1.3, valores desentrelaçados).
-
-Três modos, cada grandeza no seu eixo (nenhum gráfico tem dois eixos verticais):
-  - Estoque ativo por classe: áreas empilhadas (a borda de cima é o total, que aparece no título e no
-    rótulo do ano; nenhuma linha de total por cima das áreas);
-  - SALDO ANUAL: dois gráficos com o mesmo eixo X. Em cima, entradas para cima e saídas para baixo,
-    num eixo simétrico com o 0 marcado; embaixo, o saldo (entradas menos saídas) em barras positivas e
-    negativas, na escala dele. Num estoque de ~1.000 pendências uma queda de poucas unidades some; no saldo,
-    todo ano negativo aparece;
-  - Por classe (SMALL MULTIPLES): um gráfico pequeno por classe, cada um com o seu eixo Y: a classe
-    pequena (rejeito) deixa de ser uma faixa ilegível no topo da pilha.
-Eventos: linha vertical pontilhada e um número no topo, dentro da área do gráfico e sem colisão; o
-texto vai para a dica e para a legenda de eventos abaixo. Eixos de valor com passo redondo, 1, 2 ou 5 vezes 10^k.
-"""
+"""Gráfico do estoque de casos ativos por classe."""
 import math
 
 from PySide6.QtCharts import (QAreaSeries, QBarCategoryAxis, QBarSet, QChart, QChartView, QLineSeries,

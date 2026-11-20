@@ -1,20 +1,4 @@
-"""Os "Painéis da UF" do N2 como painel de decisão (n23_paineis_uf.PaineisUF).
-
-Critérios de aceite: priorização (o que atacar primeiro), comparação contra referência (fim do ano
-anterior e Brasil), próximo passo por item, números com unidade e rótulo simples e custo mantido
-(o dado financeiro sai só do N1).
-
-Cobre: "O que fazer agora" (a ação mais urgente com casos, o caso mais atrasado e a distância do Brasil; frase sem
-dado não aparece e as seguintes sobem), o veredito UF × Brasil no sentido de cada indicador (na taxa de
-encerramento maior é melhor; nos outros três, menor é melhor), cada um com um caso melhor e um pior em dados
-montados, os cartões com comparação, a lista vazia com a mensagem de cada situação, o desempate da lista, a ação
-recomendada inteira na tabela, nada em caixa alta entre parênteses (sem "PARAMETRO" nem simulação), nenhum código
-nem travessão visível e a recarga sem acumular.
-
-Também cobre os números que fecham com o serviço (seções, cartões, barras, lista, custo,
-referência nacional, evolução, rodapés e o duplo clique que abre a ficha) e o sigilo do N2 (nenhum responsável,
-nenhuma outra UF, a consulta ao país na trilha).
-"""
+"""Testes dos painéis da UF."""
 import dataclasses
 import re
 from types import SimpleNamespace

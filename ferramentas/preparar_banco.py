@@ -1,25 +1,7 @@
-"""Prepara o MySQL do EcoSecurity: bancos, tabelas, dados de referência e contas.
+r"""Prepara o MySQL do EcoSecurity: bancos, tabelas, dados de referência e contas.
 
-    .venv\\Scripts\\python.exe -m ferramentas.preparar_banco
-
-Pede a senha do root uma vez (digitada por você, não guardada em lugar
-nenhum). O root só serve para isto; a aplicação nunca o usa.
-
-Cria três contas, cada uma com o mínimo de que precisa:
-
-  conta          banco              pode                         não pode
-  -------------  -----------------  ----------------------------  --------------------------------
-  ecosec_seg     ecosec_seguranca   ler; inserir; alterar usuário  apagar usuário, consentimento,
-                                    e consentimento; registrar     amostra; mexer no acervo
-                                    amostras e tentativas
-  ecosec_cofre   ecosec_acervo      só ler                         gravar qualquer coisa no acervo
-  ecosec_teste   ecosec_teste_*     tudo (bancos descartáveis)     tocar nos bancos reais
-
-Assim, mesmo com um defeito ou uma injeção de SQL na aplicação, o estrago fica
-limitado ao que a conta pode: e ela não pode apagar provas nem alterar o cofre.
-
-Idempotente: pode rodar de novo. Tabelas existentes são mantidas; privilégios
-são refeitos do zero (REVOKE + GRANT), corrigindo qualquer excesso.
+    .venv\Scripts\python.exe -m ferramentas.preparar_banco
+    .venv\Scripts\python.exe -m ferramentas.preparar_banco --recriar-acervo
 """
 import argparse
 import getpass
@@ -168,11 +150,8 @@ def _check_existe(cursor, banco: str, nome: str) -> bool:
 
 
 def migrar_perfis(cursor, banco: str) -> None:
-    """Leva o banco de segurança ao modelo de perfis, de antes dela (só níveis) ou da sua
-    primeira versão (com os perfis Administrador, Sem perfil e Ministério Público). Idempotente: cada passo confere
-    antes. Cada um recebe o perfil do nível (1 servidor, 2 diretor, 3 ministro); quem tem o papel de administrador
-    ativo vira EXTERNO e perde a camada (o administrador não tem acesso a dados). Os perfis retirados viram
-    EXTERNO, sem camada. A UF fica só com o diretor. A trilha e os consentimentos não são tocados (são prova)."""
+    """Leva o banco de segurança ao modelo de perfis, de qualquer versão anterior. Idempotente.
+    A trilha e os consentimentos não são tocados."""
     cursor.execute(f"USE `{banco}`")
     if not _coluna_existe(cursor, banco, "usuario", "excluido_em"):
         cursor.execute("ALTER TABLE usuario ADD COLUMN excluido_em DATETIME(6) NULL AFTER criado_em")

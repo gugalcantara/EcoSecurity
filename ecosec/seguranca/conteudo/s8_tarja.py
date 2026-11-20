@@ -1,25 +1,4 @@
-"""S8 Tarja: "O que pode ver?"
-
-Cada item do acervo tem regiões sensíveis (retângulos com rótulo e nível
-mínimo). Antes de a imagem chegar à tela, toda região acima do nível de quem
-consulta é suprimida.
-
-Princípios:
-1. Supressão NA ORIGEM, numa cópia. A interface recebe pixels já tratados;
-   nunca recebe o original "com um retângulo desenhado por cima": um
-   retângulo sobreposto se remove com um clique; o pixel apagado, não.
-2. Irreversível. Filtro gaussiano de núcleo grande, várias passadas: o texto
-   vira mancha e não há operação que o reconstitua.
-3. Borrar não esconde posição. O gaussiano preserva o centroide de uma
-   mancha: num mapa borrado, medir o resíduo de cor ainda aponta onde o ponto
-   estava. Rótulos cuja informação é a posição (coordenada, distribuição
-   geográfica) recebem supressão sólida: sem estrutura nenhuma de onde inferir.
-4. Falha segura também no conteúdo: item cujas regiões ainda não foram
-   revisadas é tratado como totalmente sensível: abaixo do nível 3, a imagem
-   inteira é suprimida.
-
-É processamento de imagem pura (numpy/OpenCV): não conhece banco nem tela.
-"""
+"""S8 Tarja: o que pode ver?"""
 from dataclasses import dataclass
 
 import cv2
@@ -89,7 +68,7 @@ def _suprimir(area: np.ndarray, metodo: str, p: ParametrosTarja) -> np.ndarray:
 
 def aplicar(imagem: np.ndarray, regioes, nivel: Nivel, p: ParametrosTarja,
             regioes_revisadas: bool) -> ResultadoTarja:
-    """Devolve uma CÓPIA com as regiões acima do nível suprimidas."""
+    """Devolve uma cópia com as regiões acima do nível suprimidas."""
     nivel = Nivel(nivel)
     saida = imagem.copy()
     alt, larg = saida.shape[:2]

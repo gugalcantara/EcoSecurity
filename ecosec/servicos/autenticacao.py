@@ -1,17 +1,4 @@
-"""Autenticação: conduz uma tentativa etapa por etapa (credenciais, rosto e, no nível 3, os gestos) até a
-decisão da política de acesso.
-
-O login de entrada usa matrícula, senha e rosto 1:1 e gera uma identidade comprovada, válida durante a
-sessão. Abrir os níveis 1 e 2 só reavalia essas evidências; abrir o nível 3 começa uma nova sessão no rosto,
-com o limiar mais rígido e a vivacidade, e o painel do administrador também começa no rosto. Essas sessões
-têm contenção própria (matrícula e nível), para que falhar o gesto do nível 3 não bloqueie o login.
-
-O serviço só coleta as evidências e pergunta à política, a cada etapa, se até ali está tudo certo; a decisão
-final é sempre da política. Ele recebe os quadros já processados pela visão, sem acesso à câmera, por isso pode
-ser testado com quadros fabricados. A matrícula bloqueada nem confere a senha, o rosto continua sendo conferido
-durante os gestos, desistir na etapa do rosto conta como falha, e os métodos são protegidos por trava, porque
-o vídeo e a tela chamam o serviço de threads diferentes.
-"""
+"""Autenticação: credenciais, rosto e, quando exigidos, os gestos."""
 import dataclasses
 import functools
 import logging
@@ -160,7 +147,7 @@ class ServicoAutenticacao:
         return SessaoAutenticacao(Nivel.N2, self, finalidade=Finalidade.ADMIN, identidade=identidade)
 
     def nova_verificacao_operacao(self, identidade: IdentidadeComprovada) -> "SessaoAutenticacao":
-        """Step-up antes de uma operação crítica: o rosto é conferido de novo, NA HORA (verificação de presença)."""
+        """Step-up antes de uma operação crítica: o rosto é conferido de novo, na hora (verificação de presença)."""
         return SessaoAutenticacao(Nivel.N2, self, finalidade=Finalidade.OPERACAO, identidade=identidade)
 
     def avaliar_contexto(self, usuario: Usuario, falhas_recentes: int) -> RiscoContexto:
@@ -221,7 +208,7 @@ class ServicoAutenticacao:
                     camadas=decisao.fatores_avaliados, nivel_solicitado=nivel.value,
                     usuario_id=identidade.usuario_id, matricula_informada=identidade.matricula,
                     detalhe="step-up: evidências do login de entrada")
-        except Exception:  # noqa: BLE001, SEM REGISTRO, SEM ACESSO
+        except Exception:  # noqa: BLE001, sem registro, sem acesso
             log.exception("Trilha indisponível ao abrir o nível; acesso negado")
             decisao = Decisao(Motivo.ERRO_INTERNO, decisao.vereditos, decisao.camadas_exigidas)
         return decisao
@@ -486,12 +473,12 @@ class SessaoAutenticacao:
     #  1. o rosto é conferido em todo quadro bom, com a tolerância de gesto (o rosto em
     #     movimento ou piscando se afasta do modelo); N quadros seguidos fora dela negam
     #     (uma troca de rosto fica muito além; um quadro borrado isolado, não);
-    #  2. se o rosto some da imagem durante a PISCADA, ela recomeça: trocar a
+    #  2. se o rosto some da imagem durante a piscada, ela recomeça: trocar a
     #     foto da vítima pelo próprio rosto faz a face sumir por um instante.
     #     No MOVER, sumir é normal (o detector frontal perde o rosto virado em parte
     #     dos quadros); o quadro só não conta. A troca de
     #     rosto continua barrada pelas regras 1 e 3;
-    #  3. depois de cada gesto, a identidade precisa ser CONFERIDA de novo em N
+    #  3. depois de cada gesto, a identidade precisa ser conferida de novo em N
     #     quadros seguidos. Contar conferências durante o gesto não basta: dois
     #     quadros da foto antes da troca já as cumpririam.
     def _iniciar_desafio(self) -> Andamento:
@@ -616,7 +603,7 @@ class SessaoAutenticacao:
         self._etapa = Etapa.CONCLUIDA
         try:
             self._registrar_na_trilha(decisao)
-        except Exception:  # noqa: BLE001, SEM REGISTRO, SEM ACESSO
+        except Exception:  # noqa: BLE001, sem registro, sem acesso
             log.exception("Trilha indisponível: o desfecho não pôde ser registrado; acesso negado")
             self._decisao = Decisao(Motivo.ERRO_INTERNO, decisao.vereditos, self._camadas)
         if self._decisao.concedido:
@@ -698,7 +685,7 @@ class SessaoAutenticacao:
 
     @property
     def identidade_comprovada(self) -> IdentidadeComprovada | None:
-        """Só de um login de ENTRADA concedido."""
+        """Só de um login de entrada concedido."""
         if self.finalidade is not Finalidade.ENTRADA or self._decisao is None or not self._decisao.concedido:
             return None
         ev = dataclasses.replace(self._pessoas[0])
@@ -706,7 +693,7 @@ class SessaoAutenticacao:
 
     @property
     def credenciais_sem_rosto(self) -> Usuario | None:
-        """Login de ENTRADA negado depois de a matrícula e a senha passarem (S1 e S2), no rosto ou na
+        """Login de entrada negado depois de a matrícula e a senha passarem (S1 e S2), no rosto ou na
         câmera (S3/S4; a falha da câmera cancela a tentativa no rosto). É o único caso em que o login
         pode oferecer o acesso de emergência: quem chegou aqui sabe a senha e foi barrado pela câmera."""
         if self.finalidade is not Finalidade.ENTRADA or self._decisao is None or self._decisao.concedido:

@@ -1,10 +1,4 @@
-"""Testes de contrato dos repositórios.
-
-A mesma bateria roda sobre a implementação em memória e sobre o MySQL real
-(num banco descartável criado pelo teste): se as duas divergirem em alguma
-regra, o teste acusa. Sem o MySQL preparado, os casos "mysql" aparecem como
-pulados.
-"""
+"""Testes de contrato dos repositórios."""
 from datetime import datetime, timedelta
 
 import pytest

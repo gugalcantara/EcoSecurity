@@ -1,17 +1,4 @@
-"""Fase 3: Segmentação. Localiza a face e a separa do resto da cena.
-
-A detecção usa o classificador em cascata de Haar (Viola-Jones): uma sequência de classificadores simples
-sobre retângulos claros e escuros, rápida em CPU e sem rede neural. O detector varre uma cópia do quadro
-reduzida e equalizada pelo histograma, e as coordenadas voltam à escala original.
-
-Entre as detecções, o rastreador KCF acompanha a face. O Haar percorre a imagem inteira em várias escalas
-(10 a 15 ms), enquanto o KCF só procura perto da posição anterior (cerca de 2 ms). Com o Haar a cada N
-quadros e o KCF nos intermediários, a face fica estável por uma fração do custo.
-
-O KCF segue uma única face e não percebe quem entra na cena. Por isso a contagem de faces (uma pessoa por
-vez) é feita nos quadros do Haar, que nunca deixam de acontecer, e as decisões exigem vários quadros
-seguidos.
-"""
+"""Fase 3: Segmentação. Detecção da face pelo Haar e rastreamento pelo KCF."""
 from dataclasses import dataclass
 
 import cv2

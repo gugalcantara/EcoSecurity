@@ -26,7 +26,7 @@ Cada quadro da câmera passa pelas cinco fases do processamento digital de image
 - Fase 1, sensor (aquisição): a câmera é lida numa thread própria, com uma fila que guarda só o quadro mais recente (`ecosec/visao/aquisicao.py`).
 - Fase 2, pré-processamento: o quadro é convertido para níveis de cinza (`preprocessamento.py`).
 - Fase 3, segmentação: o classificador de Haar localiza a face e o rastreador KCF a acompanha entre as detecções; o quadro com mais de uma face é recusado (`segmentacao.py`).
-- Fase 2 de novo, pré-processamento do recorte: a face passa pelo portão de qualidade (nitidez pelo Laplaciano, brilho, contraste e ruído) e é normalizada com redimensionamento, CLAHE e filtro gaussiano (`qualidade.py` e `preprocessamento.py`).
+- Fase 2 de novo, pré-processamento do recorte: a face passa pelo portão de qualidade (nitidez pelo Laplaciano, sombra e luz estouradas, contraste e ruído, medidos em proporção, para não depender do tom da pele) e é normalizada com redimensionamento, CLAHE e filtro gaussiano (`qualidade.py` e `preprocessamento.py`).
 - Fase 4, extração de características: o LBPH transforma a face em histogramas de padrões binários locais (`reconhecimento.py`).
 - Fase 5, classificação e interpretação: a distância até as amostras da pessoa é comparada ao limiar e precisa se confirmar em quadros seguidos (`reconhecimento.py`). No nível 3 e na Administração, os gestos da prova de vida são interpretados pelos pontos faciais do FacemarkLBF (`gestos.py`).
 
@@ -91,13 +91,15 @@ Para criar um atalho no Menu Iniciar: `.venv\Scripts\python.exe -m ferramentas.c
 
 ## Primeiro uso
 
-1. Defina a **senha de instalação**, usada só nesta etapa.
-2. Faça o seu cadastro com o perfil **Externo**: termo de consentimento, nome e senha, captura do rosto. Anote a
+1. Na tela **Testar a câmera**, ligue a câmera e confira a imagem: a moldura fica verde quando o rosto está
+   adequado. Depois, clique em **Continuar**.
+2. Defina a **senha de instalação**, usada só nesta etapa.
+3. Faça o seu cadastro com o perfil **Externo**: termo de consentimento, nome e senha, captura do rosto. Anote a
    matrícula e salve a via do termo em PDF. Você passa a ser o primeiro administrador.
-3. Entre pelo login e abra a **Administração**. No primeiro acesso, leia o QR code com um aplicativo autenticador
+4. Entre pelo login e abra a **Administração**. No primeiro acesso, leia o QR code com um aplicativo autenticador
    (Google ou Microsoft Authenticator) e guarde os códigos de recuperação.
-4. Cadastre as demais pessoas, cada uma com o seu perfil, e designe um segundo administrador.
-5. Faça o backup dos segredos:
+5. Cadastre as demais pessoas, cada uma com o seu perfil, e designe um segundo administrador.
+6. Faça o backup dos segredos:
 
    ```powershell
    .venv\Scripts\python.exe -m ferramentas.proteger_segredos --backup E:\ecosec_segredos.bak

@@ -1,24 +1,4 @@
-"""Painéis da UF (N2): o painel de decisão do diretor da UF.
-
-Uma página só, de cima para baixo, cada visual com a sua pergunta de decisão escrita como subtítulo e, quando
-ajuda, um rodapé curto:
-
-  Cartões             casos ativos, críticos, além do prazo legal, prazo previsto vencido e custo para resolver,
-                      cada um com a comparação (fim do ano anterior ou Brasil)
-  O que fazer agora   até três frases: a ação mais urgente com casos, o caso mais atrasado e a distância do Brasil
-                      (frase sem dado não aparece; as seguintes sobem)
-  Onde agir primeiro  casos ativos por ação recomendada, na ordem de urgência, com os críticos em destaque (ênfase)
-  Casos para agir já  os casos críticos além do prazo legal, dos mais atrasados (duplo clique abre a ficha no mapa)
-  Evolução da UF      casos ativos no fim de cada ano e, abaixo, no mesmo eixo de anos, entradas e saídas
-  UF × país           o veredito por indicador (melhor ou pior, no sentido de cada um) e os halteres de 0 a 100%
-  Custo na UF         custo por ação recomendada e a divisão nas quatro categorias de custo
-
-Fontes (todas pelo serviço, matriz e trilha): kpis e painel_custo (UF do diretor, sem k), panorama (série
-da UF), resumo_agregado (por ação recomendada e por faixa de risco, o mesmo do Resumo agregado) e
-referencia_nacional (a linha NACIONAL do cubo protegido com o k do N1: o país, nunca outra UF individualmente).
-A lista de casos usa os registros do painel do N2 (a própria UF), como a planilha. Nenhuma pessoa física, nenhum
-custo por responsável. O custo da UF fica (só o N1 fica sem dado financeiro).
-"""
+"""Painéis da UF do nível 2."""
 from __future__ import annotations
 
 from dataclasses import dataclass

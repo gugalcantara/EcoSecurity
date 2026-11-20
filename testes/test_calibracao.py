@@ -1,4 +1,4 @@
-"""Análise da ferramenta de calibração da vivacidade (função pura, sem câmera)."""
+"""Testes da ferramenta de calibração da piscada."""
 import json
 from datetime import datetime
 
@@ -108,6 +108,15 @@ def test_deslocamento_pela_largura_tipica_ignora_a_caixa_que_cresce_e_encolhe():
     assert deslocamento_maximo(parado, 1) == 0.0
     andando = [Registro("ESQUERDA", i / 30, True, x=200 + 10 * i, w=100) for i in range(5)]
     assert deslocamento_maximo(andando, 1) == 0.4
+
+
+def test_reproducao_usa_a_posicao_dos_olhos_gravada():
+    """A caixa treme 20 px, os olhos ficam parados: a reprodução precisa dar a piscada, como no N3."""
+    ear = [0.30] * 16 + [0.15, 0.14, 0.28]
+    regs = [Registro("PISCAR", i / 30, True, ear=e, x=180 if i % 2 else 220, w=100, olhos_x=250.0)
+            for i, e in enumerate(ear)]
+    from ferramentas.calibrar_vivacidade import reproduzir_detector
+    assert reproduzir_detector(regs, PG)["PISCAR"] == 1
 
 
 def test_gravacao_antiga_sem_caixa_usa_o_centro():

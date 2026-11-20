@@ -1,18 +1,4 @@
-"""Raiz de composição: o único lugar que conhece as peças concretas.
-
-Todas as outras camadas recebem as dependências prontas. Trocar memória por
-MySQL é decidido aqui, por [persistencia] modo no config: nenhuma regra muda.
-
-Modo "mysql" (uso normal):
-  - usuários, consentimentos, amostras e tentativas no banco ecosec_seguranca;
-  - modelo facial em modelo/lbph.enc, cifrado com a CHAVE_CIFRAGEM do .env,
-    carregado na abertura e salvo a cada cadastro.
-Modo "memoria": tudo some ao fechar (desenvolvimento e testes).
-
-Falha segura na abertura: banco fora do ar, contas ausentes ou modelo que não
-decifra impedem o sistema de abrir: nunca "abre mesmo assim" em modo
-degradado, onde alguém poderia entrar sem as verificações completas.
-"""
+"""Monta a aplicação: configuração, repositórios e serviços."""
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -112,7 +98,7 @@ def _eliminar(reconhecedor, usuario_id: int, salvar_modelo) -> None:
 
 def _conferir_vivacidade(cfg: Configuracao) -> None:
     """Os nomes dos gestos e, com a piscada configurada, o modelo de landmarks são conferidos (e o
-    modelo carregado) NA ABERTURA: melhor uma mensagem clara agora do que um N3 que nega no meio da tentativa."""
+    modelo carregado) na abertura: melhor uma mensagem clara agora do que um N3 que nega no meio da tentativa."""
     try:
         s6_vivacidade.validar(cfg["s6_vivacidade.desafios"], cfg["s6_vivacidade.gesto_obrigatorio"])
     except ValueError as erro:

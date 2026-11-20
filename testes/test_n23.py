@@ -1,14 +1,4 @@
-"""A ficha do caso, aba "Dados técnicos" do mapa interativo (n23_ficha.FichaTecnica).
-
-A ficha é uma sequência de blocos, do que decide para o que detalha: cabeçalho (código, substância, selos de classe e
-de risco, score e andamento), Situação e prazos, Local, Origem e causa, Contaminação e uso, Custo estimado (com a
-memória de cálculo recolhível) e Histórico de etapas, este como linha do tempo (n23_ficha.LinhaDoTempo).
-
-Cobre: estado sem caso, cabeçalho, cada bloco com os rótulos do vocabulário, caso vencido e caso encerrado, a linha
-do tempo (uma linha por etapa, duração até a etapa seguinte, a etapa atual marcada), a troca de caso sem acumular
-linhas, as regras de nível (sem responsável nomeado nem custo por responsável; exportação só no N2, com o CSV do caso
-pela tela) e o texto legível (blocos na ordem, sem travessão): os testes da ficha na tela ficam aqui.
-"""
+"""Testes da ficha técnica do caso."""
 import re
 
 import pytest

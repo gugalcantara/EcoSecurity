@@ -1,14 +1,4 @@
-"""Os perfis de acesso: um por cadastro, e cada um vê só a própria camada.
-
-O nível (niveis.py) é a classificação do dado: camada 1, 2 ou 3. O perfil é quem a pessoa é no sistema, e cada
-perfil tem no máximo uma camada. Não há hierarquia: o ministro não vê a camada 1 nem a 2, o diretor não vê a 1.
-
-Quatro perfis. Servidor, diretor e ministro são do quadro do governo, cada um com a sua camada. Externo é quem não é
-funcionário do governo: o cadastro só registra a matrícula, o termo e o rosto; não tem camada e não entra no
-sistema. Administrador é um papel, dado pelo administrador a um cadastro Externo (tabela
-administrador). Por isso o administrador não tem camada: gere pessoas, perfis, consentimentos, a trilha e a
-governança, sem ler dado do acervo. Só o papel de administrador deixa um Externo entrar.
-"""
+"""Perfis de acesso e o nível de cada um."""
 from enum import Enum
 
 from ecosec.dominio.niveis import Nivel

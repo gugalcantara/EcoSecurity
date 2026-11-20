@@ -1,17 +1,4 @@
-"""A "tela" onde os relatórios são desenhados: e que anota o que é sensível.
-
-O ponto central: todo texto sensível é desenhado já com o seu rótulo de
-proteção, por exemplo
-
-    tela.texto(x, y, pendencia.endereco, sensivel=("ENDERECO", 2))
-
-A região a esconder é registrada no mesmo gesto de desenhar o dado. Não há
-como desenhar um endereço e "esquecer" de marcá-lo: o erro clássico da
-marcação manual de retângulos, que além disso desalinha quando o layout muda.
-
-Pillow (e não o putText do OpenCV) porque os relatórios são em português: o
-putText não desenha "ç" nem "ã".
-"""
+"""Superfície de desenho dos relatórios, que registra as regiões sensíveis."""
 import math
 from dataclasses import dataclass
 from functools import lru_cache
@@ -137,11 +124,8 @@ class Tela:
 
 
 def desenhar_marca_visivel(imagem: np.ndarray, texto: str, fonte: str = "segoeuib.ttf") -> np.ndarray:
-    """Marca d'água visível: texto em diagonal, repetido pela página inteira, cinza a 22%. Devolve uma cópia (BGR).
-
-    Trabalha sobre a imagem pronta, fora da Tela: a marca não é conteúdo do relatório (não vira região sensível nem
-    entra na conferência de sobreposição). Vem depois da tarja (S8) e antes da S9: pintar depois da S9 degradaria os
-    coeficientes da marca invisível. Dissuade quem vê; quem prova a origem continua sendo a S9."""
+    """Marca d'água visível em diagonal sobre a página. Devolve uma cópia (BGR).
+    É aplicada depois da tarja (S8) e antes da marca invisível (S9), para não estragar os coeficientes dela."""
     altura, largura = imagem.shape[:2]
     lado = int(math.hypot(largura, altura)) + 2 * PASSO_MARCA      # cobre a página em qualquer ângulo
     mascara = Image.new("L", (lado, lado), 0)

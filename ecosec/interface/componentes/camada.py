@@ -1,8 +1,4 @@
-"""Camada da cena do mapa.
-
-Raiz sem conteúdo: visibilidade e opacidade valem para todos os filhos
-(item.setParentItem(camada)), inclusive os que ignoram transformações.
-"""
+"""Camada do mapa."""
 from PySide6.QtCore import QRectF
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsObject
 

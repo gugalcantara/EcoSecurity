@@ -1,4 +1,4 @@
-"""Cadastro (termo, dados, coleta, conclusão), administração, termo e segredos."""
+"""Testes do cadastro e da administração."""
 from datetime import datetime, timedelta
 
 import cv2
@@ -30,7 +30,8 @@ def face(semente):
 
 def quadro_bom(semente):
     return ResultadoQuadro(faces=((0, 0, 200, 200),), fonte="HAAR", largura=640, altura=480,
-                           medidas=MedidasQualidade(300, 120, 40, 2), face_normalizada=face(semente))
+                           medidas=MedidasQualidade(300, 120, 40, 2, 0.0, 0.0, 0.05, 0.33),
+                           face_normalizada=face(semente))
 
 
 @pytest.fixture
@@ -293,6 +294,17 @@ def test_relatorio_do_titular(admin, cadastro):
     assert "NENHUMA guardada" in relatorio and "PRESENTE" in relatorio
     assert "sessão 1: 3, sessão 2: 3" in relatorio
     assert "diretor2026" not in relatorio and u.senha_hash not in relatorio   # nem a senha nem o hash
+
+
+def test_relatorio_do_titular_fica_na_trilha(admin, cadastro):
+    """O relatório traz dados pessoais: quem gerou e de quem ficam registrados."""
+    from ecosec.repositorios.memoria import RepositorioTrilhaMemoria
+    from ecosec.servicos.trilha import ServicoTrilha
+    admin.trilha = ServicoTrilha(RepositorioTrilhaMemoria())
+    u = cadastro.concluir(DADOS_N2, cadastro.registrar_aceite("Bia Souza"), coleta_completa(cadastro))
+    admin.dados_do_titular(u.id, solicitante_id=99)
+    ultimo = admin.trilha.recentes(1)[0].evento
+    assert (ultimo.motivo, ultimo.usuario_id, ultimo.matricula_informada) == ("RELATORIO_TITULAR", 99, u.matricula)
 
 
 def test_falha_ao_eliminar_ainda_deixa_o_acesso_bloqueado(admin, cadastro):

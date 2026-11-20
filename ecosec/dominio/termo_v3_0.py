@@ -1,16 +1,4 @@
-"""Termo de consentimento, versão 3.0 (arquivada em 18/10/2026). Não editar.
-
-Os cadastros feitos sob esta versão guardam o hash SHA-256 do texto exato que foi
-apresentado (LGPD art. 8º, §2º: o ônus da prova é do controlador). Qualquer mudança
-aqui, até de pontuação, faz o hash deixar de conferir. Um teste trava os hashes de
-referência (testes/test_regras_acervo.py).
-
-A 3.0 foi apresentada sempre com o contato não preenchido abaixo (é o valor que o
-`[lgpd] contato` teve desde o primeiro commit até a 3.1): por isso ele fica fixo
-aqui, e a conferência de um aceite 3.0 não depende do contato configurado hoje.
-
-Só o necessário para reproduzir o texto (e o hash). A versão em vigor está em termo.py.
-"""
+"""Termo de consentimento, versão 3.0 (arquivada em 18/10/2026). Não editar."""
 VERSAO = "3.0"
 CONTATO = "[preencher: e-mail do grupo responsável]"
 

@@ -1,13 +1,4 @@
-"""Repositórios MySQL: cumprem OS mesmos contratos da versão em memória.
-
-As duas implementações precisam se comportar igual em toda regra (matrícula
-duplicada, revogação, normalização): os serviços não sabem qual estão usando.
-
-Todo SQL usa parâmetros (%s), nunca concatenação de texto. Com concatenação, uma
-matrícula digitada como  ' OR '1'='1  viraria parte do comando (injeção de
-SQL). Com parâmetros, o driver envia o valor separado do comando, e ele é
-sempre tratado como dado.
-"""
+"""Repositórios no MySQL."""
 from datetime import datetime
 
 from mysql.connector import errorcode
@@ -269,12 +260,8 @@ def _registro_trilha(l: dict) -> RegistroTrilha:
 
 
 class RepositorioTrilhaMySQL:
-    """Trava com GET_LOCK: não exige UPDATE (que a conta da aplicação não tem
-    na trilha) e serializa as gravações entre processos e threads.
-
-    O commit acontece antes de soltar a trava. Na ordem inversa, outra gravação
-    poderia ler o último hash ainda antigo e a corrente se bifurcaria.
-    """
+    """Trilha no MySQL, com as gravações serializadas por GET_LOCK. O commit acontece antes de soltar a
+    trava, para a corrente de hashes não se bifurcar."""
     _CAMPOS = ("id, momento, evento, nivel_solicitado, usuario_id, usuario2_id, matricula_informada, "
                "resultado, motivo, camadas, distancia, detalhe, hash_anterior, hash_registro")
 

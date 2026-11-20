@@ -1,11 +1,4 @@
-"""Supressão k=3 do N1 sem vazamento entre filtros e tabelas.
-
-panorama do N1: a célula (UF, classe) escondida na visão "todas as classes" não pode sair na visão
-           filtrada pela classe, nem por subtração. Um cubo por corte.
-/  resumo do N1: a quantidade de uma célula (grupo, classe) pequena e as subcontagens pequenas (ou com
-           complemento pequeno) dentro de linhas visíveis saem SUPRIMIDO.
-/  o k só vale no N1: o panorama do N3 sai inteiro.
-"""
+"""Testes da supressão de números pequenos no nível 1."""
 from dataclasses import replace
 from datetime import datetime, timedelta
 

@@ -1,11 +1,4 @@
-"""A interface com perfis. Cada perfil vê só o próprio escopo: as outras camadas não
-aparecem (nem aba, nem cartão no Início, nem "sem acesso" ou "incluído no seu nível", nem menção em texto). O
-administrador vê a Administração e nenhuma camada; a identificação 1:N fica dentro do painel; a configuração
-inicial cria o primeiro administrador sem o "Você é o administrador?".
-
-Os textos são varridos como a pessoa os lê: rótulos, botões, dicas e itens de lista, mais o texto desenhado nos
-relatórios (Tela.texto) e o glossário.
-"""
+"""Testes da interface com perfis."""
 import re
 
 import pytest

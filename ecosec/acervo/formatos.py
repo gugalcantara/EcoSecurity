@@ -1,17 +1,4 @@
-"""Formatador único de exibição, por tipo de coluna: o mesmo número sai igual no resumo, na
-planilha e nos relatórios.
-
-    inteiro      1.055                    (milhar com ponto)
-    dias         4.026                    (inteiro com milhar; o título diz a unidade)
-    percentual   83,0%                    (uma casa e o sinal)
-    custo        R$ 1.958,6 mi            (custo somado de um grupo: uma casa, em milhões)
-    custo_caso   R$ 365.800               (custo de uma pendência: reais com milhar)
-    quantidade   106.165,8 t · 3.066,7 m³ (uma casa e a unidade da classe da coluna)
-    anos         10,9 anos                (atraso em anos com uma casa)
-
-Só exibição: a exportação (CSV e XLSX) continua com os números crus. "SUPRIMIDO" passa intacto. Unidade que não
-se aplica à linha (a coluna de toneladas na linha da área contaminada) sai "não se aplica", nunca com travessão.
-"""
+"""Formatação de números e datas nas tabelas e nos relatórios."""
 from datetime import date
 
 from ecosec.acervo import analise, quantidades

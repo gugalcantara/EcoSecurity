@@ -1,16 +1,4 @@
-"""Motivos de uma decisão de acesso: o que a trilha grava e o que a tela diz.
-
-Cada motivo pertence a uma camada. Há dois textos possíveis por motivo, e a
-diferença entre eles é uma regra de segurança, não de interface:
-
-- o código (ex.: CREDENCIAL_ALHEIA) vai para a trilha de auditoria, completo;
-- a mensagem vai para a tela e, quando a distinção ajudaria um atacante, a esconde.
-
-Exemplo: rosto desconhecido e rosto que não casa com a matrícula respondem
-igual na tela. Dizer "o rosto não confere com a matrícula" confirmaria a quem
-tenta entrar que a SENHA estava certa: ele saberia que só falta o rosto.
-Pelo mesmo motivo, matrícula inexistente e senha errada dizem o mesmo.
-"""
+"""Motivos das decisões de acesso e a mensagem de cada um."""
 from enum import Enum
 
 from ecosec.dominio.camadas import CamadaSeguranca as C

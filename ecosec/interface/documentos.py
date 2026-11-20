@@ -1,13 +1,4 @@
-"""Visualizador de documento do N3: zoom, marca d'água, sem exportação.
-
-  - a imagem recebida já traz a marca visível diagonal e a S9 nos pixels: o zoom não as remove e uma
-    captura as contém;
-  - uma segunda marca, em coordenadas da janela (drawForeground), cobre recortes ampliados;
-  - sem menu de contexto e sem os atalhos de copiar, salvar e imprimir;
-  - opcional ([documentos] bloquear_captura): a janela sai preta em capturas de tela (Windows 10 2004+).
-    Uma foto da tela continua possível; por isso a marca visível leva o hash da consulta, que está na
-    trilha.
-"""
+"""Visualizador de documentos do nível 3."""
 import ctypes
 import sys
 

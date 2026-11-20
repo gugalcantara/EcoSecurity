@@ -1,5 +1,4 @@
-"""Serviço de autenticação, ponta a ponta, sem câmera: quadros fabricados,
-reconhecedor com distâncias programadas e relógio controlado pelo teste."""
+"""Testes do serviço de autenticação, sem câmera."""
 import dataclasses
 import random
 from datetime import datetime, timedelta
@@ -788,7 +787,7 @@ def test_adivinhar_a_senha_na_tela_de_bloqueio_tranca_a_conta(ambiente):
 
 
 def test_quadro_borrado_isolado_no_gesto_nao_nega(ambiente):
-    """O rosto em movimento se afasta do modelo; só divergências SEGUIDAS negam."""
+    """O rosto em movimento se afasta do modelo; só divergências seguidas negam."""
     caio = ambiente.criar("caio", 3, SENHA_N3)
     ambiente.rec.distancias = {caio.id: 30.0}
     sessao = ambiente.servico.nova_sessao(3)

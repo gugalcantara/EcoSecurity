@@ -1,10 +1,6 @@
-"""Confere a calibração das séries do acervo.
+r"""Confere a calibração das séries do acervo.
 
-Para cada linha de geração, imprime o risco de saída calibrado, as metas de forma e
-o desvio entre o esperado e o realizado; depois confere as metas de encerramento e
-de queda do estoque. Termina com código 1 se alguma meta falhar.
-
-    python -m ferramentas.calibrar_series
+    .venv\Scripts\python.exe -m ferramentas.calibrar_series
 """
 import sys
 from collections import Counter, defaultdict

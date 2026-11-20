@@ -1,11 +1,4 @@
-"""Adaptador Qt do pipeline de documento (3.4.2, passos 3 a 5).
-
-O serviço decide o que vai no documento (campos, hash, conteúdo do QR, texto da marca
-visível) e aplica a S9 por último; aqui só se desenha: HTML no QTextDocument, QR e
-brasão como recursos, marca visível diagonal, conversão para BGR. A montagem da
-aplicação injeta rasterizar no ServicoAcervo, e a camada de serviços continua sem
-importar PySide6 (testes/test_arquitetura.py).
-"""
+"""Conversão do documento em imagem, com as marcas, no Qt."""
 import cv2
 import numpy as np
 from PySide6.QtCore import QRectF, Qt, QUrl
@@ -25,7 +18,7 @@ def qr(modulos: np.ndarray, escala: int = 4, borda: int = 2) -> QImage:
 
 
 def brasao(texto: str, tamanho: int = 128) -> QImage:
-    """Brasão FICTÍCIO desenhado na hora: escudo com as iniciais do órgão (nenhum símbolo oficial)."""
+    """Brasão fictício desenhado na hora: escudo com as iniciais do órgão (nenhum símbolo oficial)."""
     imagem = QImage(tamanho, tamanho, QImage.Format.Format_RGB888)
     imagem.fill(Qt.GlobalColor.white)
     p = QPainter(imagem)

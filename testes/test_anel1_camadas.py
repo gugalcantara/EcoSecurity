@@ -1,4 +1,4 @@
-"""Anel 1: cada camada (S1 a S7) testada isoladamente."""
+"""Testes das camadas de acesso S1 a S7."""
 import math
 import random
 import time

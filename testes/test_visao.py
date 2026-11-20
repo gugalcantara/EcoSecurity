@@ -1,4 +1,4 @@
-"""Visão: cada fase com imagens sintéticas e componentes falsos (sem câmera)."""
+"""Testes das fases da visão, com imagens sintéticas."""
 import dataclasses
 import time
 
@@ -165,10 +165,29 @@ def test_imagem_borrada_reprovada():
 
 
 def test_imagem_escura_reprovada_com_dica_acionavel():
-    escura = (textura(3) // 6).astype(np.uint8)
+    escura = (textura(3) // 8).astype(np.uint8)              # metade dos pixels quase pretos
     problemas = avaliar(medir(escura), PQ)
     assert ProblemaQualidade.ESCURA in problemas
     assert "luz" in ProblemaQualidade.ESCURA.dica
+
+
+def test_rosto_mais_escuro_com_textura_nao_e_recusado():
+    """Pele mais escura na mesma luz: a imagem inteira escurece na mesma proporção. A média, o desvio e a
+    nitidez absolutos caem e recusavam o rosto; as proporções não mudam, e o rosto é aprovado."""
+    rosto = (textura(3) * 0.35).astype(np.uint8)
+    assert rosto.mean() < 50 and avaliar(medir(rosto), PQ) == ()
+
+
+def test_rosto_perto_da_camera_nao_parece_borrado():
+    """O mesmo rosto com 400 px (perto da câmera) e com 200 px: a nitidez relativa é medida no mesmo tamanho."""
+    perto = cv2.resize(textura(3), (400, 400), interpolation=cv2.INTER_CUBIC)
+    assert abs(medir(perto).nitidez_relativa - medir(textura(3)).nitidez_relativa) < 0.3 * medir(textura(3)).nitidez_relativa
+    assert ProblemaQualidade.DESFOCADA not in avaliar(medir(perto), PQ)
+
+
+def test_luz_estourada_reprovada():
+    estourada = np.clip(textura(3).astype(np.float32) * 3, 0, 255).astype(np.uint8)
+    assert ProblemaQualidade.CLARA in avaliar(medir(estourada), PQ)
 
 
 def test_ruido_detectado():
@@ -178,7 +197,7 @@ def test_ruido_detectado():
 
 def test_medida_nan_reprova():
     from ecosec.visao.qualidade import MedidasQualidade
-    assert avaliar(MedidasQualidade(float("nan"), 100, 50, 1), PQ)
+    assert avaliar(MedidasQualidade(300, 100, 50, 1, 0.0, 0.0, float("nan"), 0.5), PQ)
 
 
 # Pipeline
@@ -338,6 +357,34 @@ def test_caixa_do_rosto_que_cresce_e_encolhe_nao_e_movimento():
     ws = [100 if i % 2 else 130 for i in range(len(sequencia))]
     xs = [300 - w // 2 for w in ws]                                  # centro fixo em 300 px
     assert _piscadas(sequencia, xs, ws)[-1] is True
+
+
+class OlhosComPosicao:
+    """Abertura do olho e meio dos olhos no recorte, quadro a quadro (como os pontos faciais entregam)."""
+
+    def __init__(self, sequencia):
+        self.sequencia = iter(sequencia)
+
+    def medir(self, _):
+        abertura, meio = next(self.sequencia)
+        return MedidaOlhos(1, 100.0, ear=abertura, olhos_x=meio)
+
+
+def test_caixa_do_rosto_que_muda_de_lugar_com_os_olhos_parados_nao_e_movimento():
+    """O Haar desenha a caixa 20 px para um lado e para o outro; os olhos ficam em 250 px da imagem. Pelo centro
+    da caixa, isso andava 0,4 da largura; pelos olhos, nada."""
+    aberturas = ABRE + [0.15, 0.14, 0.28]
+    xs = [180 if i % 2 else 220 for i in range(len(aberturas))]
+    gesto = DetectorGesto(Gesto.PISCAR, PG, OlhosComPosicao([(a, 250 - x) for a, x in zip(aberturas, xs)]))
+    assert [gesto.alimentar(_quadro_com_face(x)) for x in xs][-1] is True
+
+
+def test_olhos_andando_com_a_caixa_parada_e_movimento():
+    """O rastreador às vezes segura a caixa enquanto o rosto desliza: os olhos andando bastam para não contar."""
+    aberturas = ABRE + [0.15, 0.14, 0.28]
+    meios = [50] * 16 + [80, 110, 140]                                # 0,3 da largura por quadro, dentro da caixa
+    gesto = DetectorGesto(Gesto.PISCAR, PG, OlhosComPosicao(list(zip(aberturas, meios))))
+    assert not any(gesto.alimentar(_quadro_com_face(200)) for _ in aberturas)
 
 
 def test_depois_de_mover_a_referencia_e_refeita():

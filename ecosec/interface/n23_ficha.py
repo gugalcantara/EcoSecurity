@@ -1,21 +1,4 @@
-"""Ficha do caso, aba "Dados técnicos" do mapa interativo (N2 e N3).
-
-Blocos com hierarquia, do que decide para o que detalha:
-  cabeçalho      código e passivo, selos de classe e de risco, score de risco, andamento e fase
-  Situação e prazos   etapa atual, identificado em, prazo previsto, prazo legal, encerrado em, ação, quem paga
-  Local          município/UF, endereço e coordenadas (o N2 e o N3 veem o endereço; o N1 não tem ficha)
-  Origem e causa atividade de origem, motivo da permanência e base legal
-  Contaminação e uso  classe, quantidade, componente químico, contaminante, meio afetado, restrição de uso,
-                      usos anterior e pretendido
-  Custo estimado total, rota, divisão nas quatro categorias e a memória de cálculo recolhível
-  Histórico de etapas linha do tempo
-Rótulos e textos de exibição pelo vocabulário (`acervo/vocabulario.py`): textos de catálogo do acervo passam por
-vocabulario.frase (grafia de frase, siglas preservadas). Tudo derivado de `acervo/ficha.py` e `acervo/regras.py`
-sobre o caso que o serviço já entregou no painel do nível; a exportação continua crua (ServicoAcervo.exportar_ficha).
-
-Regras de nível: a ficha nunca mostra responsável nomeado nem custo por responsável (só o N3, na aba
-própria); o custo estimado do CASO aparece no N2 e no N3, como antes.
-"""
+"""Ficha técnica do caso (níveis 2 e 3)."""
 from __future__ import annotations
 
 from html import escape

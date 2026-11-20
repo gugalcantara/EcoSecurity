@@ -1,15 +1,4 @@
-"""Documentos administrativos das pendências.
-
-Os documentos nascem das etapas do ciclo de vida: não são armazenados, são
-derivados de forma determinística da pendência (mesma pendência, mesmos
-documentos, mesmos números). Isso mantém o banco do acervo como única fonte e
-evita uma tabela que poderia divergir das etapas.
-
-Órgãos emissores fictícios, com nomes que descrevem a função e sem sigla real.
-É proibido usar nome, sigla, logotipo ou brasão de órgão real (CETESB, IBAMA,
-CNEN, INEA, FEAM). O selo diz "assinado eletronicamente" e não imita marca de
-autoridade certificadora.
-"""
+"""Documentos administrativos de cada caso."""
 import hashlib
 import html
 from datetime import date, timedelta

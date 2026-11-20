@@ -1,4 +1,4 @@
-"""Implementação MySQL dos repositórios (mesmos contratos da versão em memória)."""
+"""Repositórios no MySQL."""
 from ecosec.repositorios.mysql.conexao import BancoMySQL, ParametrosConexao, conectar_direto
 from ecosec.repositorios.mysql.repositorios import (RepositorioAcervoMySQL, RepositorioAdministradoresMySQL,
                                                     RepositorioAmostrasMySQL, RepositorioConsentimentosMySQL,

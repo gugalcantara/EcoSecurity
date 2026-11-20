@@ -1,12 +1,4 @@
-"""Navegação do mapa com as animações ligadas e a vista visível.
-
-O defeito: a animação de enquadramento era criada com DeleteWhenStopped e a referência ficava
-guardada na vista; a partir do 2º enquadramento, anterior.state() tocava o objeto C++ já apagado
-("Internal C++ object already deleted") e o filtro de UF, o combo de município, a árvore de
-custódia e ir_para_ponto paravam de funcionar. Os testes antigos não pegavam porque rodavam sem
-animação ou com a vista oculta; aqui a tela é mostrada e cada passo ESPERA a animação terminar
-(com folga, sem depender de um tempo fixo).
-"""
+"""Testes da navegação do mapa."""
 import sys
 
 import pytest

@@ -1,10 +1,4 @@
-"""Dados dos quatro painéis temáticos do N1 e dos cartões de KPI (padrão SINIR+).
-
-Segurança primeiro: no N1, nenhum número dos painéis sai com 0 < n < k nem com complemento
-pequeno, e as margens não deixam deduzir uma célula escondida; o N3 recebe os números inteiros. O painel por UF lê
-o mesmo cubo do panorama. A garantia hierárquica do resumo (risco registrado) vira teste que vale para
-qualquer acervo, inclusive um montado à mão em que a supressão tabela a tabela deixava recompor a UF.
-"""
+"""Testes dos dados dos painéis temáticos."""
 from contextlib import contextmanager
 from dataclasses import replace
 from datetime import date, datetime, timedelta

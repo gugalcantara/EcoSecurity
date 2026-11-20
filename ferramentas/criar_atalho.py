@@ -1,15 +1,7 @@
-r"""Cria um atalho do EcoSecurity com o ícone próprio (Windows).
+r"""Cria um atalho do EcoSecurity no Menu Iniciar.
 
-    .venv\Scripts\python.exe -m ferramentas.criar_atalho                       (Menu Iniciar)
-    .venv\Scripts\python.exe -m ferramentas.criar_atalho --area-de-trabalho    (também na Área de Trabalho)
-
-O atalho abre o programa com o pythonw.exe do .venv (sem janela de console) e
-leva a mesma identidade de aplicativo da janela (AppUserModelID). Com ela, o
-Windows agrupa a janela aberta com o atalho e, ao fixar na barra de tarefas,
-fixa o EcoSecurity, e não o Python.
-
-Por padrão o atalho vai só para o Menu Iniciar, porque a Área de Trabalho pode
-estar dentro do OneDrive (sincronizada).
+    .venv\Scripts\python.exe -m ferramentas.criar_atalho
+    .venv\Scripts\python.exe -m ferramentas.criar_atalho --area-de-trabalho
 """
 import argparse
 import sys

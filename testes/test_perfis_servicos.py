@@ -1,15 +1,4 @@
-"""Os serviços com perfis, escopo exclusivo e o administrador sem dado.
-
-- acervo: o administrador é recusado em cada método público que entrega dado, com NEGADO na trilha, mesmo com um
-  painel, resumo ou relatório de outra pessoa nas mãos; catálogo e S5 exclusivos; a comparação UF × Brasil do N2
-  fica no escopo do N2; o nome do responsável fora da trilha;
-- administração: atribuir perfil, excluir, o primeiro administrador na configuração inicial, a
-  trilha mascarada para o administrador;
-- autenticação: sem perfil não entra; o administrador entra, mas não abre camada nenhuma;
-- identificação 1:N só do administrador; relatórios do sistema com o perfil.
-
-Os símbolos novos são importados dentro dos testes: cada um fica vermelho pelo próprio motivo.
-"""
+"""Testes dos serviços com perfis."""
 import dataclasses
 from datetime import datetime, timedelta
 

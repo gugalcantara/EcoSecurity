@@ -3,17 +3,6 @@ r"""Experimento da curva DET: mede a FAR e a FRR e sugere os limiares de cada n�
     .venv\Scripts\python.exe -m ferramentas.experimento_det coletar --sessao 1 [--ignorar MATRICULA ...]
     .venv\Scripts\python.exe -m ferramentas.experimento_det base --pasta <CroppedYale> --alvo MATRICULA
     .venv\Scripts\python.exe -m ferramentas.experimento_det analisar
-
-coletar e base leem o modelo facial, por isso pedem a matrícula, a senha e o código do celular de um
-administrador e registram o início e o fim na trilha. Só participam cadastros que autorizaram a finalidade (b)
-do termo; `--ignorar` tira cadastros da mesma pessoa, que contariam como impostor.
-
-coletar mede o voluntário diante da câmera, contra o próprio cadastro (genuína) e contra os outros
-participantes (impostor). base mede a Extended Yale B recortada com o mesmo tratamento do sistema: a luz
-quase frontal forma o cadastro, a luz até 50 graus forma a curva, e a imagem recusada pela qualidade conta como
-falha de aquisição. analisar calcula a curva, a EER, os limiares sugeridos e a FAR e a FRR nos limiares do
-config, e grava a figura em resultados/curva_det.png. Nenhuma imagem é gravada, só distâncias, e o config não é
-alterado.
 """
 import argparse
 import getpass

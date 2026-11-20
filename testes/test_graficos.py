@@ -1,10 +1,4 @@
-"""Valores desentrelaçados nos gráficos.
-
-Testes de estrutura sobre os widgets montados offscreen: um eixo vertical por gráfico, eixo de valor com
-unidade e passo redondo, nenhuma linha de total sobre as áreas, fluxos e saldo em gráficos separados,
-rótulos de evento sem colisão e dentro da área, estoque no recorte da classe, barras na cor da classe,
-legenda sem corte e as tabelas do N3 legíveis.
-"""
+"""Testes dos gráficos."""
 import inspect
 import math
 import re

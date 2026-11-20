@@ -1,26 +1,4 @@
-"""Identificação 1:N: o sistema diz quem é, comparando com todos os cadastros, sem conceder nada.
-
-Serve a seção "Identificação facial" do painel de Administração: só o administrador identifica
-(identificar pessoas é gestão de acesso), com o painel já aberto pelo rosto e pelo celular. Não é a
-sessão do N1
-(ServicoAutenticacao.nova_sessao(1)): aquela decide ACESSO (nível, consentimento, contenção) e grava AUTENTICACAO
-na trilha. Identificar não é autenticar: este serviço nunca cria IdentidadeComprovada nem toca na contenção.
-
-Regras:
-- IDENTIFICADO: N quadros seguidos com a mesma pessoa dentro do limiar (ConfirmadorQuadros) e a S4 aprovando
-  com o limiar próprio, [identificacao] limiar, mais rígido que o do N1: no 1:N cada cadastro a mais é mais uma
-  chance de falso positivo;
-- Não reconhecido: [identificacao] quadros_nao_reconhecido quadros seguidos acima do limiar (~1 s), sem esperar
-  o prazo, que é do acesso. O mais parecido sem cadastro válido (inativo ou sem consentimento vigente) também é
-  "não reconhecido", na hora, e não cede o lugar ao segundo mais parecido; no top 3 ele aparece sem nome;
-- o prazo ([reconhecimento] timeout_face_segundos) só decide quem nunca se firmou: rosto instável vira "não
-  reconhecido"; nenhum rosto utilizável vira "sem rosto", sem registro (nada foi comparado);
-- trilha: um registro por identificação (IDENTIFICACAO / REGISTRADO), com o operador no detalhe; usuario_id e
-  distância só de quem foi identificado. O registro vem antes do resultado: se a trilha falhar, a exceção sobe à
-  thread do vídeo e a tela não mostra nada (sem registro, sem resultado).
-
-Recebe ResultadoQuadro (da visão), nunca a câmera: testável com quadros fabricados.
-"""
+"""Identificação 1:N, sem concessão de acesso."""
 import threading
 import time
 from dataclasses import dataclass

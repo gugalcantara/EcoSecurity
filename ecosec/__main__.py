@@ -1,11 +1,7 @@
-"""Ponto de entrada:  .venv\\Scripts\\python.exe -m ecosec
+r"""Inicia o EcoSecurity.
 
-Erro não previsto em qualquer ponto é registrado em logs/erros.log com data,
-hora e rastreamento, e nada é concedido por causa dele: a política e os
-serviços transformam exceção em negação (falha segura).
-
-Se o sistema não puder abrir com segurança (banco fora do ar, contas não
-criadas, modelo que não decifra), mostra o que fazer e não abre.
+    .venv\Scripts\python.exe -m ecosec
+    .venv\Scripts\python.exe -m ecosec --memoria
 """
 import logging
 import sys

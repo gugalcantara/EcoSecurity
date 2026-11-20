@@ -1,17 +1,4 @@
-"""Sessão da aplicação: quem entrou pelo login de entrada, e o que vê.
-
-Nada da aplicação aparece antes do login. Depois dele, a sessão diz:
-- o PAPEL da pessoa: o perfil do cadastro (servidor, diretor ou ministro), ou
-  administrador, o papel dado a um cadastro Externo;
-- as abas de camada que ela vê: só a do próprio perfil (escopo exclusivo). O
-  administrador não tem camada: não vê aba nenhuma, nem o acervo, nunca. As
-  outras camadas nem são mencionadas.
-
-Quem decide se uma aba abre é a política (ServicoAutenticacao.abrir_nivel ou o
-step-up do N3), nunca a sessão: a sessão só organiza a navegação.
-
-A saída (pelo botão) e o bloqueio por inatividade ficam registrados na trilha.
-"""
+"""Sessão do usuário depois do login."""
 import logging
 import threading
 from dataclasses import dataclass, field

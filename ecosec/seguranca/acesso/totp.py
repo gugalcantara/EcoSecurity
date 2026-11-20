@@ -1,30 +1,4 @@
-"""Código do celular (TOTP, RFC 6238): o fator de posse do administrador.
-
-A senha prova o que a pessoa sabe e o rosto, o que ela É. O código de 6 dígitos
-prova o que ela tem: o celular onde o segredo foi cadastrado (Google
-Authenticator, Microsoft Authenticator e similares).
-
-Cálculo (RFC 4226 + RFC 6238):
-    contador = segundos desde 1970 // 30           (muda a cada 30 s)
-    mac      = HMAC-SHA1(segredo, contador em 8 bytes)
-    corte    = 4 bytes de mac, a partir da posição dada pelo último meio-byte
-    código   = (corte sem o bit de sinal) mod 10^6
-O celular e o sistema guardam o mesmo segredo e calculam o mesmo número sem
-conversar: por isso funciona sem internet, só precisa do relógio certo.
-
-Decisões:
-- Implementado aqui, sem biblioteca: são poucas linhas, e os vetores de teste
-  da própria RFC 6238 provam que o cálculo está certo (testes/test_totp.py).
-- Tolerância de um passo para cada lado (±30 s): relógios levemente diferentes.
-- Anti-repetição: um código só vale se o seu passo for maior que o último já
-  aceito daquela pessoa. Quem viu o código por cima do ombro não o reusa.
-- Comparação em tempo constante (hmac.compare_digest).
-- Funções puras: o instante vem de fora, como na S1.
-
-Códigos de recuperação: cada admin recebe alguns, impressos, para o dia em que
-perder o celular. São de uso único, têm 80 bits de acaso (16 caracteres de um
-alfabeto de 32) e só o SHA-256 deles é guardado.
-"""
+"""Código do celular (TOTP, RFC 6238) dos administradores."""
 import base64
 import hashlib
 import hmac
@@ -102,7 +76,7 @@ def uri_provisionamento(segredo_b32: str, conta: str, emissor: str = "EcoSecurit
 
 # códigos de recuperação
 def gerar_codigos_recuperacao(quantidade: int) -> list[str]:
-    """Códigos no formato XXXX-XXXX-XXXX-XXXX. Mostrados UMA vez; só o hash é guardado."""
+    """Códigos no formato XXXX-XXXX-XXXX-XXXX. Mostrados uma única vez; só o hash é guardado."""
     def um() -> str:
         letras = "".join(secrets.choice(ALFABETO_RECUPERACAO) for _ in range(GRUPOS_RECUPERACAO * TAMANHO_GRUPO))
         return "-".join(letras[i:i + TAMANHO_GRUPO] for i in range(0, len(letras), TAMANHO_GRUPO))

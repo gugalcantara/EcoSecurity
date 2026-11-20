@@ -1,14 +1,4 @@
-"""O logo do EcoSecurity: um cadeado com o símbolo de radiação no corpo.
-
-O cadeado diz "acesso controlado"; o trifólio de radiação diz o que está
-guardado (um cadastro de passivos perigosos). Não é uma digital nem um rosto:
-o sistema não coleta digitais, e o logo não deve sugerir que coleta.
-
-Desenhado em código (QPainter), em qualquer tamanho: é a origem do arquivo
-.ico e serve de reserva se ele faltar.
-O trifólio segue as proporções da ISO 361: disco de raio R, pás de 1,5R a 5R,
-de 60° cada.
-"""
+"""Desenho do logo do EcoSecurity."""
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QColor, QImage, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap
 

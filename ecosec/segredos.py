@@ -1,28 +1,4 @@
-"""Segredos do sistema, no arquivo .env (fora do controle de versão).
-
-Ficam aqui, e não no config/ecosec.toml, os valores que não podem vazar:
-    CHAVE_CIFRAGEM     chave Fernet que cifra o modelo facial
-    CHAVE_TOTP         chave Fernet que cifra os segredos do código do celular dos administradores
-    ADMIN_SENHA_HASH   hash bcrypt da senha de INSTALAÇÃO (só abre a configuração inicial)
-    ADMIN_MATRICULA    (legado) o administrador único das versões antigas; migrado para o banco
-
-Leitura com interpolate=False: o python-dotenv expande "${VAR}" até entre
-aspas simples. Uma senha ou chave que contivesse "${" seria corrompida em
-silêncio na leitura.
-
-PROTEÇÃO PELO WINDOWS (DPAPI). No Windows, cada VALOR é gravado como
-"dpapi:<base64>": o Windows o cifra com uma chave presa à conta de usuário
-deste computador. O programa lê normalmente; quem copiar o arquivo para outro
-PC (pen drive, nuvem, vírus) leva só texto ilegível. O nome de cada chave
-continua legível, para dar para saber o que o arquivo guarda.
-- Protege contra cópia do arquivo, backup vazado e outra conta do Windows.
-- Não protege contra quem (ou o que) roda como você, logado na sua conta.
-- Reinstalar o Windows ou trocar de conta torna o arquivo ilegível também para
-  nós: por isso existe o backup protegido por frase-senha
-  (python -m ferramentas.proteger_segredos --backup ARQUIVO), guardado fora do PC.
-Valores antigos, em texto puro, continuam sendo lidos; a mesma ferramenta, sem
-argumentos, converte todos de uma vez.
-"""
+"""Segredos do sistema no arquivo .env, protegidos pela DPAPI do Windows."""
 import base64
 import json
 import sys
@@ -153,9 +129,18 @@ def exportar_backup(frase: str, caminho: Path = CAMINHO_PADRAO) -> bytes:
                       indent=2).encode("utf-8")
 
 
+def _parametros_aceitos(n, r, p) -> bool:
+    """Os parâmetros do scrypt vêm do arquivo: sem limite, um backup adulterado com um n enorme travaria a
+    restauração por falta de memória. O que o sistema grava (n = 2^15, r = 8, p = 1) fica bem dentro."""
+    return (all(isinstance(v, int) and not isinstance(v, bool) for v in (n, r, p))
+            and 2 ** 14 <= n <= 2 ** 20 and n & (n - 1) == 0 and 1 <= r <= 16 and 1 <= p <= 4)
+
+
 def importar_backup(conteudo: bytes, frase: str) -> dict[str, str]:
     try:
         pacote = json.loads(conteudo)
+        if not _parametros_aceitos(pacote["n"], pacote["r"], pacote["p"]):
+            raise ValueError("parâmetros do scrypt fora dos limites")
         chave = _chave_da_frase(frase, base64.b64decode(pacote["sal"]), pacote["n"], pacote["r"], pacote["p"])
         return json.loads(Fernet(chave).decrypt(pacote["dados"].encode("ascii")))
     except InvalidToken:

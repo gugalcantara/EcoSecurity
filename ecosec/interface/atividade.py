@@ -1,15 +1,4 @@
-"""Atividade do usuário: uma definição só, para todos os prazos de inatividade.
-
-Princípio: nada fecha ou bloqueia no meio de uma atividade, só depois de um
-tempo real sem uso. Conta como uso qualquer interação com o programa: mover o
-mouse, clicar, rolar a página, teclar. A câmera ligada também conta (quem faz o
-gesto do N3 ou a captura do cadastro não toca no teclado), e isso é verificado
-por quem usa o prazo, no momento em que ele vence.
-
-Um único filtro de eventos no QApplication emite atividade, no máximo uma vez
-por segundo (mover o mouse gera dezenas de eventos por segundo). A sessão, o
-painel do administrador e o nível 3 escutam o mesmo sinal.
-"""
+"""Controle de inatividade do usuário."""
 import time
 
 from PySide6.QtCore import QEvent, QObject, Signal

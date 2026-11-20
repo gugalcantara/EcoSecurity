@@ -1,19 +1,4 @@
-"""Analítico do N2 e do N3.
-
-- Planilha analítica: filtros em grupos com rótulo de campo, um único "Limpar filtros" (o da barra), município na
-  planilha, sincronismo com o mapa (filtro único; padrão Todos) e sem a coluna redundante;
-  os detalhes do caso numa gaveta sobre a grade (Enter ou duplo clique; "Abrir no mapa" leva ao mapa);
-- N3: Priorização, Custo por responsável e Resumo agregado com totais que fecham (sem base nem corte);
-- legenda do mapa com a situação Todos: os encerrados fora das faixas de risco;
-- navegação do mapa: arrasto a partir de qualquer lugar, clique ao soltar, zoom que para no limite, folga
-  para arrastar no país inteiro, botão "UF" no N2 (a UF do diretor) e "Brasil" no N3; a faixa de listas sem
-  sobreposição em 1500×950 e quebrando em 2 linhas em 1366×768; em 1366×768, o mapa inteiro à vista e a coluna
-  de camadas do N3 com rolagem;
-- nenhum "escore", "KPI-0" ou "pendência" visível nas abas do analítico.
-
-A ficha ("Dados técnicos" do mapa) tem o canônico em test_n23.py; os Painéis da UF (N2), em
-test_paineis_uf.py.
-"""
+"""Testes do painel analítico dos níveis 2 e 3."""
 import re
 
 import pytest

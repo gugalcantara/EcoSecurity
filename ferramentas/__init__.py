@@ -1,4 +1,4 @@
-"""Ferramentas de linha de comando (verificação de ambiente, prova de vida...).
+r"""Ferramentas de linha de comando, executadas a partir da raiz do projeto.
 
-Executar a partir da raiz do projeto:  .venv\\Scripts\\python.exe -m ferramentas.<nome>
+    .venv\Scripts\python.exe -m ferramentas.<nome>
 """

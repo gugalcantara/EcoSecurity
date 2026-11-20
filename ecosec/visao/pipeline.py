@@ -1,19 +1,4 @@
-"""Encadeamento das fases, quadro a quadro.
-
-    Fase 1  Sensor (aquisição)             o quadro chega da câmera (aquisicao.py)
-    Fase 2  Pré-processamento              conversão para níveis de cinza
-    Fase 3  Segmentação                    Haar ou KCF e recorte de exatamente uma face
-    Fase 2  Pré-processamento do recorte   portão de qualidade e normalização (200x200, CLAHE, gaussiano)
-    Fase 4  Extração de características    LBPH, feita por quem consome o resultado
-    Fase 5  Classificação e interpretação  distância, limiar e confirmação, feitas por quem consome o resultado
-
-O pré-processamento atua antes e depois da segmentação, porque o tratamento da face depende de ela já
-estar localizada. As fases 4 e 5 dependem do contexto: no login, a face é comparada ao modelo; no
-cadastro, é guardada para o treinamento.
-
-O resultado só traz face_normalizada quando há exatamente uma face, visível por inteiro e aprovada na
-qualidade; qualquer outra situação não chega ao reconhecimento.
-"""
+"""Encadeamento das cinco fases do processamento, quadro a quadro."""
 import time
 from dataclasses import dataclass, field
 

@@ -1,11 +1,4 @@
-"""Repositórios em memória: cumprem os contratos com dicionários.
-
-Servem ao desenvolvimento (interface e regras antes do banco) e aos testes.
-Os dados somem ao fechar o programa; é o comportamento esperado aqui.
-
-O Lock existe porque a captura de vídeo roda em outra thread: duas threads
-gravando no mesmo dicionário ao mesmo tempo poderiam gerar ids repetidos.
-"""
+"""Repositórios em memória."""
 import dataclasses
 import itertools
 import threading

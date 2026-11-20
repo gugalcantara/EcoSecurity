@@ -1,15 +1,4 @@
-"""Agregação por zoom e camada temática de atributos (faixa, classe, fase).
-
-O que se confere:
-- zoom 1× com as 1.028 ativas: agregados + pontos soltos desenhados < 25% dos pontos visíveis;
-- em todo zoom e com filtro: soma das contagens dos agregados + pontos soltos = pontos visíveis;
-- na escala de UF (≥ 3×) nada agregado; recorte e ano refazem os agregados;
-- clique e Enter no agregado aproximam; Tab alcança agregados com nome "Agregado de N pendências, pior risco X";
-- a legenda continua contando pontos (soma = `contagens["na_vista"]`) e ganha a entrada AGREGADO;
-- trocar o atributo troca a legenda e o símbolo (o mesmo objeto Simbolo, e a mesma cor desenhada);
-- cores novas com contraste ≥ 3:1 sobre #EEF3EE; classe distinguível pela forma, fase pelo preenchimento;
-- N1 sem pontos nem agregados.
-"""
+"""Testes da agregação de pontos e das camadas do mapa."""
 from datetime import date
 from math import hypot
 

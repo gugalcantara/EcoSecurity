@@ -1,16 +1,4 @@
-"""A régua da criticidade.
-
-Score = peso da classe × peso do motivo × (1 + anos de atraso). Baixo abaixo de 5, médio de 5 a menos de 20,
-alto de 20 a menos de 60, crítico de 60 ou mais.
-
-A distribuição-alvo vale para os casos ativos na data-base (sinteticos.DATA_BASE): crítico de 5% a 15%, alto de 20% a
-30%, médio de 35% a 50%, baixo de 15% a 25%. Os relatórios que citam o limiar da faixa crítica leem a régua de
-regras.LIMITES, em vez de "score 10 ou mais" escrito no texto.
-
-O score não muda: o topo de "Casos para agir" (N3) é o mesmo de antes, nos mesmos 20 casos e na mesma ordem
-(teste de proteção, verde antes e depois). O hash do acervo também não muda (o gerador não usa regras.py): a proteção
-é o teste de hash de test_ficha.py.
-"""
+"""Testes da criticidade."""
 import re
 from collections import Counter
 from datetime import datetime

@@ -1,14 +1,4 @@
-"""Resumo agregado e relatórios.
-
-"vencida" são dois indicadores: FORA DA PREVISAO e ALEM DO PRAZO LIMITE, cada um com o seu
-      percentual; a supressão do N1 trata o percentual novo como derivado da sua subcontagem.
-formatador único de exibição por tipo de coluna; a exportação continua crua.
-relatórios do N1 (A1-01, A1-02, A1-05) com os totais já suprimidos do resumo (k=3 com complementar).
-A3-01: as quatro partes do custo fecham com o total.
-"pendências ativas" (não "cadastradas"); KPI-03 ao lado do cartão fora da previsão.
-atraso em anos com uma casa.
-N2: o combo do resumo não oferece por UF nem por regiao; cabeçalho inteiro.
-"""
+"""Testes do resumo agregado e dos relatórios."""
 import csv
 import re
 from dataclasses import replace

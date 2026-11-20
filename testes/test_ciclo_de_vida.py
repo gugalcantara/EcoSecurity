@@ -1,8 +1,4 @@
-"""Ciclo de vida do acervo: saídas do cadastro, catálogo de códigos e visualização por nível.
-
-Séries e calibração, ciclo de vida, catálogo, Índice de Pressão, segurança dos
-documentos e do panorama, e interface (com cliques reais).
-"""
+"""Testes do ciclo de vida do acervo."""
 import random
 import re
 from dataclasses import replace

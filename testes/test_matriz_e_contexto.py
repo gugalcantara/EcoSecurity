@@ -1,5 +1,4 @@
-"""Governança no modelo "papel × dado × operação", MFA adaptativo, step-up, alertas, regras de negócio,
-cobertura nacional e mapa vetorial."""
+"""Testes da autorização, do MFA adaptativo, da nova conferência do rosto e dos alertas."""
 import dataclasses
 from datetime import date, datetime, timedelta
 

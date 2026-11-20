@@ -1,4 +1,4 @@
-"""Endereço granular, padrão de texto, geografia real, painel analítico e planilha."""
+"""Testes de endereço, padrão de texto, geografia e planilha."""
 import hashlib
 import re
 from datetime import date, datetime
@@ -259,7 +259,7 @@ def tela(qt, tmp_path):
 
 
 def clicar(segmentado, chave):
-    """Clique DE VERDADE no item (o Fluent passa "checked" ao callback: foi o defeito de 13/10)."""
+    """Clique de verdade no item (o Fluent passa "checked" ao callback: foi o defeito de 13/10)."""
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
     QTest.mouseClick(segmentado.items[chave], Qt.MouseButton.LeftButton)
@@ -367,7 +367,7 @@ def test_n2_painel_mapa_da_uf_e_planilha_que_exporta(tela, qt):
     assert list(p.abas.items) == ["mapa", "paineis_uf", "planilha", "agregado", "glossario"]
     assert not p.planilha.botao_xlsx.isHidden()
     assert {pt.pendencia.uf for pt in p.mapa.mapa.pontos} == {"SP"}               # o mapa do N2 é a própria UF
-    assert not p.mapa.mapa.custodias                                              # custódia é SECRETA (N3)
+    assert not p.mapa.mapa.custodias                                              # custódia é secreta (N3)
     clicar(p.abas, "planilha")
     p.planilha.combo_risco.setCurrentText("Crítico")                    # Rótulo do vocabulário
     assert all(l.NIVEL_DE_RISCO == "CRITICO" and l.UF == "SP" for l in p.planilha.modelo.todas)

@@ -1,8 +1,4 @@
-"""Núcleo do filtro único (Filtro puro, EstadoFiltro e BarraFiltros).
-
-A equivalência com os predicados de hoje é o que garante que a ligação nas telas (etapa seguinte) não muda
-nenhum número: o mesmo recorte no Filtro dá exatamente os pontos do mapa e as linhas da planilha.
-"""
+"""Testes do filtro do painel."""
 import random
 from dataclasses import replace
 from datetime import date

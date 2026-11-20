@@ -1,23 +1,4 @@
-"""Abas de decisão nacional do N3: Priorização e Custo por responsável, no padrão de precisão
-da camada: valor exato com unidade, base (n), data de corte, totais que fecham e comparação.
-
-Priorização (o orçamento público nacional): cartões com o que o orçamento compra (casos, gasto, risco eliminado, o
-que fica na fila), a curva custo acumulado × risco eliminado acumulado dos dois critérios de fila (a pergunta: com
-o mesmo dinheiro, qual fila tira mais risco?) e a fila com o acumulado em reais e em % do risco público. Tudo pelo
-serviço (ServicoAcervo.priorizacao, só N3).
-
-Custo por responsável (só N3, matriz SOMAR_POR_RESPONSAVEL, sem exportação): cartões com a base (responsáveis,
-casos cobráveis distintos, passivo cobrável sem dupla contagem, soma das linhas e a concentração nos 10 maiores),
-o passivo cobrável nas quatro categorias de custo (fecha com o cartão do passivo), as barras dos 10 maiores
-empilhadas nas mesmas categorias e a memória de cálculo do responsável escolhido, com o subtotal por categoria.
-
-Todo total diz de onde vem (o serviço consultado e a data), no rodapé do bloco e na dica do cartão; o
-cabeçalho fica sem fonte. As categorias são as quatro do modelo de custos (EEA): transporte e
-tratamento fora do local estão dentro de Disposição.
-
-A Priorização tem duas visões, num seletor à esquerda da linha de controles. "Por urgência" (padrão) lista
-os 20 casos ativos do país que pedem ação primeiro (CasosParaAgir); "Pelo orçamento público" é a fila acima.
-"""
+"""Abas de priorização e de custo por responsável do nível 3."""
 from __future__ import annotations
 
 from collections import Counter
@@ -309,11 +290,7 @@ class CasosParaAgir(QWidget):
 
 # priorização orçamentária (N3)
 class PriorizacaoOrcamento(QWidget):
-    """Com um orçamento público, quais casos resolver primeiro? A regra de negócio que vira decisão.
-
-    A aba tem duas visões, no seletor à esquerda da linha de controles (sem linha a mais: a fila não perde
-    altura). "Por urgência" (CasosParaAgir, padrão) traz a própria base; em "Pelo orçamento público" a linha mostra
-    o orçamento, o critério e a base da fila. As duas carregam juntas, qualquer que seja a visão aberta."""
+    """Aba de priorização do N3: quais casos resolver primeiro, por urgência ou pelo orçamento público."""
     VISOES = (("urgencia", "Por urgência"), ("orcamento", "Pelo orçamento público"))
     TITULOS = ("ORDEM", "CODIGO", "NIVEL DE RISCO", "SCORE", "CLASSE DE RISCO", "PASSIVO", "COMPONENTE QUIMICO",
                "MUNICIPIO", "UF",

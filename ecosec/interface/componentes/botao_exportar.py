@@ -1,12 +1,4 @@
-"""Botão Exportar com cadeado: informa se a exportação vai pedir o rosto de novo.
-
-A interface nunca decide permissão: o cadeado é só informativo. Quem decide é o
-serviço (matriz de autorização + step-up). janela_min vem de
-[contexto] verificacao_minutos, a mesma chave do serviço, para os dois não divergirem.
-
-A biblioteca Fluent instalada não tem FluentIcon.LOCK: o ícone vem do glifo da
-fonte do sistema (Segoe Fluent Icons no Windows 11, Segoe MDL2 Assets no 10).
-"""
+"""Botão de exportar, que avisa quando a exportação vai pedir o rosto de novo."""
 from datetime import datetime, timedelta
 
 from PySide6.QtCore import Qt, QTimer

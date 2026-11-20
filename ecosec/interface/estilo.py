@@ -1,9 +1,4 @@
-"""Identidade visual: tema, cor de destaque e a cor de cada nível.
-
-As cores dos níveis seguem a lógica de semáforo: verde (aberto), âmbar
-(restrito), vermelho (custódia), e se repetem em toda tela: cartões de
-acesso, cabeçalho da autenticação e tabela de usuários.
-"""
+"""Tema, cores e estilo da interface."""
 from PySide6.QtGui import QColor
 
 from ecosec.dominio.niveis import Nivel

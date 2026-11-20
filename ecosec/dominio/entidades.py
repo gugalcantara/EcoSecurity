@@ -1,13 +1,4 @@
-"""Entidades do controle de acesso.
-
-Imutáveis (frozen): para mudar um usuário, cria-se uma cópia com
-dataclasses.replace(). Assim nenhuma camada altera em silêncio um objeto que
-outra camada ainda está avaliando.
-
-As invariantes ficam no domínio: um diretor de nível 2 sem região
-veria todas as UFs se algum filtro falhasse. Um objeto Usuario nesse estado
-simplesmente não pode existir.
-"""
+"""Usuários, tentativas, consentimentos e demais entidades do controle de acesso."""
 from dataclasses import dataclass, field
 from datetime import datetime
 
@@ -76,7 +67,7 @@ class Usuario:
 
 @dataclass(frozen=True)
 class Amostra:
-    """METADADO de uma amostra facial. A imagem em si nunca é guardada: ela
+    """Metadado de uma amostra facial. A imagem em si nunca é guardada: ela
     treina o modelo e é descartada. A sessão é a base da divisão treino/teste
     dos experimentos (por sessão, não por quadro)."""
     usuario_id: int
@@ -126,16 +117,8 @@ class RegistroTentativas:
 
 @dataclass(frozen=True)
 class Administrador:
-    """O PAPEL de administrador de um cadastro. Não é outra pessoa nem outro login.
-
-    Uma pessoa tem um cadastro (um rosto, uma matrícula) e pode ter mais de um
-    papel: "ministro (N3)" pelo nível e "administrador" por esta linha. Duas
-    identidades para o mesmo rosto confundiriam o reconhecimento 1:N, guardariam
-    a biometria duas vezes e deixariam o rosto num cadastro ao revogar o outro.
-
-    O segredo do celular (TOTP) chega aqui já cifrado: o repositório guarda um
-    texto opaco, e só o serviço, com a chave do .env, o abre.
-    """
+    """Papel de administrador dado a um cadastro: não é outra pessoa nem outro login.
+    O segredo do celular (TOTP) chega já cifrado; só o serviço, com a chave do .env, o abre."""
     usuario_id: int
     designado_em: datetime
     designado_por: int | None = None          # None: configuração inicial (senha de instalação) ou migração
@@ -166,13 +149,8 @@ class CodigoRecuperacao:
 
 @dataclass(frozen=True)
 class Consentimento:
-    """Aceite do termo de uso da imagem facial (LGPD art. 11, I).
-
-    Guarda o hash do texto apresentado, além da versão: provar o consentimento
-    é ônus de quem trata o dado (art. 8º, §2º), e "aceitou a v1.0" não provaria
-    nada se o texto da v1.0 mudasse depois. A revogação é marcada, nunca
-    apagada: a baixa também é evidência.
-    """
+    """Aceite do termo de uso da imagem facial (LGPD, art. 11, I). Guarda a versão e o hash do texto
+    apresentado; a revogação é marcada, nunca apagada."""
     titular_nome: str
     versao_termo: str
     hash_termo: str

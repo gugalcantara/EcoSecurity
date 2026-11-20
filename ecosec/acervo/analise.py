@@ -1,13 +1,4 @@
-"""Análises do painel: risco por categoria, série temporal, planilha e resumo agregado.
-
-Funções puras sobre pendências já autorizadas e registradas pelo ServicoAcervo:
-nada aqui consulta o banco nem decide permissão.
-
-Nível de risco: a criticidade do relatório A3-02 (peso da classe de risco × peso do
-motivo × (1 + anos de atraso)) em quatro faixas. Como o atraso cresce com o
-tempo, a criticidade de uma pendência não resolvida sobe sozinha: a série
-temporal mostra justamente isso, o passivo envelhecendo.
-"""
+"""Análises do painel do acervo: risco, séries temporais, planilha e resumo."""
 import csv
 import hashlib
 import io
@@ -94,7 +85,7 @@ PESOS_PRESSAO = {"volume": 0.30, "severidade": 0.30, "custo": 0.20, "atraso": 0.
 
 @dataclass(frozen=True)
 class PressaoUF:
-    """Totais de uma UF e o Índice de Pressão: posição RELATIVA entre as 27 UFs (0 a 1), não escala física."""
+    """Totais de uma UF e o Índice de Pressão: posição relativa entre as 27 UFs (0 a 1), não escala física."""
     uf: str
     ativas: int
     criticas: int | None             # None = subcontagem suprimida no N1 (0 < n < k, ou o complemento)
@@ -125,11 +116,8 @@ def _posto_percentil(valores: dict[str, float]) -> dict[str, float]:
 
 def indice_pressao(pendencias, ufs, em: date, r: regras.ParametrosRegras | None = None, pesos=None,
                    classe: str | None = None, supressao_minima: int = 0, cubo=None) -> dict[str, PressaoUF]:
-    """IP_uf = Σ peso_k · posto_percentil_k(uf), com volume (ativas), severidade (fração CRITICO), custo
-    estimado e atraso (fração além do prazo-limite). UF sem ativas entra com zero em tudo.
-
-    Com cubo (CuboN1 do mesmo corte), quem some e quais subcontagens viram None vem do cubo, sem uma
-    supressão própria desta vista: a mesma célula (UF, classe) tem o mesmo destino em qualquer filtro."""
+    """Índice de pressão por UF: soma ponderada da posição percentil da UF em volume, severidade, custo e atraso.
+    Com o cubo do N1, as células escondidas vêm dele, para valerem igual em todas as vistas."""
     r = r or regras.ParametrosRegras.padrao()
     pesos = pesos or PESOS_PRESSAO
     if abs(sum(pesos.values()) - 1.0) > 1e-6:
@@ -323,11 +311,8 @@ class TempoEncerramento:
 
 
 def kaplan_meier(observacoes) -> list[tuple[float, float]]:
-    """[(t, S(t))] nos tempos de evento. observacoes = (tempo, encerrou, idade ao entrar na observação).
-
-    Entrada tardia (truncamento à esquerda): quem foi identificado antes do início da observação só entra
-    no conjunto em risco na idade que tinha naquele dia; antes disso, se tivesse saído, nem estaria no
-    cadastro. Sem isso, o estoque herdado inflaria o tempo."""
+    """Curva de Kaplan-Meier [(t, S(t))], com entrada tardia: quem já estava no cadastro antes da observação
+    só entra no conjunto em risco a partir da idade que tinha nesse dia."""
     observacoes = list(observacoes)
     eventos_em: dict = {}
     for t, encerrou, _ in observacoes:
@@ -394,11 +379,8 @@ class CustoResponsavel:
 
 
 def custo_por_responsavel(pendencias, responsaveis, hoje: date, r: regras.ParametrosRegras | None = None):
-    """Custo do passivo ATIVO e cobrável somado por responsável nomeado, do maior para o menor.
-
-    Responsabilidade solidária (Lei 6.938/1981, art. 14, § 1º; STJ, Súmula 623): a mesma pendência entra na
-    soma de cada corresponsável, então a soma da coluna não é o passivo total. Transportador e destinador
-    ficam de fora: respondem pela carga (MP-08), não pela remediação. Quem pode ver é decisão da matriz."""
+    """Custo dos casos ativos e cobráveis somado por responsável, do maior para o menor. A responsabilidade é
+    solidária (Lei 6.938/1981, art. 14, § 1º): o mesmo caso entra na soma de cada corresponsável."""
     r = r or regras.ParametrosRegras.padrao()
     cobraveis = {p.codigo: p for p in pendencias
                  if p.ativa(hoje) and regras.grupo_do_motivo(p.motivo) == "Cobrável do responsável"}
@@ -422,23 +404,8 @@ SUPRIMIDO = "SUPRIMIDO"
 
 
 def suprimir(contagens: dict, k: int, marginais=(lambda chave: (),), iniciais=(), travadas=()) -> set:
-    """Chaves a esconder num agregado do N1.
-
-    Primária: 0 < n < k. Complementar: se num grupo de margem conhecida (o total da tabela, o total da
-    UF, o da região, o da atividade...) sobrou uma só célula escondida, ela sairia por subtração; então a
-    menor célula visível do grupo também é escondida. Repete até estabilizar. marginais = funções
-    chave -> grupo; iniciais = chaves já escondidas por outra regra (ex.: a UF inteira).
-
-    A margem também pode ser uma célula do dicionário (a linha "total" no mesmo grupo das suas partes): aí o
-    grupo é a equação inteira (total = soma das partes), e o total escondido conta como uma das escondidas.
-
-    travadas = chaves cujo destino já foi decidido por outra vista (o cubo do panorama): não são escolhidas
-    como complementares enquanto houver outra candidata no grupo. Sem outra, a travada cede (segurança antes
-    da coerência entre telas).
-
-    O grupo precisa de complementar se tem uma só escondida (qualquer valor: um zero sozinho também sai, e
-    revela a célula ligada a ele) ou uma só escondida não nula (um zero escondido não protege nada: a soma
-    das escondidas seria o próprio valor da outra)."""
+    """Chaves a esconder num agregado do N1: as células com 0 < n < k e, em cada grupo com total conhecido,
+    uma célula a mais quando a escondida sairia por subtração."""
     escondidas = {c for c, n in contagens.items() if 0 < n < k} | set(iniciais)
     travadas = set(travadas)
     grupos = marginais if isinstance(marginais, _Grupos) else _Grupos.de(contagens, marginais)
@@ -486,15 +453,8 @@ def _margens_do_agrupamento(agrupamento: str):
 
 def suprimir_subcontagem(totais: dict, parte: dict, k: int, marginais=(lambda chave: (),), iniciais=(),
                          travadas=()) -> set:
-    """Chaves cuja subcontagem (vencidas, críticas... de um total visível) não sai no N1.
-    A parte v e o complemento n − v são duas células da mesma linha, que mostra o total n:
-    primária se 0 < v < k ou 0 < n − v < k, e esconder uma esconde a outra. A complementar corre ao longo de
-    cada uma das duas colunas pelos grupos de marginais (o total da coluna aparece em outra tabela).
-    iniciais = chaves já escondidas inteiras (entram nas colunas como escondidas); travadas, como em suprimir.
-
-    no par: com o total visível e um lado zero, o outro lado é o próprio total, então a célula
-    não protege nada; para suprimir ela vale 0 (não é escolhida como complementar e, escondida, não conta). Com o
-    total escondido (iniciais) o par não a revela, e ela entra com o valor real."""
+    """Chaves cuja subcontagem (vencidas, críticas) não aparece no N1: a parte e o complemento são escondidos
+    juntos quando um deles fica entre 0 e k, com a complementar ao longo de cada coluna."""
     lados = ("PARTE", "RESTO")
     celulas = {}
     for c, n in totais.items():
@@ -522,18 +482,8 @@ SUBCONTAGENS = {FORA_DA_PREVISAO: (PERCENTUAL_FORA_DA_PREVISAO, ATRASO_FORA_DA_P
 
 def suprimir_tabela(agrupamento: str, titulos, linhas, k: int, por_classe: dict | None = None,
                     iniciais: dict | None = None, total: dict | None = None):
-    """(linhas, quantas células escondidas) de uma tabela do resumo do N1.
-
-    Linha: contagem 0 < n < k, ou complementar pelas margens da tabela: todas as medidas viram SUPRIMIDO, e ela
-    vai para o fim em ordem de chave (a ordem por contagem entre as escondidas revelaria quem é maior).
-    Linha visível: cada subcontagem de SUBCONTAGENS (e as suas derivadas) sai SUPRIMIDO pela regra de
-    suprimir_subcontagem; cada coluna de quantidade é a célula (grupo, classe), com a contagem de por_classe
-    ({grupo: {classe: n}}), e sai SUPRIMIDO se 0 < n < k. Nas duas, a complementar corre ao longo da coluna. O
-    custo da linha fica: é soma da linha inteira, que tem pelo menos k pendências.
-    iniciais = {título da coluna: chaves já escondidas por outra vista} (o cubo do panorama, no por UF).
-    total = {título da coluna: (valor do total do escopo, escondido no cubo?)}: o total entra como célula da
-    equação da tabela (total = soma das linhas), travado. Se o cubo o esconde, a tabela não pode deixá-lo sair
-    somando as linhas: precisa de outra escondida na coluna."""
+    """Uma tabela do resumo do N1 com as linhas e células escondidas pela regra de k e pela complementar.
+    Devolve (linhas, quantas células escondidas)."""
     titulos, iniciais = list(titulos), iniciais or {}
     n_chaves = titulos.index("PENDENCIAS")
     contagens = {tuple(l[:n_chaves]): l[n_chaves] for l in linhas}
@@ -616,13 +566,8 @@ def _partes_da_linha(linha: str) -> tuple:
 
 @dataclass(frozen=True)
 class CuboN1:
-    """O cubo protegido de um corte: linhas = cada UF, a linha NACIONAL e, para o resumo, cada região, cada
-    atividade e cada par (UF, atividade); colunas = cada classe e TODAS. Protegido uma vez com todas as equações
-    que alguma vista do N1 mostra, e lido por todas: panorama (todas as classes ou uma classe), resumo (por UF,
-    POR REGIAO, POR ATIVIDADE, POR UF E ATIVIDADE e POR CLASSE DE RISCO) e painéis por UF, por classe e de custo.
-    A mesma célula tem o mesmo destino em qualquer filtro e em qualquer tabela. Antes, cada vista suprimia só a
-    sua fatia: a primária da visão "todas" saía por subtração na visão da classe, e uma UF escondida
-    podia sair somando as suas linhas de UF e atividade (risco)."""
+    """Cubo protegido de um corte do N1 (UF, região, atividade e nacional, por classe), calculado uma vez e
+    lido por todas as vistas, para a mesma célula ter o mesmo destino em qualquer tela."""
     ativas: dict                         # (linha, classe ou TODAS) -> pendências ativas no corte
     escondidas: frozenset                # células cujo número não sai (a UF some na vista daquela coluna)
     criticas: frozenset                  # células cuja subcontagem de críticas não sai
@@ -716,14 +661,8 @@ def proteger_cubo(pendencias, ufs, em: date, k: int, r: regras.ParametrosRegras 
 
 
 def _proteger_cubo(pendencias, ufs, em: date, k: int, r: regras.ParametrosRegras) -> CuboN1:
-    """O cubo do corte em. Com k = 0 (N2 e N3: o k não se aplica) nada é escondido.
-
-    Número: primária 0 < n < k; complementar pelas equações de _margens_do_cubo, até estabilizar (a margem é
-    uma célula do mesmo grupo, então uma UF escondida com todas as suas linhas de UF e atividade visíveis leva uma
-    delas junto). A UF escondida na coluna TODAS esconde todas as suas células, zeros inclusive: na vista de uma
-    classe ela some, sem mostrar 0 nem o número. O total geral (NACIONAL, TODAS) está em toda tela (estoque),
-    então fica travado. Subcontagens (críticas, além do prazo-limite, fora da previsão): suprimir_subcontagem,
-    com as mesmas equações e com as células escondidas já fora."""
+    """Protege o cubo do corte: primária 0 < n < k e complementar pelas equações das margens.
+    Com k = 0 (N2 e N3), nada é escondido."""
     colunas = tuple(quantidades.CLASSES) + (TODAS,)
     ufs = set(ufs)
     ativas = {(uf, c): 0 for uf in ufs | {NACIONAL} for c in colunas}
@@ -774,18 +713,8 @@ def _linha_do_cubo(agrupamento: str, chave: tuple) -> str:
 
 def proteger_resumo(tabelas: dict, pendencias, hoje: date, atividades: dict, motivos: dict, k: int,
                     r: regras.ParametrosRegras | None = None, cubo: "CuboN1 | None" = None):
-    """({agrupamento: (títulos, linhas)}, células escondidas): o resumo do N1 inteiro com k e complementar.
-
-    Garantia hierárquica: as quatro tabelas de FAMILIA_UF saem do mesmo cubo protegido (proteger_cubo, corte
-    hoje), que tem as UFs, as regiões, as atividades e os pares (UF, atividade) como linhas e protege as
-    equações que ligam umas às outras. Nenhuma célula escondida em por UF sai somando as linhas visíveis de por UF
-    e atividade, nem por UF a partir de por regiao, nem por atividade a partir da sua coluna; vale para a contagem,
-    para cada subcontagem (parte e complemento) e para cada quantidade por classe (a célula da classe). E o mapa
-    lê o mesmo cubo: a UF tem o mesmo destino no panorama e no resumo.
-
-    Por classe de risco segue a linha NACIONAL do cubo. As outras tabelas (motivo, nível, ação, responsabilidade)
-    só se ligam pelo total e seguem suprimir_tabela, com o total do cubo como célula: quando o cubo o esconde (uma
-    subcontagem nacional concentrada numa linha só), nenhuma delas o revela somando as linhas."""
+    """O resumo do N1 inteiro com a regra de k e a complementar. As tabelas por UF, região e atividade saem do
+    mesmo cubo protegido, e nenhuma célula escondida pode ser recalculada somando as outras."""
     r, pendencias = r or regras.ParametrosRegras.padrao(), list(pendencias)
     if cubo is None:
         cubo = proteger_cubo(pendencias, REGIAO_DA_UF, hoje, k, r)
@@ -929,12 +858,8 @@ def custo_do_passivo(pendencias, em: date, r: regras.ParametrosRegras | None = N
 
 
 def proteger_custo(custo: CustoDoPassivo, k: int, cubo: "CuboN1 | None" = None) -> tuple[set, set]:
-    """(escondidas da grade classe × rota × categoria, escondidas da grade classe × responsabilidade).
-
-    As duas grades protegem as margens como células: a mesma conta por classe e por rota fecha com o mesmo total
-    (e cada rota com as suas classes), então nenhuma vista do painel deduz outra. O total de cada classe e o geral
-    seguem o cubo (travados). Na responsabilidade, o total de cada grupo segue o resumo por responsabilidade
-    FINANCEIRA (k e complementar pelo total, o mesmo destino) e também fica travado."""
+    """Células escondidas das grades de custo (classe × rota × categoria e classe × responsabilidade).
+    Os totais seguem o cubo e o resumo, para nenhuma vista deduzir outra."""
     if not k:
         return set(), set()
     iniciais, travadas = _travadas_pelo_cubo(cubo, lambda c: (c, TODAS, TODAS))
@@ -1094,12 +1019,8 @@ def _curva_da_tabua(classe: str, observacoes, k: int, fronteiras=None) -> CurvaE
 
 def curvas_de_encerramento(pendencias, hoje: date, k: int, classe: str | None = None,
                            inicio_observacao: date = INICIO_OBSERVACAO) -> dict:
-    """{classe ou TODAS: CurvaEncerramento}. Com classe, só ela; sem, as classes presentes e TODAS. k = 0:
-    curva exata (N2, N3).
-
-    No N1, a curva TODAS usa só os cortes comuns às tábuas das classes e para no fim da mais curta: cada degrau
-    dela é a união de degraus inteiros de todas as classes, então os eventos do total nunca revelam, por
-    diferença, os de uma classe num intervalo que a tábua da classe juntou."""
+    """Curvas de encerramento por classe e no total. No N1, a curva total usa só os cortes comuns às classes,
+    para não revelar por diferença os eventos de uma classe."""
     pendencias = list(pendencias)
     presentes = [c for c in quantidades.CLASSES if any(p.classe_risco == c for p in pendencias)]
     pedidas = [classe] if classe else presentes + [TODAS]
@@ -1272,14 +1193,8 @@ def celulas_recompostas(contagens: dict, escondidas, equacoes=None) -> set:
 
 
 def proteger_grade_n1(contagens: dict, k: int, conhecidas=(), iniciais=()) -> set:
-    """Células escondidas de uma grade nova do N1 (duas dimensões, margens como células), coerente com o que outra
-    vista já publica: conhecidas = células que outra vista do N1 mostra (não adianta escondê-las: contam como
-    sabidas); iniciais = células que outra vista esconde (escondidas aqui também).
-
-    Primeiro suprimir_grade (primária 0 < n < k e complementar pelas equações, com as conhecidas travadas). Depois
-    a prova algébrica (celulas_recompostas): enquanto alguma escondida sair das equações, esconde mais uma, a menor
-    visível não nula e não conhecida da linha ou da coluna dela. Sem candidata, esconde a grade inteira (o padrão
-    mais conservador). Com k = 0 (N2 e N3), nada."""
+    """Células escondidas de uma grade nova do N1, coerente com o que as outras vistas já mostram ou escondem.
+    Se alguma escondida puder ser recalculada, esconde mais uma; sem saída, esconde a grade inteira."""
     if not k:
         return set()
     conhecidas = {c for c in conhecidas if c in contagens}

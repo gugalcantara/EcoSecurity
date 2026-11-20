@@ -1,13 +1,4 @@
-"""Contagens anuais e sorteio de quem entra e quem sai.
-
-No modo "estratificado" (padrão), as contagens anuais de entradas e de saídas são o
-valor esperado com arredondamento sistemático: cada ano fica a menos de 1 do
-esperado e a soma bate com o total. A aleatoriedade fica nos REGISTROS (quem entra,
-em que data, quem sai e quando). Com centenas de registros, o Poisson puro geraria
-ruído maior que os efeitos que se quer mostrar (−10%, +19%).
-
-O modo "poisson" sorteia as contagens por Poisson, para volumes grandes.
-"""
+"""Quantos casos entram e saem a cada ano, e quais."""
 from collections import defaultdict
 from math import exp
 
@@ -40,12 +31,8 @@ def contagens(esperado: dict[int, float], rng, modo: str) -> dict[int, int]:
 
 def sortear_saidas(registros, saidas_por_ano: dict[int, int], rng, data_base: float,
                    latencia: float = 1 / 12) -> int:
-    """Escolhe quem sai em cada ano entre os ativos com pelo menos latencia anos de casa; grava r.saida
-    (ano fracionário) ou deixa None. Devolve quantas saídas pedidas não acharam ninguém elegível.
-
-    Latência: com risco constante desde a entrada, o tempo até a saída seria exponencial,
-    com densidade máxima em t = 0, e áreas contaminadas "reabilitadas" em semanas apareceriam. O piso
-    não muda quantos saem por ano (a calibração), só quem pode sair."""
+    """Escolhe quem sai em cada ano entre os ativos com pelo menos `latencia` anos de casa e grava r.saida.
+    Devolve quantas saídas pedidas não acharam ninguém elegível."""
     por_ano = defaultdict(list)
     for r in registros:
         por_ano[int(r.entrada)].append(r)

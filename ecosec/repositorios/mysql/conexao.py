@@ -1,19 +1,4 @@
-"""Conexão com o MySQL: pool de conexões e tradução de erros.
-
-Pool: a câmera consulta o banco numa thread (consentimento, usuário) enquanto
-a tela consulta em outra. Uma conexão MySQL não pode ser usada por duas
-threads ao mesmo tempo; o pool entrega uma conexão por operação.
-
-Transação por operação: `with banco.transacao() as c:` faz COMMIT se o bloco
-termina bem e rollback se levanta exceção: nunca fica meio gravado.
-
-Tradução de erros: o resto do sistema não conhece o mysql.connector. Erros do
-driver viram os erros do contrato (BancoIndisponivel, PermissaoNegada...).
-
-FOUND_ROWS: por padrão o MySQL informa em rowcount as linhas alteradas; um
-UPDATE que grava o mesmo valor devolveria 0 e pareceria "registro inexistente".
-Com FOUND_ROWS ele informa as linhas encontradas.
-"""
+"""Conexão com o MySQL."""
 import threading
 from contextlib import contextmanager
 from dataclasses import dataclass, field

@@ -1,11 +1,4 @@
-"""Consulta ao acervo: a área liberada depois da autenticação.
-
-A tela recebe do serviço a imagem já tratada (tarja e marca aplicadas antes)
-e explica, para cada relatório aberto:
-  - o que foi ocultado e a partir de que nível ficaria visível;
-  - se há marca d'água (e o que isso significa para quem exportar);
-  - a regra de exportação do nível: antes do clique, não depois do erro.
-"""
+"""Consulta ao acervo depois do login."""
 import logging
 from pathlib import Path
 

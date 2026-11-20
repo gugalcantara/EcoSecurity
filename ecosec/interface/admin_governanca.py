@@ -1,14 +1,4 @@
-"""Telas da governança dos administradores. Toda decisão é do ServicoAdministracao; aqui só se coleta e mostra.
-
-- PainelCodigoCelular     o 3º passo para abrir o painel: o código do celular (ou um de recuperação)
-- PainelCadastroCelular   o primeiro acesso de um admin: QR para o aplicativo, primeiro código e os
-                          códigos de recuperação, mostrados uma vez
-- DialogoAprovacao        ação crítica: o código atual do celular de outro administrador
-- pedir_codigo_proprio    ação sensível de quem já está no painel: o código do próprio celular
-- mostrar_ancora / pedir_linha_ancora   a âncora da trilha, para guardar e conferir fora do banco
-- PaginaEmergencia        no login: os códigos do quórum, em qualquer ordem, sem instruções na tela
-- PainelEmergencia        a Administração restrita do acesso de emergência: só consertar o acesso
-"""
+"""Telas da governança dos administradores."""
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QGuiApplication, QPixmap
 from PySide6.QtWidgets import (QAbstractItemView, QGridLayout, QHBoxLayout, QHeaderView, QLabel, QStackedWidget,

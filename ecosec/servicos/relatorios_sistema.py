@@ -1,20 +1,4 @@
-"""Relatórios do sistema (S-01 a S-07): para o administrador e a auditoria.
-
-    S-01 Log de acessos              cada autenticação, concedida ou negada
-    S-02 Tentativas negadas          só as negações, com o motivo (o que a auditoria mais olha)
-    S-03 Bloqueios ativos            matrículas travadas pela S1 neste momento
-    S-04 Integridade da cadeia       a verificação da trilha (S10)
-    S-05 Estatísticas de reconhecimento   taxas por nível e motivos de negação
-    S-06 Galeria biométrica          quem tem rosto no modelo, amostras e consentimento
-    S-07 Auditoria de exportação     tudo o que saiu do sistema, e o que foi barrado
-    S-08 Alertas de anomalia         o monitor lê a trilha e aponta o que merece atenção (alerta precoce)
-    S-09 Matriz de permissões        papel × classificação × operação: o que cada um pode, por extenso
-    S-10 Revisão de acessos          quem é admin, quem aprovou, celular, último login e termo aceito
-
-Cada relatório devolve (colunas, linhas): a tela só desenha a tabela.
-Nada aqui altera dado: são consultas. (Registrar que a revisão do S-10 foi
-feita é uma ação do ServicoAdministracao, com aprovação de outro admin.)
-"""
+"""Relatórios do sistema (S-01 a S-07)."""
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime

@@ -1,4 +1,4 @@
-"""Leitor de configuração: tipos do TOML e falha segura para parâmetro ausente."""
+"""Testes da leitura da configuração."""
 import pytest
 
 from ecosec.configuracao import CAMINHO_PADRAO, ErroConfiguracao, carregar
@@ -109,7 +109,7 @@ def test_parametro_lido_pelas_telas_ausente_aparece_na_tela(monkeypatch, caixas)
 # prova de vida (S6)
 def test_config_gesto_obrigatorio_aceita_piscada(tmp_path):
     """O config do projeto exige a piscada, e um nome errado
-    ("piscada" no lugar de PISCAR) para a ABERTURA com mensagem clara. Sem isso, o erro só
+    ("piscada" no lugar de PISCAR) para a abertura com mensagem clara. Sem isso, o erro só
     aparecia no meio do step-up do N3, que passava a negar sempre (ERRO_INTERNO)."""
     import copy
 

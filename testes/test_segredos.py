@@ -1,4 +1,4 @@
-"""Segredos do .env: protegidos pelo Windows (DPAPI) e com backup por frase-senha."""
+"""Testes dos segredos do .env."""
 import pytest
 
 from ecosec import segredos
@@ -54,6 +54,17 @@ def test_backup_exige_frase_minima_e_recusa_arquivo_estranho(tmp_path):
         segredos.exportar_backup("curta", tmp_path / ".env")
     with pytest.raises(segredos.ErroSegredo, match="não é um backup"):
         segredos.importar_backup(b"qualquer coisa", "frase longa o bastante")
+
+
+def test_backup_adulterado_com_parametros_enormes_e_recusado_sem_derivar_a_chave(tmp_path):
+    import json
+    env = tmp_path / ".env"
+    segredos.gravar("CHAVE_CIFRAGEM", "chave-do-modelo", env)
+    pacote = json.loads(segredos.exportar_backup("frase longa o bastante", env))
+    for campo, valor in (("n", 2 ** 30), ("n", 3 * 2 ** 14), ("r", 1000), ("p", 64), ("n", "32768")):
+        adulterado = json.dumps({**pacote, campo: valor}).encode("utf-8")
+        with pytest.raises(segredos.ErroSegredo, match="não é um backup"):
+            segredos.importar_backup(adulterado, "frase longa o bastante")
 
 
 def test_sem_a_protecao_do_windows_o_segredo_nao_e_gravado(tmp_path, monkeypatch):

@@ -1,20 +1,4 @@
-"""As abas de custódia do N3 (n23_custodia), Priorização e Custo por responsável, no padrão
-de precisão da camada.
-
-Números por extenso ("1.055 casos", não "~1k"); o custo
-por responsável nas quatro categorias do modelo de custos (Investigação, Remediação, Monitoramento e Disposição;
-transporte e tratamento fora do local estão em Disposição): barras empilhadas nos 10 maiores, o passivo cobrável
-por categoria que fecha com o passivo sem dupla contagem e o subtotal por categoria na memória; nenhuma coluna nova
-na tabela; pessoa física só no N3. A faixa do passivo é compacta (legenda
-numa linha, "R$ x,xx mi" à vista, o valor exato na dica) e a explicação da aba foi para a dica, para a tabela não
-perder linhas.
-
-Os textos não trazem a fonte, a base, o corte nem a menção a valores simulados, e os testes conferem que nada
-disso volta.
-
-Os testes de números que fecham com o serviço (fila, curva, passivo) estão em test_analitico.py, e o da
-largura das colunas em test_graficos.py. A lista "Casos para agir" por urgência está em TestCasosParaAgir.
-"""
+"""Testes das abas de custódia do nível 3."""
 import re
 from collections import Counter
 from dataclasses import replace

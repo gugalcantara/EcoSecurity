@@ -1,21 +1,4 @@
-"""Monitor de anomalias sobre a trilha (S10): "alerta precoce", não só registro.
-
-A trilha prova o que aconteceu; o monitor lê a trilha e aponta o que merece
-atenção do administrador antes que vire incidente. Função pura sobre os
-registros (nada é gravado nem alterado), consultada no relatório S-08.
-
-Regras (janela deslizante sobre os eventos; janelas e mínimo na seção [monitor] do config):
-  ALTO   VARREDURA_DE_MATRICULAS    matrículas diferentes negadas na S2 dentro da janela de rajada
-  ALTO   RAJADA_DE_EXPORTACOES      exportações da mesma pessoa dentro da janela de rajada
-  ALTO   SESSAO_DE_RISCO_ALTO       login concedido com risco de contexto ALTO
-  MEDIO  NEGACOES_EM_SERIE          logins negados da mesma matrícula dentro da janela de negações
-  MEDIO  EXPORTACAO_BARRADA         tentativa de exportar o que a matriz nega
-  ALTO   ACESSO_DE_EMERGENCIA       o acesso de emergência foi aberto
-  MEDIO  APROVACAO_RECUSADA         código errado ao aprovar uma ação crítica de outro administrador
-  MEDIO  EMERGENCIA_RECUSADA        código errado no acesso de emergência
-
-O horário do acesso não gera alerta: não há expediente no sistema.
-"""
+"""Alertas de anomalias a partir da trilha de auditoria."""
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta

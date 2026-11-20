@@ -1,15 +1,4 @@
-"""Aba "Glossário", em todos os níveis.
-
-A regra de negócio de cada termo que a tela mostra: classes, situação, score e faixas de risco, indicadores, fases e
-etapas, quem paga, motivos, atividades, campos da ficha, prazos, níveis de acesso e a supressão de grupos pequenos.
-
-O conteúdo vem só de `acervo/vocabulario.py` (a fonte única dos rótulos): nenhum número, nome, endereço ou valor do
-acervo passa por aqui, por isso a mesma aba serve ao N1, ao N2 e ao N3 sem consulta ao serviço e sem trilha.
-
-Desenho: à esquerda, o índice das seções (clicar rola até a seção); à direita, uma seção por cartão, cada termo numa
-linha com o nome em negrito, a definição e, quando há, a conta (indicadores), a unidade, o código interno e a norma.
-A busca filtra por nome, definição, código ou norma, sem diferenciar acento nem caixa.
-"""
+"""Aba de glossário."""
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QVBoxLayout, QWidget
 

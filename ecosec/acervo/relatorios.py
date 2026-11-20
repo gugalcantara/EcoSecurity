@@ -1,30 +1,4 @@
-"""Os 9 relatórios do acervo: desenhados na hora, a partir do banco.
-
-    N1  A1-01 Panorama nacional · A1-02 Origem e motivo dos casos · A1-05 Mapa de densidade
-    N2  A2-01 Fichas dos casos prioritários · A2-02 Casos com prazo vencido · A2-04 Rastreio de manifesto
-    N3  A3-01 Consolidado nacional · A3-02 Matriz de risco · A3-03 Mapa de calor do risco
-
-Cada função recebe dados já filtrados pelo serviço (o N2 só recebe a própria
-UF; o N1 nem recebe a cadeia de responsáveis) e desenha marcando o que é
-sensível. Defesa em profundidade: um relatório de N2 marca endereço e
-coordenadas mesmo nunca sendo exibido no N1: se alguém rebaixar o nível
-mínimo dele no banco por engano, a tarja ainda protege.
-
-Quando a informação sensível é a posição, uma tarja no lugar não basta: o
-retângulo fica exatamente onde o objeto está e revela a posição. Por isso o
-que o nível não pode localizar é omitido, sem ser desenhado: as instalações de custódia abaixo do N3 e
-os pontos das pendências no N1 (que vê só o total agregado de cada estado).
-
-Redesenho como relatório executivo. Todos seguem a mesma grade:
-    capa enxuta (título, a pergunta que o relatório responde, escopo, data de corte, base e selo de sigilo);
-    sumário executivo com 3 a 5 achados em frases; poucos indicadores com nome e contexto; seções numeradas, cada
-    visual respondendo a uma pergunta (escrita como subtítulo); detalhe agrupado; nota de método; rodapé com
-    a data de geração, o escopo e a classificação.
-Política por camada: N1 só agregados protegidos (k=3, os mesmos do resumo e do cubo; nenhum valor financeiro,
-endereço, coordenada ou nome); N2 decisão e ação na UF (o que priorizar, o que venceu, quem agir, prazos);
-N3 precisão (números exatos com unidade, base, comparação e fontes), agrupada em situação, risco, custódia e custo.
-Todo rótulo visível vem do vocabulario (classes, faixas, ações, motivos, atividades, KPIs, "caso", "score").
-"""
+"""Os nove relatórios do acervo, desenhados a partir do banco."""
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -143,7 +117,7 @@ def _qtd(valor) -> str:
 
 
 def _volume(ps, classe: str) -> float:
-    """Total de UMA classe, na unidade dela: nenhum total soma m³ com t nem solo com rejeito (quantidades.py)."""
+    """Total de uma só classe, na unidade dela: nenhum total soma m³ com t nem solo com rejeito (quantidades.py)."""
     return quantidades.total_da_classe(ps, classe)
 
 

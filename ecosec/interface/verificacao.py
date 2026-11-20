@@ -1,14 +1,4 @@
-"""Step-up antes de uma operação crítica: a câmera confere o rosto de novo, na hora.
-
-Modelo de verificação contínua: o login provou quem entrou; exportar nomes e
-endereços prova que é a mesma pessoa que está diante do computador agora. A
-biometria funciona como verificação de presença, não como senha.
-
-Fluxo: o serviço recusa com VerificacaoNecessaria -> este diálogo abre a câmera
-(TelaAutenticacao, finalidade OPERACAO: rosto 1:1 contra a identidade do login,
-com contenção própria MATRÍCULA#OPR) -> concedido, a sessão registra o momento
-e a tela repete a operação, agora dentro da janela de validade.
-"""
+"""Nova conferência do rosto antes de uma operação crítica."""
 from datetime import datetime
 
 from PySide6.QtWidgets import QDialog, QVBoxLayout

@@ -1,13 +1,4 @@
-"""S3 Qualidade: "A imagem permite decidir?"
-
-Com um rosto escuro ou borrado, o histograma LBP fica pobre e a distância vira ruído:
-o sistema poderia negar o dono ou aceitar alguém parecido. Por isso a S3 é avaliada
-antes da S4.
-
-As medidas (nitidez, brilho, contraste e número de faces) vêm da camada de visão;
-esta camada decide se bastam. Com duas faces na cena, o quadro é recusado: escolher
-a maior deixaria uma terceira pessoa entrar ao fundo.
-"""
+"""S3 Qualidade: a imagem permite decidir?"""
 from ecosec.dominio.camadas import CamadaSeguranca
 from ecosec.dominio.motivos import Motivo
 from ecosec.seguranca.acesso.veredito import Veredito, aprovar, negar

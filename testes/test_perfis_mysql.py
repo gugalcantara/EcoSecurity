@@ -1,16 +1,4 @@
-"""O perfil na persistência, nas duas implementações, e a migração do MySQL.
-
-- contrato: memória e MySQL guardam e devolvem o perfil, o nível nulo (Externo, inclusive o administrador) e a
-  exclusão lógica (excluido_em);
-- o banco recusa perfil e nível incoerentes (CHECK ck_usuario_perfil_nivel), mesmo que a aplicação erre;
-- a migração (ferramentas.preparar_banco.migrar_perfis) leva ao modelo de quatro perfis tanto um banco de antes
-  (só níveis) quanto um da primeira versão dela (perfis Administrador, Sem perfil e Ministério Público):
-  cada um pelo nível; administradores e perfis retirados viram Externo, sem camada. É idempotente. Os dois
-  schemas estão congelados em `testes/dados/`.
-
-Os privilégios não mudam: o DELETE continua recusado à aplicação (test_mysql.py::test_conta_da_aplicacao_nao_apaga_provas).
-Sem o MySQL preparado, os casos "mysql" são pulados: a suíte completa roda com o banco preparado.
-"""
+"""Testes dos perfis no MySQL e em memória."""
 import secrets
 from datetime import datetime
 from pathlib import Path

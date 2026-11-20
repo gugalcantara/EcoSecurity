@@ -1,5 +1,4 @@
-"""Âncora da trilha (S10): o último hash guardado fora do banco detecta a cauda apagada ou recalculada, que a
-corrente sozinha não vê."""
+"""Testes da âncora da trilha de auditoria."""
 from datetime import datetime, timedelta
 
 import pytest

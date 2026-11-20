@@ -1,26 +1,6 @@
-"""Calibra a prova de vivacidade (S6) com a sua câmera e a sua luz.
+r"""Confere se a câmera reconhece a piscada, com o mesmo detector do nível 3.
 
-    .venv\\Scripts\\python.exe -m ferramentas.calibrar_vivacidade
-
-Protocolo guiado (~30 s), com a pessoa diante da câmera:
-  1. PARADO (6 s): mede quanto a abertura do olho oscila sozinha, sem piscar.
-     É o que uma foto faria: nenhuma piscada pode aparecer aqui.
-  2. PISCAR (10 s): piscadas naturais; mede quanto a abertura cai em cada uma.
-  3. DESLIZAR para a esquerda e 4. para a direita (6 s cada), sem girar a
-     cabeça: mede quanto o centro do rosto se desloca. Nenhuma piscada pode
-     aparecer aqui: é o que uma foto deslizada faria.
-No fim, repassa a gravação pelo MESMO detector do N3 (contorno do olho, medido em
-tempo), mostra quantas piscadas ele reconheceu em cada etapa, e grava os números em
-resultados/calibracao_vivacidade_<data>_<hora>.json, um arquivo por medição: o resumo, os parâmetros em uso
-e a série de cada quadro (só números, nenhuma imagem).
-
-SINAIS CANDIDATOS da piscada: além do contorno do olho (EAR), três sinais de
-textura e tom dentro das caixas dos olhos são medidos só para comparação. Os de tom
-dependem do contraste entre a pálpebra e a íris, que muda com a cor da pele; por isso
-o detector usa só o EAR, que é geometria.
-
-LGPD: nenhuma imagem é gravada e ninguém é reconhecido (não há banco nem
-modelo facial aqui). Só números: contagens, energias e deslocamentos.
+    .venv\Scripts\python.exe -m ferramentas.calibrar_vivacidade
 """
 import json
 import statistics
@@ -58,6 +38,7 @@ class Registro:
     # a caixa do rosto, em pixels: o movimento é medido pela largura típica, como no N3
     x: float | None = None
     w: float | None = None
+    olhos_x: float | None = None  # meio dos dois olhos, em pixels da imagem (a posição que o N3 usa)
 
 
 # sinal candidato -> sentido na piscada (+1: cai ao fechar o olho; -1: sobe)
@@ -72,25 +53,27 @@ def caixa_do_registro(r: Registro) -> tuple[int, int, int, int]:
 
 
 def reproduzir_detector(registros: list[Registro], pg) -> dict[str, int]:
-    """Passa a gravação pelo DETECTOR REAL da piscada, com os instantes gravados, e conta, por etapa, quantas
+    """Passa a gravação pelo detector real da piscada, com os instantes gravados, e conta, por etapa, quantas
     piscadas ele reconheceria. O esperado: ~0 parado (talvez uma natural), ~5 piscando, 0 deslizando."""
     from ecosec.visao.gestos import DetectorGesto, Gesto, MedidaOlhos
     from ecosec.visao.pipeline import ResultadoQuadro
     import numpy as np
 
-    class Gravado:                       # devolve o EAR gravado, quadro a quadro
-        valor = None
+    class Gravado:                       # devolve o EAR e a posição dos olhos gravados, quadro a quadro
+        valor = meio = None
 
         def medir(self, _):
-            return MedidaOlhos(1, 0.0, ear=self.valor)
+            return MedidaOlhos(1, 0.0, ear=self.valor, olhos_x=self.meio)
 
     contagem = {}
     for nome, _, _ in ETAPAS:
         olhos, gesto, n = Gravado(), None, 0
         for r in (r for r in registros if r.etapa == nome and r.face):
             gesto = gesto or DetectorGesto(Gesto.PISCAR, pg, olhos)
+            caixa = caixa_do_registro(r)
             olhos.valor = r.ear
-            if gesto.alimentar(ResultadoQuadro(faces=(caixa_do_registro(r),), fonte="GRAVADO", largura=640,
+            olhos.meio = None if r.olhos_x is None else r.olhos_x - max(caixa[0], 0)    # de volta ao recorte
+            if gesto.alimentar(ResultadoQuadro(faces=(caixa,), fonte="GRAVADO", largura=640,
                                                altura=480, recorte_cinza=np.zeros((2, 2), np.uint8),
                                                instante=r.tempo)):
                 n += 1
@@ -109,7 +92,7 @@ def deslocamento_maximo(lista: list[Registro], sentido: int) -> float:
 
 
 def _variacao(valor: float, referencia: float, sentido: int) -> float:
-    """Quanto o valor se afastou da referência NO SENTIDO da piscada (fração)."""
+    """Quanto o valor se afastou da referência no sentido da piscada (fração)."""
     return sentido * (referencia - valor) / referencia if referencia else 0.0
 
 
@@ -300,8 +283,9 @@ class JanelaCalibracao(QMainWindow):
         x, _, w, _ = face
         if m is None:
             return Registro(self.etapa or "", instante, True, centro=(x + w / 2) / w, x=x, w=w)
+        olhos_x = None if m.olhos_x is None else max(x, 0) + m.olhos_x
         return Registro(self.etapa or "", instante, True, m.olhos, m.energia, (x + w / 2) / w,
-                        m.energia_crua, m.escuro, m.brilho, m.ear, x, w)
+                        m.energia_crua, m.escuro, m.brilho, m.ear, x, w, olhos_x)
 
     def _quadro(self, imagem, resultado, registro):        # thread da interface
         self.visor.mostrar(imagem, resultado)

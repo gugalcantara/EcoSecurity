@@ -1,27 +1,4 @@
-"""Painel analítico do acervo: uma seção por necessidade, conforme o nível.
-
-Sobre os dados que o ServicoAcervo já liberou e registrou na trilha:
-  - Painéis temáticos (só o N1, n1_painel.py): seções por pergunta sobre os totais por UF, já protegidos
-    pelo serviço e sem nenhum valor em reais;
-  - Painéis da UF (N2, n23_paineis_uf.py): o painel de decisão da UF (o que priorizar, evolução,
-    UF × país, custo), sem k;
-  - Mapa interativo (N2 da própria UF, N3 nacional): camadas com opacidade, densidade, municípios,
-    custódias por tipo, legenda por escala, ficha num painel lateral deslizante (dados técnicos,
-    responsáveis e documentos) e, no N3, a lista do ano com os marcos e a árvore custódia -> pendência -> documento;
-  - Glossário (todos): a regra de negócio de cada termo, só do vocabulário
-    (acervo/vocabulario.py), sem nenhum dado do acervo;
-  - Planilha analítica (N2 e N3): registros individuais, ordenável e paginada,
-    com busca e filtros. Exporta só no N2 (no N3 a exportação é bloqueada);
-  - RESUMO AGREGADO (todos): totais por UF, atividade, motivo, classe ou faixa,
-    calculados no serviço. É a extração do N1 (livre) e do N2 (com rastreio).
-Toda exportação grava o SHA-256 do arquivo na trilha.
-
-Filtro único: no N2 e no N3 há um EstadoFiltro, criado aqui e repassado a mapa,
-planilha, gráfico de risco, árvore de custódia, resumo e cabeçalho. A BarraFiltros acima das abas mostra os
-chips e "N dentro · M fora (de T)". Os combos são vistas do estado: mudá-los chama estado.definir, e cada
-estado.mudou reposiciona todos os combos sem emitir (blockSignals). No N1 o filtro do painel não existe:
-o panorama tem a sua própria barra, só com classe e ano (painel_n1.py), e o resumo do N1 não aceita filtro.
-"""
+"""Painel analítico do acervo."""
 from datetime import date, datetime
 from pathlib import Path
 
@@ -278,12 +255,8 @@ def ModeloPlanilha(parent=None):  # noqa: N802
 
 # mapa
 class MapaInterativo(QWidget):
-    """Mapa vetorial com camadas e ficha num painel lateral deslizante.
-
-    N2: a própria UF; painel de camadas numa faixa (símbolo, liga/desliga e ordem); ficha com Exportar (cadeado).
-    N3: nacional; painel de camadas com opacidade e ordem, filtro por tipo de custódia, legenda por
-    escala, a lista do ano com os marcos regulatórios do ano e a árvore Custódia -> Pendência -> Documento.
-    O N3 não exporta."""
+    """Mapa vetorial com camadas e a ficha do caso num painel lateral. No N2 mostra a própria UF; no N3,
+    o país, com a árvore de custódia. O N3 não exporta."""
 
     def __init__(self, tela, estado: EstadoFiltro | None = None, parent=None):
         super().__init__(parent)
@@ -715,11 +688,7 @@ class MapaInterativo(QWidget):
 
     # ficha (painel lateral)
     def mostrar_ficha(self, p):
-        """Ficha do caso (N2 e N3), em blocos (n23_ficha.FichaTecnica): cabeçalho com classe, risco e
-        score; situação e prazos; local; origem e causa; contaminação e uso; custo com a memória recolhível;
-        histórico de etapas. Tudo derivado (acervo/ficha.py, regras.py). O custo do CASO aparece no N2 e no N3, como
-        antes; custo por responsável nomeado continua só no N3, na seção própria, e nunca entra na
-        ficha. Responsáveis (aba própria) vêm do serviço já filtrados pelo nível (o N2 não recebe pessoa física)."""
+        """Mostra a ficha do caso (N2 e N3). O custo por responsável nomeado fica só na seção própria do N3."""
         self._p_atual = p
         self.ficha.titulo.setText(f"{p.codigo} · {vocabulario.rotulo(p.situacao, 'situacao_caso')}")
         self.ficha_tecnica.mostrar(p, self.painel, self._regras)
@@ -969,13 +938,8 @@ class _IndicadorDireita(QWidget):
 
 
 class PlanilhaAnalitica(QWidget):
-    """Os casos um a um (N2: a própria UF; N3: o país). Filtros com rótulo de campo: busca e
-    situação numa linha de topo, fora dos grupos (são o recorte geral, que vale também para o mapa); depois os
-    grupos Onde (UF, município), o quê (classe, faixa de risco, atividade, etapa) e Por quê (motivo, ação). Os
-    combos são vistas do filtro único: o mapa e a barra de chips acompanham, e "Limpar filtros" fica só
-    na barra (um botão para a sessão inteira). A grade mostra as 9 colunas de decisão; Enter ou duplo
-    clique na linha abre os detalhes do caso, com o resto, numa gaveta sobre a grade, e "Abrir no mapa"
-    leva o caso ao mapa."""
+    """Planilha dos casos (N2: a própria UF; N3: o país), com os filtros ligados ao mapa e à barra de filtros.
+    Enter ou duplo clique na linha abre os detalhes do caso."""
     exportada = Signal(str)                                # SHA-256 do arquivo gravado
     abrir_caso = Signal(object)                            # pendência da gaveta (o contêiner abre a ficha no mapa)
     GRUPOS = ("Onde", "O quê", "Por quê")

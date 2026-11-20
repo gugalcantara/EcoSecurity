@@ -1,17 +1,4 @@
-"""Legenda clicável dos quintis do coroplético.
-
-Passar o mouse num quintil realça as UFs dele (as demais ficam a 25%); clicar
-fixa a seleção (clicar de novo limpa). A legenda só emite sinais: quem reage é o
-estado compartilhado do painel (mediador).
-
-Título com o indicador e a unidade; rótulos "a a b" com o menor e o maior valor reais de cada quintil (os
-intervalos não se sobrepõem: o primeiro começa no mínimo observado, não em 0); a largura de
-cada caixa vem da fonte (nada cortado); as entradas SUPRIMIDA e sem ativas mostram os cinzas usados no mapa; a
-dica diz quantas UFs há no quintil.
-
-Teclado: Tab percorre as caixas; o foco realça as UFs do quintil, como o mouse; Espaço ou
-Enter fixam (de novo, limpam); o foco aparece como borda azul. Cada caixa tem nome e descrição acessíveis.
-"""
+"""Legenda dos quintis do mapa coroplético."""
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QAccessible, QAccessibleEvent
 from PySide6.QtGui import QFont

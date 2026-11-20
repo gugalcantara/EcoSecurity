@@ -1,19 +1,4 @@
-"""Componentes reutilizados pelas telas.
-
-FaixaCamadas: mostra as camadas que o nível exige e o estado de cada uma
-(pendente, em avaliação, aprovada, negada). A lista vem do serviço, que a tira
-da mesma função que a política usa: a tela nunca anuncia uma camada que a
-decisão não exige.
-
-ChecklistSenha: as exigências de senha marcadas enquanto se digita. A lista
-vem da mesma função que valida o formulário: a tela nunca marca ✓ num item
-que o cadastro depois recusaria.
-
-Selo: etiqueta arredondada colorida (situação, papel).
-
-ColunasResponsivas: a tabela se adapta à largura da janela, ocultando as
-colunas menos importantes antes de cortar as que importam.
-"""
+"""Componentes de tela reaproveitados."""
 from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtWidgets import QHBoxLayout, QHeaderView, QLabel, QVBoxLayout, QWidget
 
@@ -113,13 +98,8 @@ def linha_rotulada(rotulo: str, campo: QWidget, ajuda: str | None = None) -> QWi
 
 
 class ColunasResponsivas(QObject):
-    """Larguras de tabela que se adaptam à janela.
-
-    Uma coluna é elástica (fica com a sobra; ex.: o nome) e tem largura
-    mínima. As demais têm largura fixa (o cabeçalho do Fluent tem espaçamento
-    interno que o ajuste automático ignora, e cortava títulos). Quando a tabela
-    estreita, ocultam-se primeiro as colunas de ocultaveis, na ordem dada,
-    em vez de espremer a elástica até cortar o texto que importa."""
+    """Larguras de tabela que se adaptam à janela: uma coluna elástica com largura mínima, as demais fixas,
+    e as colunas ocultáveis somem primeiro quando a tabela estreita."""
 
     def __init__(self, tabela, larguras: dict[int, int], elastica: int, minima_elastica: int,
                  ocultaveis: tuple[int, ...] = ()):

@@ -1,19 +1,4 @@
-"""Desempenho do reconhecimento: FAR, FRR, EER e a curva DET a partir de distâncias medidas.
-
-Funções puras, sem câmera, banco nem modelo: recebem números e devolvem números. A coleta com a câmera fica em
-ferramentas/experimento_det.py.
-
-Convenção do LBPH: a distância é menor para rostos mais parecidos, e o sistema aceita quando distância <= limiar.
-Logo, para um limiar L:
-  FAR(L) = fração das tentativas de impostor com pontuação <= L (aceitas por engano);
-  FRR(L) = fração das tentativas genuínas com pontuação > L (recusadas por engano), somadas às tentativas genuínas
-           em que a câmera nem chegou a entregar quadros aprovados (falhas de captura, recusadas em qualquer limiar).
-
-Pontuação de uma tentativa: o login só confirma depois de N quadros seguidos dentro do limiar (ConfirmadorQuadros).
-Uma tentativa com as distâncias d1, d2, ... é aceita no limiar L se existe uma janela de N quadros seguidos com
-todas as distâncias <= L, ou seja, se L >= min sobre as janelas de (max da janela). Esse valor é a pontuação da
-tentativa: usar a distância de um quadro isolado mediria um sistema que não é o implementado.
-"""
+"""FAR, FRR, EER e curva DET a partir das distâncias medidas."""
 from dataclasses import dataclass
 
 
@@ -100,12 +85,8 @@ def sugerir_limiares(genuinas: list[float], impostoras: list[float], falhas_capt
 
 
 def limiar_identificacao(corretas: list[float], erradas: list[float], teto: float | None = None) -> Ponto | None:
-    """Identificação 1:N. corretas são as distâncias dos quadros em que o mais parecido da galeria era a própria
-    pessoa; erradas, as dos quadros em que era outra pessoa. O limiar sugerido é o maior que ainda recusa toda
-    identificação errada (abaixo da menor distância errada), limitado por teto: sem nenhuma identificação errada
-    medida, os dados não mostram até onde é seguro afrouxar, e no 1:N cada cadastro a mais é mais uma chance de
-    erro. Devolve o ponto com far = fração das erradas aceitas (0) e frr = fração das corretas recusadas, ou None
-    sem quadros corretos."""
+    """Limiar sugerido para a identificação 1:N: o maior que ainda recusa toda identificação errada medida,
+    limitado pelo teto. Devolve o ponto da curva, ou None sem quadros corretos."""
     if not corretas:
         return None
     if not erradas:

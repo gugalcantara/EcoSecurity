@@ -1,24 +1,4 @@
-"""Administração do sistema: os administradores, o celular de cada um e as ações que precisam de aprovação.
-
-Ser administrador é um papel dado a um cadastro com o perfil Externo, que não tem acesso ao acervo. Cada
-administrador entra pelo mesmo login dos outros usuários, com a própria matrícula, e o painel só abre depois
-de conferir o rosto de novo e o código do celular (TOTP). Assim a trilha sempre mostra quem fez cada ação.
-
-As ações críticas (tornar ou tirar um administrador, refazer o celular de alguém, atribuir o perfil de
-ministro, revogar um consentimento, excluir um cadastro e registrar a revisão de acessos) precisam do código
-do celular de outro administrador, e ninguém aprova o próprio pedido. Com menos de dois administradores
-ativos não há quem aprove: o administrador age sozinho e a trilha marca a ação como implantação. Depois de
-ter dois, nenhuma ação voluntária reduz esse número.
-
-Outras regras:
-- a senha de instalação só abre a configuração inicial, enquanto não existe administrador;
-- o acesso de emergência abre com os códigos de recuperação de dois administradores, dura no máximo
-  30 minutos e só serve para restaurar o acesso;
-- a âncora da trilha é gerada pelo painel, com o código do próprio celular, e a geração fica registrada;
-- as ferramentas de terminal que leem o modelo facial pedem matrícula, senha e código de um administrador;
-- excluir e revogar não apagam nada: desativam o cadastro, marcam a revogação e eliminam o rosto do modelo,
-  nessa ordem, e quem revogou não volta a ser ativado sem um novo termo.
-"""
+"""Administradores, código do celular e ações que precisam de aprovação."""
 import hmac
 import logging
 from dataclasses import dataclass, field, replace
@@ -318,7 +298,7 @@ class ServicoAdministracao:
         return erros
 
     def autenticar(self, senha: str) -> Motivo:
-        """Senha de INSTALAÇÃO: abre o painel só na configuração inicial (a tela decide quando)."""
+        """Senha de instalação: abre o painel só na configuração inicial (a tela decide quando)."""
         try:
             motivo = self._autenticar(senha)
             if self.trilha is not None:
@@ -730,11 +710,8 @@ class ServicoAdministracao:
 
     def definir_ativo(self, usuario_id: int, ativo: bool, solicitante_id: int | None = None,
                       codigo: str | None = None) -> str | None:
-        """Devolve uma mensagem de recusa, ou None se feito.
-
-        Desativar o cadastro de um ADMINISTRADOR tira dele o papel: exige o segundo admin e respeita o
-        mínimo de administradores. Sem isso, um admin desativaria o outro sozinho e voltaria à fase de
-        implantação, onde age sem aprovação."""
+        """Ativa ou desativa um cadastro e devolve a recusa, ou None se feito. Desativar um administrador exige o
+        segundo administrador e respeita o mínimo de administradores."""
         usuario = self.usuarios.por_id(usuario_id)
         if usuario is None:
             return "Usuário não encontrado."
@@ -795,11 +772,14 @@ class ServicoAdministracao:
             return "Não havia consentimento vigente; o cadastro foi desativado e o rosto, eliminado."
         return None
 
-    def dados_do_titular(self, usuario_id: int) -> str:
-        """Relatório em linguagem clara do que o sistema guarda sobre a pessoa (art. 18, I e II)."""
+    def dados_do_titular(self, usuario_id: int, solicitante_id: int | None = None) -> str:
+        """Relatório em linguagem clara do que o sistema guarda sobre a pessoa (art. 18, I e II). Traz dados
+        pessoais: só sai com o registro na trilha de quem o gerou e de quem é (sem registro, sem relatório)."""
         u = self.usuarios.por_id(usuario_id)
         if u is None:
             return "Usuário não encontrado."
+        self._registrar_obrigatorio("REGISTRADO", "RELATORIO_TITULAR", usuario_id=solicitante_id,
+                                    matricula_informada=u.matricula, detalhe="relatório do titular (LGPD, art. 18)")
         amostras = self.amostras.por_usuario(usuario_id)
         por_sessao = {}
         for a in amostras:
@@ -853,11 +833,8 @@ class ServicoAdministracao:
 
 
 class SessaoEmergencia:
-    """Junta os códigos do quórum, em qualquer ordem. Uma por tentativa; a tela a descarta ao sair.
-
-    Cada código é conferido contra todos os administradores ativos (inclusive quem pediu: o código
-    dele prova que ele tem o celular). Precisa de quorum administradores DIFERENTES dentro de
-    janela minutos contados do primeiro aceito. Erro: contenção global, mensagem genérica."""
+    """Acesso de emergência: junta os códigos de administradores diferentes, em qualquer ordem, dentro da
+    janela contada a partir do primeiro código aceito."""
 
     def __init__(self, servico: ServicoAdministracao, usuario_id: int):
         self.s, self.usuario_id = servico, usuario_id

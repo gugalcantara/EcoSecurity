@@ -1,20 +1,4 @@
-"""S2 Conhecimento: "Sabe o segredo?"
-
-bcrypt, e não SHA-256: o SHA-256 é rápido (bilhões por
-segundo numa GPU), o que serve à integridade da trilha (S10), mas é um
-desastre para senha: um vazamento seria quebrado por força bruta em horas.
-O bcrypt é lento (custo 12 ≈ 0,25 s) e embute um sal aleatório:
-duas pessoas com a mesma senha têm hashes diferentes.
-
-Cuidados da verificação:
-1. Tempo constante para matrícula inexistente. Sem isso, "matrícula não
-   existe" responderia em 1 ms e "senha errada" em 250 ms: o cronômetro
-   revelaria quais matrículas existem. Comparamos contra um hash de referência.
-2. Limite de 72 bytes. O bcrypt só lê 72 bytes; o bcrypt 5 recusa o excesso em
-   vez de truncar. Recusamos no cadastro e negamos no login.
-3. Normalização Unicode (NFC). "ç" pode ser 1 ou 2 códigos conforme o teclado;
-   sem normalizar, a mesma senha digitada em outra máquina não conferiria.
-"""
+"""S2 Conhecimento: sabe o segredo?"""
 import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache

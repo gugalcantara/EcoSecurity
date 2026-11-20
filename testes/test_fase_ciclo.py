@@ -1,13 +1,4 @@
-"""Fase do processo derivada 100% da etapa.
-
-O que se confere:
-- toda etapa de todo ciclo de CICLOS tem uma das quatro fases; a tabela não tem etapa a mais;
-- ao longo da ordem das etapas de cada ciclo, a fase nunca volta;
-- ENCERRADA é exatamente a etapa final de cada ciclo;
-- etapa desconhecida falha com erro claro (sem chute);
-- no acervo gerado, toda pendência tem fase, as 395 "EM PROCESSO" ganham fase específica e a fase no corte
-  bate com a situação no corte (encerrada no corte se e somente se ENCERRADA).
-"""
+"""Testes da fase do processo."""
 import ast
 from collections import Counter
 from datetime import date, timedelta

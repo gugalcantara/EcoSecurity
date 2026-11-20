@@ -1,4 +1,4 @@
-"""Anel 3, S10 Trilha: encadeamento, adulteração localizada, "sem registro, sem acesso"."""
+"""Testes da trilha de auditoria (S10)."""
 from datetime import datetime, timedelta
 
 import pytest

@@ -1,20 +1,4 @@
-"""Serviço da trilha de auditoria (S10): registrar, consultar e verificar.
-
-Regra de ouro: sem registro, sem acesso. Se a trilha não puder ser gravada,
-um acesso que seria concedido vira negação: um acesso que não deixa rastro é
-indistinguível de uma invasão.
-
-O que nunca vai para a trilha: senha (nem errada), imagem, e a distância
-facial de quem não teve identidade resolvida (um número biométrico de um
-desconhecido, sem finalidade de auditoria).
-
-Visão do administrador: o administrador não lê dado do acervo, e o
-detalhe das consultas e exportações carrega pedaços dele (código do caso, número
-de documento, filtros de UF e de risco; nos registros antigos, até o nome de um
-responsável). A trilha gravada é imutável e continua inteira (a cadeia de hash
-confere sobre ela); o que o administrador recebe é uma cópia em que o detalhe
-desses eventos fica só com o código do relatório.
-"""
+"""Registro e verificação da trilha de auditoria."""
 import re
 from dataclasses import replace
 from datetime import datetime

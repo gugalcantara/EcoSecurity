@@ -1,14 +1,4 @@
-"""O conteúdo protegido: o cadastro consolidado de passivos perigosos pendentes.
-
-A visão consolidada é exatamente o artefato que o sistema existe para
-proteger: por isso cada nível recebe só a parte que lhe cabe.
-
-Camada causal: toda pendência registra
-  - a ATIVIDADE GERADORA (AG-01 a AG-13): de onde o passivo veio;
-  - o MOTIVO DA PERMANÊNCIA (MP-01 a MP-10): por que ele continua lá.
-O motivo é o que converte o cadastro em instrumento de decisão: MP-01 é
-cobrança, MP-06 é orçamento público, MP-05 é fila de capacidade instalada.
-"""
+"""Caso do acervo de passivos ambientais e os seus dados."""
 from dataclasses import dataclass
 from datetime import date
 
@@ -27,11 +17,8 @@ def grupo_do_motivo(codigo: str) -> str:
 
 @dataclass(frozen=True)
 class RegiaoSensivel:
-    """Retângulo de um relatório que só aparece íntegro para nível >= nivel_minimo.
-
-    Quem desenha o relatório produz as regiões; quem aplica a TARJA (S8) as
-    consome. O tipo mora no domínio para as duas camadas falarem a mesma língua
-    sem uma depender da outra."""
+    """Retângulo de um relatório que só aparece inteiro para nível >= nivel_minimo.
+    Quem desenha o relatório produz as regiões; a tarja (S8) as consome."""
     x: int
     y: int
     largura: int
@@ -192,7 +179,7 @@ class Documento:
 
 @dataclass(frozen=True)
 class RelatorioCatalogo:
-    """Um relatório do acervo: o banco diz QUAIS existem e o nível mínimo de cada um."""
+    """Um relatório do acervo: o banco diz quais existem e o nível mínimo de cada um."""
     codigo: str
     titulo: str
     nivel_minimo: int

@@ -1,13 +1,4 @@
-"""Os três níveis de acesso e o que cada um significa.
-
-Tudo o que varia por nível mora aqui, num lugar só: quem é o público, o modo
-biométrico, a política de exportação. Se a tela, a política e a trilha
-consultassem tabelas próprias, cedo ou tarde uma delas divergiria: e a tela
-anunciaria uma regra que a decisão não aplica.
-
-Sem hierarquia: cada nível é uma CAMADA de dado, e cada perfil
-(perfis.py) vê só a sua. O ministro não vê a camada 1 nem a 2; o diretor não vê a 1.
-"""
+"""Os três níveis de acesso."""
 from dataclasses import dataclass
 from enum import Enum, IntEnum
 

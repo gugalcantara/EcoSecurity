@@ -1,5 +1,4 @@
-"""Experimento da curva DET: o cálculo (ecosec/visao/desempenho.py) e a ferramenta (ferramentas/experimento_det.py),
-com distâncias fabricadas, sem câmera, banco nem modelo."""
+"""Testes do experimento da curva DET."""
 from contextlib import contextmanager
 from pathlib import Path
 from types import SimpleNamespace

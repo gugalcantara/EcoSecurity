@@ -1,29 +1,5 @@
-"""Consulta ao acervo: o Anel 2 inteiro, numa ordem que não pode mudar.
-
-    0. Autoriza pela matriz Papel × Classificação × Operação (seguranca/autorizacao.py),
-       com o risco de contexto da sessão por cima. Nada é decidido fora da matriz.
-    1. Filtra na origem: o N2 só recebe a própria UF; o N1 nem recebe a cadeia
-       de responsáveis: o que o nível não autoriza nem sai do banco.
-    2. Desenha o relatório na hora (o desenho anota as regiões sensíveis).
-    3. S8 TARJA: suprime, numa cópia, o que está acima do nível.
-    4. Marca visível: nos três níveis, a matrícula de quem consultou e o minuto da consulta, em diagonal
-       (dissuade). Antes da S9: pintar depois degradaria a marca invisível.
-    5. S9 RASTREIO: nos níveis 2 e 3, marca d'água invisível com quem e quando.
-    6. S10 TRILHA: registra a consulta. Sem registro, a imagem não é entregue.
-
-Só depois do passo 6 a imagem sai do serviço. A interface nunca recebe o
-pixel original de uma região que o nível não autoriza.
-
-Escopo exclusivo: cada perfil consulta só a própria camada, e o administrador não consulta
-nada. Todo método que entrega dado recebe quem pede e pergunta à matriz pelo papel dessa pessoa, mesmo quando
-recebe um painel, um resumo ou um relatório já aberto: o objeto não carrega permissão.
-
-Exportação: N1 livre · N2 com marca d'água e rosto conferido há pouco
-(step-up: se a última conferência passou da janela, a tela confere de novo) ·
-N3 BLOQUEADA. Registra antes de gravar o arquivo: se a trilha falhar, nada sai.
-CSV/XLSX não carregam marca d'água: a trilha guarda o SHA-256 do arquivo, uma
-cópia vazada é ligada ao registro de quem a exportou.
-"""
+"""Consulta e exportação do acervo, com tarja, marca d'água e trilha."""
+import logging
 from collections import defaultdict
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta
@@ -43,6 +19,8 @@ from ecosec.seguranca.autorizacao import Classificacao, Operacao
 from ecosec.seguranca.conteudo import s8_tarja, s9_rastreio
 from ecosec.seguranca.conteudo.s8_tarja import ParametrosTarja
 from ecosec.seguranca.conteudo.s9_rastreio import Marca, ParametrosMarca
+
+log = logging.getLogger(__name__)
 
 ROTULOS_LEGIVEIS = {"ENDERECO": "endereço", "COORDENADA": "coordenadas", "RESPONSAVEL": "responsável",
                     "CUSTODIA": "instalação de custódia", "DISTRIBUICAO_GEOGRAFICA": "área do mapa",
@@ -536,7 +514,7 @@ class ServicoAcervo:
 
     def resumo_agregado(self, usuario: Usuario, nivel: int, filtro=None) -> ResumoAgregado:
         """Totais por grupo. No N2 e no N3, filtro (acervo.filtro.Filtro) recorta as pendências antes de
-        agregar e os chips vão para a trilha. No N1 o filtro é RECUSADO: o k=3 protege o
+        agregar e os chips vão para a trilha. No N1 o filtro é recusado: o k=3 protege o
         cubo inteiro, e um recorte arbitrário reabriria a dedução por diferença entre consultas."""
         nivel = Nivel(nivel)
         self._autorizar(usuario, nivel, Operacao.VISUALIZAR, codigo="RESUMO")
@@ -1127,14 +1105,14 @@ class ServicoAcervo:
         return itens
 
     def _autorizar_custodia(self, painel: Painel, usuario: Usuario) -> None:
-        """Localização de custódia é SECRETA: só a camada 3, pela matriz e pelo papel de quem pede."""
+        """Localização de custódia é secreta: só a camada 3, pela matriz e pelo papel de quem pede."""
         self._dono_do_painel(painel, usuario)
         self._autorizar(usuario, painel.nivel, Operacao.VISUALIZAR, codigo="CUSTODIA")
         if painel.nivel is not Nivel.N3:
             raise ErroAcervo("Instalações de custódia não fazem parte deste acesso.")
 
     def custodias(self, painel: Painel, usuario: Usuario, ano: int | None = None) -> list[tuple]:
-        """[(Custodia, ocupação no fim de ano)]: só para o N3 (localização de custódia é SECRETA)."""
+        """[(Custodia, ocupação no fim de ano)]: só para o N3 (localização de custódia é secreta)."""
         from ecosec.acervo import sinteticos
         self._autorizar_custodia(painel, usuario)
         ano = ano or painel.hoje.year
@@ -1244,12 +1222,8 @@ class ServicoAcervo:
 
     # auditoria
     def identificar_marca(self, imagem: np.ndarray) -> Marca | None:
-        """De quem veio uma cópia vazada? None = sem marca legível (nunca um palpite).
-
-        A marca DCT vive na grade de blocos 8x8 do tamanho original, e uma cópia
-        reduzida perde essa grade. Todo relatório é desenhado com a mesma largura:
-        se a leitura direta falhar, a cópia volta a essa largura e é lida de novo.
-        O CRC da marca continua impedindo que uma leitura ruim acuse alguém."""
+        """Lê a marca invisível de uma cópia vazada e devolve de quem veio, ou None sem marca legível.
+        Se a cópia foi reduzida, volta à largura original antes de ler de novo."""
         marca = s9_rastreio.extrair(imagem, self.chave, self.p_marca)
         altura, largura = imagem.shape[:2]
         if marca is None and largura != relatorios.LARGURA:
@@ -1262,5 +1236,5 @@ class ServicoAcervo:
         try:
             self.trilha.registrar(evento, "NEGADO", motivo, nivel_solicitado=int(nivel), usuario_id=usuario.id,
                                   detalhe=codigo)
-        except Exception:  # noqa: BLE001, a negação vale mesmo sem registro
-            pass
+        except Exception:  # noqa: BLE001, a negação vale mesmo sem registro na trilha
+            log.exception("A trilha não registrou a negação %s (%s)", motivo, codigo)

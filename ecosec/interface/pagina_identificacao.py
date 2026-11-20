@@ -1,17 +1,4 @@
-"""Identificação facial: o sistema diz quem está diante da câmera, comparando o rosto com todos os
-cadastros (1:N). Não concede nada: identificar não é autenticar, e o login continua o mesmo.
-
-Quem vê: só o ADMINISTRADOR, numa seção do painel de Administração (: identidade de pessoas é gestão de
-acesso, não acervo). O painel já conferiu o rosto e o código do celular; trancar o painel, sair da seção, encerrar
-a sessão ou o bloqueio por inatividade desligam a câmera. O serviço recusa quem não é administrador.
-
-A vista mostra o vídeo e, na decisão, os 3 cadastros mais parecidos com a distância, a decisão e o tempo do
-primeiro rosto até ela. Quem decide é o serviço (app.identificacao): a tela não compara nada. A matrícula nunca
-aparece; o nome de quem não tem cadastro válido também não.
-
-As etapas internas da visão (recorte, face normalizada, padrão LBP) não são mostradas:
-expor como o processamento é feito por dentro não cabe na tela de uso.
-"""
+"""Identificação facial 1:N, no painel de administração."""
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
 
 from ecosec.interface.estilo import AMBAR, VERDE, VERMELHO, cor_texto_secundario

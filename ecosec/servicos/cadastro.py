@@ -1,20 +1,4 @@
-"""Cadastro de usuário: termo -> dados -> senha -> rosto -> matrícula.
-
-Feito só pelo administrador, dentro da Administração. Se qualquer pessoa pudesse
-se cadastrar escolhendo o nível, o cadastro contornaria todo o controle de acesso.
-
-Ordem obrigatória:
-1. TERMO primeiro: o consentimento precisa existir antes da câmera abrir
-   (LGPD art. 11, I). O próprio serviço recusa abrir a coleta sem aceite.
-   O aceite fica em memória e só é gravado junto com o usuário, ao concluir:
-   quem desiste no meio não deixa nome nem aceite no banco (minimização,
-   art. 6º, III). O momento gravado é o do aceite: a prova de que ele veio
-   antes da captura continua lá.
-2. As faces ficam só em memória (ColetaFacial). Treinam o modelo e são
-   apagadas: inclusive se o cadastro falhar no meio (bloco finally).
-3. Se algo falhar depois de o usuário existir, ele é desativado: um usuário
-   ativo sem rosto no modelo só seria descoberto na primeira tentativa dele.
-"""
+"""Cadastro de usuários."""
 import secrets
 import threading
 from collections import Counter
@@ -186,7 +170,7 @@ class ServicoCadastro:
         return termo.renderizar_html(nome, self.contato, autoriza_pesquisa)
 
     def via_do_titular_html(self, aceite: Consentimento, matricula: str | None = None) -> str:
-        """A via assinada, com o momento e o hash DO ACEITE registrado (não recalculados)."""
+        """A via assinada, com o momento e o hash do aceite registrado (não recalculados)."""
         return termo.via_do_titular_html(aceite.titular_nome, self.contato, aceite.autoriza_pesquisa,
                                          aceite.momento, aceite.hash_termo, matricula)
 

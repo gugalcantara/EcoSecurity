@@ -1,10 +1,4 @@
-"""De ponta a ponta, sobre o MySQL (bancos descartáveis ecosec_teste_*): a governança dos administradores
-como o grupo vai usar, inclusive fechando e reabrindo o sistema no meio.
-
-Monta a aplicação de verdade (montar, modo "mysql") com o .env, o modelo facial e os bancos em lugares
-temporários: nada do banco real, do .env real nem do modelo/lbph.enc real é tocado.
-Pula (não aprova) se o MySQL não estiver preparado nesta máquina.
-"""
+"""Testes da governança dos administradores no MySQL, de ponta a ponta."""
 import copy
 from datetime import datetime, timedelta
 
@@ -35,7 +29,8 @@ def face(semente):
 
 def quadro(semente):
     return ResultadoQuadro(faces=((220, 120, 200, 200),), fonte="HAAR", largura=640, altura=480,
-                           medidas=MedidasQualidade(300, 120, 40, 2), face_normalizada=face(semente),
+                           medidas=MedidasQualidade(300, 120, 40, 2, 0.0, 0.0, 0.05, 0.33),
+                           face_normalizada=face(semente),
                            recorte_cinza=np.zeros((10, 10), np.uint8))
 
 

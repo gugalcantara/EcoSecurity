@@ -1,9 +1,4 @@
-"""Perfis de acesso, escopo exclusivo e o administrador separado dos dados.
-
-Domínio, S5, matriz e termo. Quatro perfis: Externo (quem não é do quadro do governo,
-sem camada), servidor (N1), diretor (N2) e ministro (N3). Cada perfil vê só a própria camada. O administrador não é
-um perfil: é um papel dado a um Externo, e por isso nunca tem camada.
-"""
+"""Testes dos perfis de acesso."""
 import pytest
 
 from ecosec.dominio.entidades import ErroDominio, Usuario

@@ -1,4 +1,4 @@
-"""Relatórios do sistema S-01 a S-07."""
+"""Testes dos relatórios do sistema."""
 
 import pytest
 

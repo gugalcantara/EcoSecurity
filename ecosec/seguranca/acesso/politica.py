@@ -1,27 +1,4 @@
-"""Política de acesso: compõe as camadas S1 a S7 conforme o nível.
-
-É uma função pura: recebe as evidências já coletadas e devolve a decisão. Não
-abre câmera, não consulta banco, não desenha tela. Por isso pode ser testada
-em milissegundos, cobrindo combinações que seriam impossíveis de montar ao
-vivo diante da webcam.
-
-Três princípios:
-1. Falha segura: evidência ausente (None) nega. Não existe caminho em que a
-   falta de informação conceda acesso.
-2. Ordem fixa S1 -> S7, parando na primeira negação. Não se abre a câmera
-   para quem errou a senha, nem se pede o gesto a quem o rosto não confere.
-3. Exceção não concede: qualquer erro inesperado vira ERRO_INTERNO.
-
-A mesma composição serve à avaliação progressiva (primeira_falha): o serviço
-de autenticação pergunta "até a S2, tudo certo?" antes de ligar a câmera.
-
-LOGIN DE ENTRADA (Evidencias.entrada): antes de qualquer tela, a pessoa
-prova quem é com os fatores do NÍVEL 2 (matrícula, senha, rosto 1:1 com o
-limiar do N2). A única diferença está na S5: na entrada, basta ter um perfil com
-camada ou o papel de administrador (um Externo sem esse papel não entra). Não há uma política paralela para o
-login: é a mesma função, com o mesmo rigor. E é ela mesma que decide, depois,
-se as evidências do login bastam para abrir o N1 ou o N2 (step-up).
-"""
+"""Política de acesso: as camadas que valem em cada nível."""
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 
@@ -117,13 +94,8 @@ class Decisao:
 
 
 def camadas_exigidas(nivel: Nivel, exigir_segunda_pessoa: bool = True, exigir_vivacidade: bool = False) -> tuple[C, ...]:
-    """Camadas do Anel 1 que o nível exige, na ordem de avaliação.
-
-    Com a regra dos dois desligada, a S7 sai da lista: não vira uma camada
-    "aprovada" que não foi avaliada. A auditoria leria "duas pessoas
-    conferiram" onde houve uma só. Com exigir_vivacidade (contexto de risco),
-    a S6 entra mesmo onde o nível não a pede, no seu lugar na ordem.
-    """
+    """Camadas do Anel 1 que o nível exige, na ordem de avaliação. Sem a regra dos dois, a S7 sai da lista;
+    com risco de contexto, a S6 entra mesmo onde o nível não a pede."""
     camadas = tuple(c for c in camadas_do_anel(Anel.ACESSO)
                     if c.atua_no(nivel) or (exigir_vivacidade and c is C.S6_VIVACIDADE))
     if not exigir_segunda_pessoa:

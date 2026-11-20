@@ -1,12 +1,4 @@
-"""As dez camadas de segurança do EcoSecurity, em três anéis.
-
-Cada camada responde a uma pergunta. O código (S1...S10) atravessa o sistema
-inteiro: nome dos módulos, faixa de etapas na tela, campo de fatores na trilha
-de auditoria e seções do documento.
-
-A numeração do Anel 1 é também a ORDEM de avaliação: S1 antes de S2, S2 antes
-de S3... Por isso não abrimos a câmera (S3, S4) para quem já errou a senha (S2).
-"""
+"""As dez camadas de segurança, em três grupos."""
 from dataclasses import dataclass
 from enum import Enum
 

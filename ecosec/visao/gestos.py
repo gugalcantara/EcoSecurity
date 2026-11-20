@@ -1,19 +1,4 @@
-"""Fase 5: Classificação e interpretação dos gestos da prova de vivacidade. Aqui só se percebe, quadro a
-quadro, se o gesto aconteceu; o sorteio e a decisão ficam na camada S6.
-
-Piscar: o FacemarkLBF ajusta 68 pontos ao rosto, e a razão de aspecto do olho (EAR, Soukupová e Čech,
-2016) mede a abertura pelo contorno. A referência é a abertura do olho aberto no início do desafio; a piscada
-é o olho fechar uma fração dela (queda_ear_minima) e reabrir. Tudo é medido em tempo, não em quadros: a
-mesma piscada ocupa 1 quadro a 10 quadros/s e 3 a 30. O EAR é geometria, não tom de pixel, por isso não
-depende da cor da pele. Com o rosto em movimento nada conta, e a referência é refeita.
-
-Mover: vale deslizar o rosto (o centro anda uma fração da largura da face) ou virar a cabeça (o nariz se
-afasta do meio dos olhos). Com direcao_livre, qualquer lado vale. Uma foto deslizada também cumpre esse
-gesto; quem barra a foto é a piscada, que é obrigatória.
-
-Quadros inconclusivos (rosto fora do quadro, olhos não localizados) não contam para nenhum gesto. A imagem da
-câmera não é espelhada: a esquerda da pessoa aparece à direita.
-"""
+"""Fase 5: Classificação e interpretação dos gestos da prova de vivacidade."""
 import hashlib
 import statistics
 import threading
@@ -114,13 +99,14 @@ def ear(pontos: np.ndarray) -> float:
 class MedidaOlhos:
     olhos: int                       # olhos detectados na faixa
     energia: float                   # variância do Laplaciano da faixa dos olhos (equalizada)
-    # sinais CANDIDATOS, medidos para a calibração escolher o que separa a piscada
+    # sinais candidatos, medidos para a calibração escolher o que separa a piscada
     # (o Haar de olhos acha "olho" até com o olho fechado: a posição dele é confiável,
     # a presença não). None quando não há caixa de olho no quadro.
     energia_crua: float | None = None    # a mesma textura, sem equalizar o contraste
     escuro: float | None = None          # fração de pixels escuros nas caixas dos olhos (cai ao fechar)
     brilho: float | None = None          # brilho nas caixas dos olhos / brilho da faixa (sobe ao fechar)
     ear: float | None = None             # abertura média dos olhos por landmarks (o sinal da piscada)
+    olhos_x: float | None = None         # meio dos dois olhos, em x, em pixels do recorte da face
 
 
 # faixa dos olhos dentro do recorte da face (frações da altura): acima ficam
@@ -159,12 +145,14 @@ class DetectorOlhos:
         entre = float(np.linalg.norm(esquerdo - direito))
         return float((p[30][0] - (esquerdo[0] + direito[0]) / 2) / entre) if entre else None
 
-    def _abertura(self, recorte: np.ndarray) -> float | None:
-        """EAR médio dos dois olhos. Nada é guardado: tudo vive só neste quadro."""
+    def _olhos(self, recorte: np.ndarray) -> tuple[float | None, float | None]:
+        """(EAR médio dos dois olhos, meio dos dois olhos em x no recorte). Nada é guardado: tudo vive só neste
+        quadro."""
         p = self._pontos(recorte)
         if p is None:
-            return None
-        return (ear(p[36:42]) + ear(p[42:48])) / 2
+            return None, None
+        meio = float((p[36:42, 0].mean() + p[42:48, 0].mean()) / 2)
+        return (ear(p[36:42]) + ear(p[42:48])) / 2, meio
 
     def medir(self, recorte_face_cinza: np.ndarray) -> MedidaOlhos | None:
         altura = recorte_face_cinza.shape[0]
@@ -187,7 +175,7 @@ class DetectorOlhos:
             referencia = float(np.median(crua)) or 1.0
             escuro = float(np.mean(pixels < 0.6 * referencia))
             brilho = float(np.mean(pixels)) / referencia
-        return MedidaOlhos(len(olhos), energia, energia_crua, escuro, brilho, self._abertura(recorte_face_cinza))
+        return MedidaOlhos(len(olhos), energia, energia_crua, escuro, brilho, *self._olhos(recorte_face_cinza))
 
 
 # sem relógio no quadro (os testes montam quadros à mão): os quadros contam como a 30 quadros/s
@@ -210,7 +198,7 @@ class DetectorGesto:
         self._giro_inicial = None       # MOVER: giro da cabeça no começo do gesto
         self.ultimo_giro = 0.0
         self._quadros = 0               # para o relógio dos quadros sem instante
-        self._posicoes: deque = deque()                 # (instante, centro x em pixels, largura) recentes
+        self._posicoes: deque = deque()                 # (instante, posição x em pixels, largura) recentes
         self._reiniciar_referencia()
         self._x_inicial = None          # MOVER
         self.progresso = 0.0            # 0..1 para a tela
@@ -240,13 +228,21 @@ class DetectorGesto:
             return self._piscar(self._olhos.medir(r.recorte_cinza), face, self._instante(r))
         return self._mover(face, r.recorte_cinza)
 
-    def _moveu(self, face, t: float) -> bool:
-        """O centro do rosto andou mais que movimento_maximo na janela, em larguras TÍPICAS do rosto (a mediana
-        das larguras da janela). Dividir pela largura de cada quadro faria a caixa que cresce ou encolhe, com o
-        rosto parado, parecer movimento."""
+    @staticmethod
+    def posicao(face, m: MedidaOlhos | None) -> float:
+        """Onde o rosto está, em x, em pixels da imagem: o meio dos dois olhos (o recorte começa na borda da caixa,
+        limitada à imagem) ou, sem os pontos faciais neste quadro, o centro da caixa."""
         x, _, w, _ = face
+        if m is not None and m.olhos_x is not None:
+            return max(x, 0) + m.olhos_x
+        return x + w / 2
+
+    def _moveu(self, face, m: MedidaOlhos | None, t: float) -> bool:
+        """O rosto andou mais que movimento_maximo na janela, em larguras típicas do rosto (a mediana das larguras
+        da janela). A posição é a dos olhos, e não a da caixa: a caixa treme com o rosto parado."""
+        _, _, w, _ = face
         janela = self.p.janela_movimento_ms / 1000
-        self._posicoes.append((t, x + w / 2, w))
+        self._posicoes.append((t, self.posicao(face, m), w))
         while self._posicoes and t - self._posicoes[0][0] > janela:
             self._posicoes.popleft()
         centros = [c for _, c, _ in self._posicoes]
@@ -256,7 +252,7 @@ class DetectorGesto:
 
     def _piscar(self, m: MedidaOlhos | None, face, t: float) -> bool:
         self.ultima_medida = m
-        if self._moveu(face, t):                          # rosto em movimento: nada conta, a referência é refeita
+        if self._moveu(face, m, t):                       # rosto em movimento: nada conta, a referência é refeita
             self._reiniciar_referencia()
             self.progresso = 0.0
             return False

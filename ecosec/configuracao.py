@@ -1,21 +1,4 @@
-"""Leitura dos parâmetros do sistema (config/ecosec.toml).
-
-TOML em vez de .ini, porque o TOML tem tipos: `largura = 640` já chega como int e
-`grade = [8, 8]` já chega como lista: no .ini tudo é texto e cada módulo
-precisaria converter por conta própria. O leitor (tomllib) é da biblioteca
-padrão do Python 3.11, sem dependência nova.
-
-Falha segura: parâmetro ausente é erro na abertura, nunca um valor padrão
-escondido no código. Um padrão silencioso faria o sistema rodar com um limiar
-que ninguém escolheu: e em controle de acesso isso é uma decisão de segurança
-tomada por acidente.
-
-Uso:
-    from ecosec.configuracao import carregar
-    cfg = carregar()
-    cfg["captura.largura"]        # 640
-    cfg.secao("captura")          # dict com a seção inteira
-"""
+"""Leitura do arquivo de configuração (config/ecosec.toml)."""
 import tomllib
 from pathlib import Path
 

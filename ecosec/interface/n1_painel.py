@@ -1,25 +1,4 @@
-"""Painel analítico do N1: um painel executivo organizado por PERGUNTAS.
-
-O N1 precisa ter cara de painel profissional: sem informação comprometedora, mas sem ser
-infantilizado com gráfico limitado. Política da camada: dados internos, sem dado
-financeiro, sem CNPJ, nome, endereço ou coordenada; só agregados, com k=3 e supressão complementar.
-
-Estrutura (de cima para baixo):
-  - filtro do N1 (classe e ano) numa BarraFiltros ligada ao EstadoN1, como antes;
-  - faixa de indicadores: nome do vocabulário, valor, variação contra o ano anterior (seta e texto), base,
-    corte e linha de tendência; o código (KPI-xx) só na dica;
-  - cinco seções, cada uma com o nome da pergunta que responde:
-      1. Onde estão os casos?        coroplético por UF + ranking das 27 UFs no mesmo indicador + regiões;
-      2. Que tipo de passivo?         as três classes + atividade de origem + região × classe;
-      3. Por que continuam abertos?   motivos da permanência + composição de cada classe por motivo;
-      4. Estão sendo resolvidos?      estoque, entradas × saídas, taxa anual, tempo até o encerramento, idade;
-      5. Quanto está fora do prazo?   as duas definições de prazo por região, por classe e por UF + região × classe.
-
-Todo número vem do serviço (panorama, painel_classe, painel_uf, painel_encerramento e painel_n1), que aplica o
-nível, o k e a trilha. A tela só divide parte por total quando os dois vêm visíveis (percentuais), e None aparece
-"Suprimido", nunca 0. Clicar numa classe (barra, célula, cartão) filtra por ela; clicar num ano (linha ou
-coluna) escolhe o ano; passar o mouse numa UF (mapa ou ranking) realça a UF nas duas vistas.
-"""
+"""Painel analítico do nível 1."""
 from __future__ import annotations
 
 from datetime import date

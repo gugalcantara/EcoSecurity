@@ -1,8 +1,4 @@
-"""Interface: as telas montam e os fluxos funcionam, sem câmera, sem janela visível.
-
-A câmera é substituída: _ligar_video vira no-op e os quadros são entregues
-à mão, como a thread de vídeo faria.
-"""
+"""Testes da interface, sem câmera e sem janela visível."""
 import copy
 
 import cv2
@@ -29,7 +25,7 @@ def face(semente):
 
 def quadro(semente, boa=True):
     return ResultadoQuadro(faces=((220, 120, 200, 200),), fonte="HAAR", largura=640, altura=480,
-                           medidas=MedidasQualidade(300, 120, 40, 2),
+                           medidas=MedidasQualidade(300, 120, 40, 2, 0.0, 0.0, 0.05, 0.33),
                            face_normalizada=face(semente) if boa else None,
                            recorte_cinza=np.zeros((10, 10), np.uint8))
 
@@ -362,11 +358,65 @@ def test_configuracao_inicial_mostra_so_a_administracao(janela):
     assert not any(no_menu(janela, p) for p in janela.paginas_nivel.values())
 
 
+# teste da câmera (configuração inicial)
+def test_configuracao_inicial_abre_pelo_teste_da_camera_desligada(janela):
+    pc = janela.pagina_teste_camera
+    assert janela.stackedWidget.currentWidget() is pc and no_menu(janela, pc)
+    assert not pc.ligada and not pc.situacao.text()
+
+
+def test_teste_da_camera_continua_para_a_administracao(janela):
+    janela.pagina_teste_camera.botao_continuar.click()
+    assert janela.stackedWidget.currentWidget() is janela.pagina_admin
+
+
+def test_teste_da_camera_orienta_pelo_quadro_sem_reconhecer(janela):
+    from ecosec.visao.qualidade import ProblemaQualidade
+    pc = janela.pagina_teste_camera
+    imagem = QImage(64, 48, QImage.Format.Format_RGB888)
+    pc._ao_quadro(imagem, quadro(1), None)
+    assert pc.situacao.text() == "Imagem adequada para o reconhecimento."
+    escura = ResultadoQuadro(faces=((220, 120, 200, 200),), fonte="HAAR", largura=640, altura=480,
+                             problemas=(ProblemaQualidade.ESCURA,), recorte_cinza=np.zeros((10, 10), np.uint8))
+    pc._ao_quadro(imagem, escura, None)
+    assert pc.situacao.text() == "Acenda uma luz à sua frente."
+    pc._ao_quadro(imagem, ResultadoQuadro(faces=(), fonte="HAAR", largura=640, altura=480), None)
+    assert pc.situacao.text() == "Posicione o rosto no centro da imagem."
+
+
+def test_sair_do_teste_da_camera_desliga_a_camera(janela, monkeypatch):
+    from PySide6.QtCore import QObject, Signal
+
+    from ecosec.interface import pagina_teste_camera
+
+    class TrabalhadorFalso(QObject):
+        quadro = Signal(object, object, object)
+        falhou = Signal(str)
+        parados = 0
+
+        def __init__(self, *args, parent=None, **kwargs):
+            super().__init__(parent)
+
+        def start(self):
+            pass
+
+        def parar(self):
+            TrabalhadorFalso.parados += 1
+
+    monkeypatch.setattr(pagina_teste_camera, "TrabalhadorVideo", TrabalhadorFalso)
+    pc = janela.pagina_teste_camera
+    pc.botao_camera.click()
+    assert pc.ligada and pc.botao_camera.text() == "Desligar a câmera"
+    janela.switchTo(janela.pagina_admin)
+    assert not pc.ligada and TrabalhadorFalso.parados == 1
+
+
 def test_depois_do_vinculo_o_sistema_abre_pelo_login_e_nada_mais_aparece(janela):
     from ecosec.interface.janela import Estado
     vincular_admin(janela)
     assert janela.estado is Estado.LOGIN and janela.stackedWidget.currentWidget() is janela.pagina_entrada
-    paginas = [janela.pagina_inicio, janela.pagina_camadas, janela.pagina_admin, *janela.paginas_nivel.values()]
+    paginas = [janela.pagina_inicio, janela.pagina_camadas, janela.pagina_admin, janela.pagina_teste_camera,
+               *janela.paginas_nivel.values()]
     assert not any(no_menu(janela, p) for p in paginas)
     assert janela.pagina_entrada.autenticacao.sessao.andamento.etapa is Etapa.CREDENCIAIS
 
@@ -531,7 +581,7 @@ def test_nivel_3_nao_mostra_botao_de_exportar(janela):
     acervo = janela.paginas_nivel[Nivel.N3].acervo
     acervo.iniciar(caio, Nivel.N3)
     assert acervo.botao_exportar.isHidden()                 # sem texto explicando o bloqueio
-    assert "sem uso" in acervo.tempo.text()                 # fecha por INATIVIDADE, não por relógio fixo
+    assert "sem uso" in acervo.tempo.text()                 # fecha por inatividade, não por relógio fixo
     acervo.encerrar()
 
 

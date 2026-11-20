@@ -1,4 +1,4 @@
-"""Código do celular (TOTP): o cálculo confere com a norma e as regras de uso valem."""
+"""Testes do código do celular (TOTP)."""
 import base64
 from datetime import datetime, timedelta, timezone
 

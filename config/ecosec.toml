@@ -80,13 +80,19 @@ fracao_minima_visivel = 0.9
 [qualidade]
 # Fase 2: Pré-processamento (portão de qualidade). Medido no recorte original, antes
 # do CLAHE, que faria uma imagem escura e sem contraste parecer aceitável.
-# variância do Laplaciano: baixa = borrada
-nitidez_minima = 60.0
-# média dos tons de cinza (0-255)
-brilho_minimo = 50.0
-brilho_maximo = 205.0
-# desvio-padrão dos tons: baixo = imagem "lavada"
-contraste_minimo = 25.0
+# nitidez: variância do Laplaciano / variância dos tons. Baixa = borrada (Yale B: rostos bons
+# 0,03 a 0,11; borrados 5x5, 0,004 a 0,014; arrastados 9 px, até 0,024)
+nitidez_relativa_minima = 0.02
+# sombra e luz estouradas: fração do recorte com pixels quase pretos (<= 15) ou quase brancos
+# (>= 250), onde a textura que o LBPH compara se perde. Não a média dos tons: na mesma luz, a
+# pele mais escura tem média mais baixa, e o LBPH não depende dela. Na base Yale B escurecida
+# a 73%, a média (mínimo 50) recusava 104 de 1099 rostos que o LBPH reconhecia todos; a sombra
+# estourada recusa 47, e recusa mais as imagens com luz lateral extrema, que o LBPH erra.
+escuros_maximo = 0.30
+claros_maximo = 0.30
+# contraste: desvio-padrão / média dos tons. Baixo = imagem "lavada" (Yale B: rostos bons
+# acima de 0,35; com um véu de luz por cima, 0,15 a 0,21)
+contraste_relativo_minimo = 0.25
 # ruído estimado pelo método de Immerkær (sigma)
 ruido_maximo = 12.0
 

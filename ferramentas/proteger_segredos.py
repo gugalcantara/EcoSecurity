@@ -1,20 +1,8 @@
-"""Protege os segredos do .env com o Windows (DPAPI) e faz o backup lacrado deles.
+r"""Protege os segredos do .env com a DPAPI do Windows e faz o backup deles.
 
-    .venv\\Scripts\\python.exe -m ferramentas.proteger_segredos
-        converte os valores ainda em texto puro (idempotente: rodar de novo não muda nada)
-
-    .venv\\Scripts\\python.exe -m ferramentas.proteger_segredos --backup E:\\ecosec_segredos.bak
-        grava um backup cifrado por uma FRASE-SENHA (pedida duas vezes, não guardada)
-
-    .venv\\Scripts\\python.exe -m ferramentas.proteger_segredos --restaurar E:\\ecosec_segredos.bak
-        devolve os segredos ao .env desta máquina (protegidos de novo pelo Windows dela)
-
-O backup é necessário porque, com o DPAPI, o .env só abre nesta conta do Windows,
-neste computador. Reinstalar o Windows torna o arquivo ilegível também para
-nós, e sem a chave de cifragem o modelo facial não abre mais. Guarde o backup
-fora do computador (num pen drive em lugar seguro, por exemplo), com a
-frase-senha anotada em outro lugar. Fazer de novo a cada segredo novo
-(por exemplo, depois de rodar o preparar_banco pela primeira vez).
+    .venv\Scripts\python.exe -m ferramentas.proteger_segredos
+    .venv\Scripts\python.exe -m ferramentas.proteger_segredos --backup E:\ecosec_segredos.bak
+    .venv\Scripts\python.exe -m ferramentas.proteger_segredos --restaurar E:\ecosec_segredos.bak
 """
 import argparse
 import getpass

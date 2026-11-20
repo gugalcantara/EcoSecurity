@@ -1,19 +1,4 @@
-"""Fase 2: Pré-processamento (portão de qualidade). Mede se o recorte da face serve para decidir.
-
-As medidas são feitas no recorte original, antes do CLAHE: o realce aplicado antes da medição faria uma
-imagem quase preta parecer aceitável.
-
-Medidas:
-- Nitidez: variância do Laplaciano. O Laplaciano realça bordas; numa imagem borrada (movimento ou foco)
-  quase não há bordas, e a variância cai.
-- Brilho: média dos tons. Muito escura, esconde a textura; muito clara, estoura.
-- Contraste: desvio-padrão dos tons. Baixo indica imagem "lavada", sem textura.
-- Ruído: método de Immerkær (1996). Uma máscara de convolução anula regiões lisas e bordas lineares, e
-  sobra principalmente o ruído do sensor.
-
-Cada problema vem com uma orientação do que a pessoa pode fazer diante da câmera, como "acenda uma luz à
-sua frente".
-"""
+"""Fase 2: Pré-processamento (portão de qualidade). Decide se o recorte da face serve para o reconhecimento."""
 import math
 from dataclasses import dataclass
 from enum import Enum
@@ -22,6 +7,11 @@ import cv2
 import numpy as np
 
 _MASCARA_IMMERKAER = np.array([[1, -2, 1], [-2, 4, -2], [1, -2, 1]], dtype=np.float64)
+# pixel estourado, em tons de 0 a 255: abaixo de NIVEL_ESCURO é sombra sem textura; acima de NIVEL_CLARO, luz
+NIVEL_ESCURO, NIVEL_CLARO = 15, 250
+# a nitidez relativa é medida com o recorte reduzido a este lado (o da face normalizada): o Laplaciano olha 3x3
+# pixels, e o mesmo rosto, perto da câmera, espalha os detalhes por mais pixels e pareceria borrado
+LADO_NITIDEZ = 200
 
 
 class ProblemaQualidade(str, Enum):
@@ -44,10 +34,16 @@ class ProblemaQualidade(str, Enum):
 
 @dataclass(frozen=True)
 class MedidasQualidade:
-    nitidez: float
-    brilho: float
-    contraste: float
-    ruido: float
+    # absolutas: só informativas (a nitidez vira o score guardado com a amostra)
+    nitidez: float                   # variância do Laplaciano
+    brilho: float                    # média dos tons
+    contraste: float                 # desvio-padrão dos tons
+    # as que decidem
+    ruido: float                     # sigma do ruído do sensor (Immerkær)
+    fracao_escura: float             # pixels <= NIVEL_ESCURO
+    fracao_clara: float              # pixels >= NIVEL_CLARO
+    nitidez_relativa: float          # variância do Laplaciano / variância dos tons
+    contraste_relativo: float        # desvio-padrão / média
 
     @property
     def score(self) -> float:
@@ -57,10 +53,10 @@ class MedidasQualidade:
 
 @dataclass(frozen=True)
 class ParametrosQualidade:
-    nitidez_minima: float
-    brilho_minimo: float
-    brilho_maximo: float
-    contraste_minimo: float
+    nitidez_relativa_minima: float
+    escuros_maximo: float            # fração de pixels quase pretos acima da qual a imagem é escura
+    claros_maximo: float             # fração de pixels quase brancos acima da qual a imagem é clara
+    contraste_relativo_minimo: float
     ruido_maximo: float
 
     @classmethod
@@ -76,25 +72,43 @@ def estimar_ruido(cinza: np.ndarray) -> float:
     return math.sqrt(math.pi / 2) * np.abs(resposta).sum() / (6 * (larg - 2) * (alt - 2))
 
 
+def _nitidez_relativa(recorte_cinza: np.ndarray) -> float:
+    """Variância do Laplaciano / variância dos tons, com o recorte grande reduzido a LADO_NITIDEZ."""
+    lado = max(recorte_cinza.shape[:2])
+    if lado > LADO_NITIDEZ:
+        k = LADO_NITIDEZ / lado
+        recorte_cinza = cv2.resize(recorte_cinza, (max(1, round(recorte_cinza.shape[1] * k)),
+                                                   max(1, round(recorte_cinza.shape[0] * k))),
+                                   interpolation=cv2.INTER_AREA)
+    variancia = float(recorte_cinza.astype(np.float64).var())
+    # imagem lisa: proporção 0 (reprova), sem dividir por zero
+    return float(cv2.Laplacian(recorte_cinza, cv2.CV_64F).var()) / variancia if variancia > 0 else 0.0
+
+
 def medir(recorte_cinza: np.ndarray) -> MedidasQualidade:
+    nitidez = float(cv2.Laplacian(recorte_cinza, cv2.CV_64F).var())
+    brilho, contraste = float(recorte_cinza.mean()), float(recorte_cinza.std())
     return MedidasQualidade(
-        nitidez=float(cv2.Laplacian(recorte_cinza, cv2.CV_64F).var()),
-        brilho=float(recorte_cinza.mean()),
-        contraste=float(recorte_cinza.std()),
+        nitidez=nitidez, brilho=brilho, contraste=contraste,
         ruido=float(estimar_ruido(recorte_cinza)),
+        fracao_escura=float(np.mean(recorte_cinza <= NIVEL_ESCURO)),
+        fracao_clara=float(np.mean(recorte_cinza >= NIVEL_CLARO)),
+        nitidez_relativa=_nitidez_relativa(recorte_cinza),
+        # imagem toda preta: proporção 0 (reprova), sem dividir por zero
+        contraste_relativo=contraste / brilho if brilho > 0 else 0.0,
     )
 
 
 def avaliar(m: MedidasQualidade, p: ParametrosQualidade) -> tuple[ProblemaQualidade, ...]:
     """Problemas encontrados; vazio = aprovada. Falha segura: NaN reprova."""
     problemas = []
-    if not (m.brilho >= p.brilho_minimo):
+    if not (m.fracao_escura <= p.escuros_maximo):
         problemas.append(ProblemaQualidade.ESCURA)
-    if not (m.brilho <= p.brilho_maximo):
+    if not (m.fracao_clara <= p.claros_maximo):
         problemas.append(ProblemaQualidade.CLARA)
-    if not (m.nitidez >= p.nitidez_minima):
+    if not (m.nitidez_relativa >= p.nitidez_relativa_minima):
         problemas.append(ProblemaQualidade.DESFOCADA)
-    if not (m.contraste >= p.contraste_minimo):
+    if not (m.contraste_relativo >= p.contraste_relativo_minimo):
         problemas.append(ProblemaQualidade.SEM_CONTRASTE)
     if not (m.ruido <= p.ruido_maximo):
         problemas.append(ProblemaQualidade.RUIDOSA)

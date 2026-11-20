@@ -1,12 +1,4 @@
-"""Mapa esquemático do Brasil para os relatórios A1-05 e A3-03.
-
-Projeção equirretangular (lon/lat -> pixel por regra de três): suficiente para
-o mapa dos pontos do acervo simulado. O contorno é a malha do IBGE em
-qualidade mínima: fiel na forma, sem pretensão de precisão cartográfica.
-
-O mapa também desenha as divisas das UFs (malha do IBGE, a mesma do mapa interativo), preenchidas por
-uma cor de cada UF (o coroplético do Nível 1) e recortadas no quadro do mapa (o recorte de uma UF no Nível 2).
-"""
+"""Mapa do Brasil usado nos relatórios A1-05 e A3-03."""
 from PIL import Image, ImageChops, ImageDraw
 
 from ecosec.acervo.desenho import Tela

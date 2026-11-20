@@ -1,8 +1,4 @@
-"""Veredito: a resposta de uma camada à sua pergunta.
-
-Todas as camadas do Anel 1 devolvem o mesmo tipo. É isso que permite à
-política compô-las em sequência e à tela mostrar "S1 ✓  S2 ✓  S3 ✗".
-"""
+"""Resultado da avaliação de uma camada."""
 from dataclasses import dataclass
 
 from ecosec.dominio.camadas import CamadaSeguranca

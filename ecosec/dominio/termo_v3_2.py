@@ -1,15 +1,4 @@
-"""Termo de consentimento, versão 3.2 (arquivada em 07/11/2026). Não editar.
-
-Os cadastros feitos sob esta versão guardam o hash SHA-256 do texto exato que foi
-apresentado (LGPD art. 8º, §2º: o ônus da prova é do controlador). Qualquer mudança
-aqui, até de pontuação, faz o hash deixar de conferir. Um teste trava os hashes de
-referência (testes/test_perfis.py).
-
-A 3.2 citava os perfis Ministério Público e Administrador, retirados na revisão da
-a 3.3 só descreve os perfis que ficaram. Os aceites 3.2 continuam valendo.
-
-Só o necessário para reproduzir o texto (e o hash). A versão em vigor está em termo.py.
-"""
+"""Termo de consentimento, versão 3.2 (arquivada em 07/11/2026). Não editar."""
 VERSAO = "3.2"
 # 1.0 -> 1.1: contato do controlador (art. 9º), idade (art. 14), eliminação na revogação.
 # 1.1 -> 2.0: resumo em camadas e consentimento separado por finalidade (art. 8º, §4º).

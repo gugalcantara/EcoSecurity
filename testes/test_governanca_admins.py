@@ -1,4 +1,4 @@
-"""Governança dos administradores: papéis, celular (TOTP), aprovação dupla e acesso de emergência."""
+"""Testes da governança dos administradores."""
 from dataclasses import replace
 from datetime import datetime, timedelta
 

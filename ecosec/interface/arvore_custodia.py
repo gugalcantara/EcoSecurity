@@ -1,11 +1,4 @@
-"""Árvore Custódia -> Pendência -> Documento do N3.
-
-Carga preguiçosa: cada expansão é uma chamada ao serviço (que passa pela matriz e,
-para documentos, pela trilha). Nada é pré-carregado. Raízes: uma por custódia
-(símbolo do tipo e ocupação no ano da linha do tempo) e IN SITU (sem custódia),
-agrupada por UF. Clicar num nó enquadra o item no mapa; duplo clique num
-documento abre o visualizador.
-"""
+"""Árvore de custódia, casos e documentos do nível 3."""
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QTreeWidgetItem
 

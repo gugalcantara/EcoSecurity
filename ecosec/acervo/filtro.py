@@ -1,30 +1,4 @@
-"""Filtro único do painel: um recorte do acervo, lido por todas as vistas.
-
-Antes havia quatro estados de filtro independentes (mapa, planilha, gráfico de risco e panorama). Este
-objeto é puro (sem Qt) e imutável: quem guarda o filtro corrente e avisa as vistas é o EstadoFiltro da
-interface. Cada dimensão de conjunto vazia significa "sem restrição"; dimensões diferentes combinam em E,
-valores da mesma dimensão em ou.
-
-A semântica reproduz os predicados que já existiam (para a ligação nas telas não mudar nenhum número):
-  - UF e atividade: igualdade exata (MapaVetorial.filtrar; PlanilhaAnalitica.filtrar);
-  - risco: a faixa de `regras.categoria(p, hoje)`, sempre avaliada em hoje (o mapa calcula a faixa uma
-    vez, na montagem, com painel.hoje; a planilha também, em analise.linhas). O corte por ano não muda a faixa;
-  - motivo e ação recomendada: igualdade com o código do motivo e com `regras.acao_recomendada(p, hoje, r)`
-    (a planilha compara os rótulos "código · nome", que correspondem 1 para 1 aos códigos);
-  - situação e ano: corte = fim do ano (31/12), limitado a hoje, como MapaInterativo.definir_ano; sem ano,
-    o corte é hoje. ATIVAS = `p.ativa(corte)` (os pontos do mapa); ENCERRADAS = `p.encerrada(corte)`;
-    TODAS = identificadas até o corte. Sem ano e com o cadastro todo datado até hoje, isso coincide com a
-    planilha (ENCERRAMENTO vazio / preenchido / qualquer);
-  - busca: o termo (sem espaços nas pontas, em maiúsculas) contido em código, passivo, município,
-    bairro, logradouro ou CEP, como na planilha, e também na classe ("REJEITO" acha os rejeitos
-    radioativos).
-Dimensões só desta vista: município (par UF, município: há nomes repetidos entre
-UFs), classe e etapa (etapa_atual).
-
-A situação aparece como "Situação do caso" com os rótulos Ativos, Encerrados e
-Todos (`acervo/vocabulario.py`); o padrão é TODAS.
-Os chips usam os rótulos do vocabulário (classe, atividade e motivo pelo nome simples, sem o código).
-"""
+"""Filtro do painel do acervo, usado pelo mapa, pela planilha e pelos gráficos."""
 from dataclasses import dataclass, fields, replace
 from datetime import date
 

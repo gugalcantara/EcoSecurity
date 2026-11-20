@@ -1,10 +1,4 @@
-"""Execução dos scripts em sql/: divide o arquivo em comandos.
-
-O driver removeu `execute(..., multi=True)`. Dividir o texto em ";" à toa
-quebraria um ";" dentro de um texto ('a; b'), e remover "--" à toa apagaria
-um "--" dentro de um texto. Este leitor percorre caractere a caractere,
-sabendo quando está dentro de aspas.
-"""
+"""Execução dos scripts SQL da pasta sql/."""
 
 from ecosec.configuracao import RAIZ_PROJETO
 

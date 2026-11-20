@@ -1,4 +1,4 @@
-"""Acervo: dados fictícios, relatórios por nível, tarja/marca/trilha e exportação."""
+"""Testes do acervo: dados, relatórios por nível, tarja, marca d'água e exportação."""
 import re
 from datetime import date, datetime
 
@@ -175,7 +175,7 @@ def test_a2_01_traz_os_atributos_da_ficha_da_tela(acervo, monkeypatch):
     monkeypatch.setattr(Tela, "texto", registrar)
     acervo.abrir("A2-01", BIA_N2, 2)
     texto = "\n".join(desenhados)
-    # A ficha virou grade com o rótulo SOBRE o valor; o rótulo é um texto próprio, sem ":"
+    # A ficha virou grade com o rótulo sobre o valor; o rótulo é um texto próprio, sem ":"
     for rotulo in ("Fase", "Contaminante", "Restrição de uso", "Uso anterior", "Uso pretendido"):
         assert rotulo in desenhados, rotulo
     assert "PARAMETRO" not in texto and "simulado)" not in texto     # sem "(valor simulado)"
@@ -205,7 +205,7 @@ def test_nivel_1_nao_e_marcado(acervo):
     assert not entrega.marcada and acervo.identificar_marca(entrega.imagem) is None
 
 
-# marca VISÍVEL
+# marca visível
 CINZA_DA_MARCA = 120
 
 

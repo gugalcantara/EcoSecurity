@@ -1,11 +1,4 @@
-"""O mapa recebe um recorte do filtro (/ /).
-
-- `aplicar_recorte(códigos, modo)`: um ponto conta se e somente se estiver ativo no ano do mapa e no recorte;
-- as camadas derivadas (dicas das UFs e dos municípios, coroplético municipal) seguem o recorte e o ano;
-- a legenda conta só o que cruza a vista (com a transformação do dispositivo, pois os pontos ignoram o
-  zoom), é recalculada depois de rolar pelo teclado e mostra "fora do filtro" quando há recorte;
-- o `filtrar(faixas, ufs, atividade)` antigo continua dando o mesmo resultado.
-"""
+"""Testes do mapa com o filtro aplicado."""
 from datetime import date
 
 import pytest

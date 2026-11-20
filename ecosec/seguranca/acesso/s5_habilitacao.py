@@ -1,18 +1,4 @@
-"""S5 Habilitação: "Tem direito?"
-
-Depois de confirmada a identidade (S2 e S4), o cadastro ainda precisa estar
-autorizado. São três condições, todas obrigatórias:
-
-1. Cadastro ativo. Desativar suspende alguém sem apagar o histórico (amostras e
-   trilha continuam íntegras).
-2. Consentimento vigente, conferido a cada acesso (LGPD art. 11, I). Depois de uma
-   revogação, o rosto ainda pode estar no modelo, e é esta checagem que o impede de
-   continuar abrindo o sistema.
-3. Acesso habilitado. No login, a pessoa precisa ter um perfil com camada (servidor,
-   diretor ou ministro) ou o papel de administrador; ao abrir uma camada, ela
-   precisa ser a do perfil. O ministro não abre as camadas 1 e 2, e o administrador
-   não abre nenhuma.
-"""
+"""S5 Habilitação: tem direito?"""
 from ecosec.dominio.camadas import CamadaSeguranca
 from ecosec.dominio.entidades import Usuario
 from ecosec.dominio.motivos import Motivo

@@ -1,4 +1,4 @@
-"""Domínio: níveis, camadas, motivos e invariantes das entidades."""
+"""Testes do domínio: níveis, camadas, motivos e entidades."""
 import dataclasses
 from datetime import datetime
 

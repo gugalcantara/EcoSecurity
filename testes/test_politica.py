@@ -1,4 +1,4 @@
-"""Política: a composição das camadas S1-S7 por nível."""
+"""Testes da política de acesso."""
 import math
 
 import pytest

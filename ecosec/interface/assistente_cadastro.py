@@ -1,19 +1,4 @@
-"""Assistente de cadastro: Preparação -> Termo -> Dados -> Rosto -> Concluído.
-
-Regras que a tela garante (as de negócio estão no ServicoCadastro):
-- Preparação: o administrador confirma os requisitos (pessoa presente, maior
-  de 18, luz e câmera livres) antes de qualquer coisa. Evita começar um
-  cadastro que vai falhar no meio.
-- Termo: resumo em linguagem simples, texto completo e duas marcações
-  (finalidade a, obrigatória; b, opcional). "Concordo" só habilita depois de o
-  texto ser lido até o fim, da finalidade (a) marcada e da assinatura com
-  nome e sobrenome. "Não concordo" encerra sem coletar nada.
-- Dados: a própria pessoa digita a senha (o administrador não deve conhecê-la);
-  os erros aparecem ao lado do formulário.
-- Rosto: a câmera só liga quando a pessoa clica em "Iniciar captura".
-- Cancelar depois do aceite pede confirmação; qualquer saída (cancelar, trocar
-  de página, fechar a janela) passa por encerrar(), que apaga as faces.
-"""
+"""Assistente de cadastro, do termo à captura do rosto."""
 import math
 import time
 
@@ -211,7 +196,7 @@ class AssistenteCadastro(QWidget):
         vf.addWidget(self.texto_termo)
         coluna.addWidget(folha)
 
-        # manifestação do titular: no FIM do documento, como se assina um papel
+        # manifestação do titular: no fim do documento, como se assina um papel
         manifestacao = SimpleCardWidget()
         vm = QVBoxLayout(manifestacao)
         vm.setContentsMargins(24, 18, 24, 18)
@@ -633,7 +618,7 @@ class AssistenteCadastro(QWidget):
         self.finalizado.emit(None)
 
     def encerrar(self):
-        """Idempotente. Para o vídeo e APAGA as faces coletadas (LGPD)."""
+        """Idempotente. Para o vídeo e apaga as faces coletadas (LGPD)."""
         self._parar_video()
         if self.coleta is not None:
             self.coleta.descartar()

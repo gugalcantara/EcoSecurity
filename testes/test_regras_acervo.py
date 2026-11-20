@@ -1,14 +1,4 @@
-"""Regras do acervo, cada uma com o seu teste:
-
-k=3 com supressão complementar em todo agregado do N1
-pessoa física e custo somado por responsável só no N3
-quantidade coerente com atividade e classe
-custo por componente e rota de tratamento, com memória de cálculo
-latência mínima por linha antes de poder encerrar
-KPI-01 por Kaplan-Meier, com censura e entrada tardia
-série anual do banco sem ano final fixo
-termo 3.1 com contato simulado e rodapé; a 3.0 arquivada continua conferindo
-"""
+"""Testes das regras do acervo."""
 import csv
 from datetime import datetime
 

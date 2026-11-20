@@ -1,18 +1,4 @@
-"""S1 Contenção: "Esta matrícula ainda pode tentar?"
-
-Sem contenção, a senha e o rosto poderiam ser testados indefinidamente: uma
-senha de 8 caracteres cai por tentativa e erro, e o LBPH acaba aceitando
-alguém parecido se receber rostos suficientes.
-
-Decisões:
-- Conta como falha qualquer prova de identidade errada sob a matrícula: senha
-  incorreta (S2) e rosto que não confere (S4). Quem roubou a senha e testa
-  rostos também precisa ser contido.
-- Conta mesmo para matrícula inexistente. Se só as reais travassem, o
-  bloqueio diria ao atacante quais matrículas existem.
-- Funções puras: o instante "agora" vem de fora. Isso torna o tempo testável
-  (o teste não precisa esperar 15 minutos).
-"""
+"""S1 Contenção: esta matrícula ainda pode tentar?"""
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 

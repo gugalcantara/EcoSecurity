@@ -1,9 +1,4 @@
-"""Página "Camadas de segurança": as dez camadas, a pergunta de cada uma
-e o estado de cada uma. Serve à apresentação.
-
-Todas as dez estão implementadas e testadas. A S7 (regra dos dois) pode ser
-desligada na configuração; desligada, o cartão diz isso em vez de "Implementada".
-"""
+"""Página das camadas de segurança (modo de demonstração)."""
 from PySide6.QtWidgets import QGridLayout, QVBoxLayout, QWidget
 
 from ecosec.dominio.camadas import Anel, CamadaSeguranca, camadas_do_anel

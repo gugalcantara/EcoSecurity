@@ -1,15 +1,4 @@
-"""Contratos dos repositórios: o que se guarda e se consulta, sem dizer como.
-
-Protocol (tipagem estrutural): qualquer classe com estes métodos cumpre o
-contrato, sem precisar herdar de nada. O serviço de autenticação recebe "algo
-que cumpra RepositorioUsuarios": hoje a versão em memória, depois a MySQL.
-
-Regras comuns a todas as implementações:
-- devolvem entidades do domínio (imutáveis), nunca linhas cruas do banco;
-- consulta sem resultado devolve None, não levanta exceção;
-- violação de regra de armazenamento (matrícula repetida, id inexistente)
-  levanta ErroRepositorio: o chamador decide o que dizer ao usuário.
-"""
+"""Interfaces dos repositórios."""
 from collections.abc import Callable
 from datetime import datetime
 from typing import Protocol
@@ -31,7 +20,7 @@ class RegistroInexistente(ErroRepositorio):
 
 
 class BancoIndisponivel(ErroRepositorio):
-    """Servidor fora do ar, credencial errada, schema ausente. Quem recebe NEGA."""
+    """Servidor fora do ar, credencial errada, schema ausente. Quem recebe nega o acesso."""
 
 
 class PermissaoNegada(ErroRepositorio):
@@ -96,13 +85,8 @@ class RepositorioAmostras(Protocol):
 
 
 class RepositorioTrilha(Protocol):
-    """Trilha de auditoria (S10). Só cresce: não há alterar nem apagar no contrato.
-
-    O encadeamento é calculado pela camada de segurança; o repositório garante a
-    atomicidade: lê o último hash e grava o novo sem que outra gravação entre
-    no meio. Por isso recebe uma função `montar(hash_anterior)` e a executa
-    dentro da trava. (hash_anterior = None quando a trilha está vazia.)
-    """
+    """Trilha de auditoria (S10), que só cresce. Recebe uma função montar(hash_anterior) e a executa dentro da
+    trava, para nenhuma outra gravação acontecer entre a leitura do último hash e a nova."""
 
     def acrescentar(self, montar: Callable[[str | None], RegistroTrilha]) -> RegistroTrilha: ...
 
@@ -157,12 +141,8 @@ class RepositorioEstacoes(Protocol):
 
 
 class RepositorioAcervo(Protocol):
-    """O cofre: só leitura. No MySQL, a conta usada nem tem permissão de escrita.
-
-    responsaveis recebe o NÍVEL de quem consulta e devolve só os responsáveis
-    com nivel_minimo <= nível. O filtro acontece NA CONSULTA: o que o
-    nível não autoriza nem sai do banco.
-    """
+    """Acervo, só leitura. responsaveis(nivel) devolve só os responsáveis visíveis para o nível, filtrados na
+    própria consulta."""
 
     def catalogo(self) -> list: ...
 

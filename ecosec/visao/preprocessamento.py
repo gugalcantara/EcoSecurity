@@ -1,21 +1,4 @@
-"""Fase 2: Pré-processamento. Deixa toda face comparável a qualquer outra.
-
-Atua antes e depois da segmentação. Antes, converte o quadro para níveis de cinza (cinza()); a cópia
-reduzida e equalizada que o detector usa é preparada junto da detecção, em segmentacao.py. Depois, sobre o
-recorte da face aprovado no portão de qualidade (qualidade.py), faz a normalização (normalizar()):
-
-    recorte em cinza -> 200x200 -> CLAHE -> suavização gaussiana -> face normalizada
-
-- Cinza: o LBP compara intensidades de pixels vizinhos; a cor não acrescenta informação e triplicaria o
-  custo.
-- 200x200 antes do CLAHE: os blocos do CLAHE (grade 8x8) cobrem sempre a mesma porção do rosto, perto ou
-  longe da câmera.
-- CLAHE (equalização adaptativa com limite de contraste): uma luz lateral deixa metade do rosto escura, o
-  que a equalização global não corrige e a equalização por blocos corrige. O limite de contraste evita
-  amplificar o ruído de regiões lisas, como a testa.
-- Suavização gaussiana leve: um único pixel ruidoso altera o código binário do LBP de todos os vizinhos
-  dele.
-"""
+"""Fase 2: Pré-processamento. Conversão para cinza e normalização da face."""
 from dataclasses import dataclass
 
 import cv2

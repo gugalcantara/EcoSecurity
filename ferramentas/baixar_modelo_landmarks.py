@@ -1,11 +1,6 @@
-r"""Baixa o modelo de landmarks faciais (FacemarkLBF) usado na piscada da S6.
+r"""Baixa o modelo de pontos faciais (FacemarkLBF) usado na piscada.
 
     .venv\Scripts\python.exe -m ferramentas.baixar_modelo_landmarks
-
-Origem: o modelo de referência da documentação do OpenCV (repositório
-kurnianggoro/GSOC2017, ~54 MB). O arquivo vai para modelo/ (fora do git) e só
-é aceito se o SHA-256 bater com o do config: um modelo trocado poderia fazer
-qualquer imagem "piscar". Se já existir e conferir, nada é baixado.
 """
 import hashlib
 import sys

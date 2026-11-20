@@ -1,13 +1,6 @@
-"""Rastreia um arquivo vazado: lê a marca d'água (S9) e diz quem exportou e quando.
+r"""Lê a marca d'água de um arquivo exportado e mostra quem exportou e quando.
 
-    .venv\\Scripts\\python.exe -m ferramentas.extrair_marca CAMINHO\\arquivo.png
-
-Usa a CHAVE_MARCA do .env: sem ela, ninguém sabe onde a marca está, nem para
-ler, nem para apagar seletivamente. Se a marca não for legível (arquivo sem
-marca, recortado, muito degradado), a resposta é "sem marca": nunca um palpite,
-porque um palpite errado acusaria um inocente.
-
-Também disponível no painel: Administração > Relatórios do sistema > "Rastrear arquivo vazado".
+    .venv\Scripts\python.exe -m ferramentas.extrair_marca CAMINHO\arquivo.png
 """
 import sys
 from pathlib import Path
@@ -37,12 +30,13 @@ def main(argv=None) -> int:
         print(f"[FALHA] {erro}")
         return 2
     marca = app.acervo.identificar_marca(imagem)
-    if marca is None:
+    # marca de um cadastro que não existe é leitura falsa (o CRC de 8 bits deixa passar algumas): nenhum palpite
+    usuario = None if marca is None else app.administracao.usuario(marca.usuario_id)
+    if usuario is None:
         print("[SEM MARCA] Nenhuma marca d'água do EcoSecurity legível neste arquivo. Nenhum palpite é dado.")
         return 1
-    usuario = app.administracao.usuario(marca.usuario_id)
-    quem = f"{usuario.nome} (matrícula {usuario.matricula})" if usuario else f"usuário nº {marca.usuario_id}"
-    print(f"[ORIGEM] Exportado por {quem} em {marca.momento.astimezone():%d/%m/%Y às %H:%M}.")
+    print(f"[ORIGEM] Exportado por {usuario.nome} (matrícula {usuario.matricula}) em "
+          f"{marca.momento.astimezone():%d/%m/%Y às %H:%M}.")
     return 0
 
 

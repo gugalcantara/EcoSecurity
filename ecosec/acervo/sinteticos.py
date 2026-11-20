@@ -1,26 +1,4 @@
-"""Base do acervo de passivos perigosos: determinística (semente fixa).
-
-Todas as execuções geram exatamente o mesmo acervo, e os testes dependem disso.
-
-A forma segue os cadastros oficiais:
-  - tipologia das atividades e contaminantes: Relação de Áreas Contaminadas da
-    CETESB (SP) e BDNAC/IBAMA; passivos minerários: FEAM/IDE-Sisema (MG);
-  - geografia real, lida de dados/geografia.json (ferramentas.baixar_geografia):
-    a coordenada é sorteada dentro do polígono do município (malha do IBGE), a
-    pelo menos ~200 m da divisa; o bairro e o prefixo do CEP são da própria
-    cidade (ViaCEP). O logradouro é genérico, para não apontar um endereço real.
-    A cidade sai pelo porte e pelo perfil econômico dela (CIDADES), com um
-    gerador próprio por caso: mudar as cidades não muda classe, datas nem score.
-Toda linha gerada aqui leva `sintetico = TRUE` (origem: este gerador), o que a
-separa de qualquer carga externa no mesmo banco.
-
-Texto padronizado na origem (ecosec.dominio.texto): maiúsculas, sem acento,
-unidades de medida por extenso.
-
-A distribuição por atividade segue, grosso modo, a do cadastro da CETESB
-(postos de combustível são a maior parte): o único dado real usado, e só como
-proporção.
-"""
+"""Gerador da base fictícia do acervo, com semente fixa."""
 import hashlib
 import json
 import math

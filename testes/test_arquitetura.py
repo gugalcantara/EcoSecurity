@@ -1,9 +1,4 @@
-"""A regra de dependência entre camadas, verificada lendo os imports.
-
-Documentar "o domínio não importa nada" não impede ninguém de importar. Este
-teste impede: analisa cada arquivo com ast e falha se uma camada importar o
-que não pode.
-"""
+"""Testes da regra de dependência entre as camadas do código."""
 import ast
 from pathlib import Path
 

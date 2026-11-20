@@ -1,4 +1,4 @@
-"""Anel 2: S8 Tarja e S9 Rastreio, com imagens sintéticas (documento e mapa)."""
+"""Testes da tarja (S8) e da marca d'água (S9)."""
 from datetime import datetime, timezone
 
 import cv2
@@ -67,7 +67,7 @@ def test_mesmo_item_em_tres_niveis(documento):
 
 
 def test_posicao_recebe_supressao_solida_sem_estrutura(documento):
-    """Borrar preserva o centroide; para rótulo de POSIÇÃO a área fica sem variância nenhuma."""
+    """Borrar preserva o centroide; para rótulo de posição a área fica sem variância nenhuma."""
     documento[350:360, 150:160] = (0, 0, 255)                   # o "ponto" no mapa
     area = recorte(s8_tarja.aplicar(documento, [COORDENADA], Nivel.N1, PT, True).imagem, COORDENADA)
     assert area.reshape(-1, 3).std(axis=0).max() == 0
@@ -149,6 +149,28 @@ def test_sem_a_chave_nao_se_le_a_marca(documento):
 
 def test_imagem_sem_marca_nao_aponta_ninguem(documento):
     assert s9_rastreio.extrair(documento, CHAVE, PM) is None
+
+
+def test_leitura_com_data_impossivel_nao_acusa_ninguem_nem_estoura():
+    """O CRC de 8 bits deixa passar 1 em 256 leituras falsas, com o minuto aleatório. Uma data no futuro (até
+    milhares de anos) é leitura falsa: nenhum palpite, e sem erro ao converter a data."""
+    from datetime import timedelta
+    agora = datetime(2026, 11, 20, tzinfo=timezone.utc)
+    futura = Marca(4321, agora + timedelta(days=30))
+    assert s9_rastreio.decodificar(s9_rastreio.codificar(futura), agora) is None
+    # o maior minuto que cabe na marca (uns 8 mil anos depois da época), montado direto nos bits
+    corpo = (4321 << s9_rastreio.BITS_MINUTO) | (2 ** s9_rastreio.BITS_MINUTO - 1)
+    valor = (corpo << s9_rastreio.BITS_CRC) | s9_rastreio._crc8(corpo)
+    bits = np.array([(valor >> (s9_rastreio.TOTAL_BITS - 1 - i)) & 1 for i in range(s9_rastreio.TOTAL_BITS)], np.uint8)
+    assert s9_rastreio.decodificar(bits, agora) is None
+    assert s9_rastreio.decodificar(s9_rastreio.codificar(MARCA), agora) == MARCA
+
+
+def test_imagens_sem_marca_nunca_acusam_nem_estouram():
+    gerador = np.random.default_rng(11)
+    for _ in range(120):
+        imagem = gerador.integers(0, 256, (240, 320, 3), dtype=np.uint8)
+        assert s9_rastreio.extrair(imagem, CHAVE, PM) is None
 
 
 def test_marca_pouco_visivel(documento):

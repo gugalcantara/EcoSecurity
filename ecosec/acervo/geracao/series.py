@@ -1,9 +1,4 @@
-"""Intensidade de entradas λ_c(t): novas pendências por ano em cada linha de geração.
-
-Só a FORMA da curva importa: o volume de cada linha vem da composição do acervo
-(peso da atividade × UF), e λ distribui esse volume no tempo. As formas são
-modeladas, não medidas.
-"""
+"""Número de casos novos por ano em cada linha de geração."""
 from dataclasses import dataclass
 from math import exp
 

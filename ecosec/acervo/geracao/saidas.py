@@ -1,14 +1,4 @@
-"""Risco de saída h_c(t) de uma pendência ativa (1/ano) e a sua calibração.
-
-Fluxo de saídas μ_c(t) = h_c(t)·N_c(t). A dinâmica esperada dN/dt = λ − h·N tem
-solução exata com λ e h constantes dentro de cada ano. A calibração trabalha
-sobre essa expectativa (nunca sobre um sorteio), então não depende da semente.
-
-Duas calibrações, as duas necessárias:
-  - Metas de forma: razões entre fluxos de saída de anos diferentes;
-  - Âncora de nível: fixa h0. Razões dizem quanto o fluxo varia, não se ele supera
-    as entradas; sem a âncora, o estoque pode cumprir as razões e nunca cair.
-"""
+"""Risco de saída de um caso ativo e a sua calibração."""
 from dataclasses import dataclass, replace
 from functools import lru_cache
 from math import exp

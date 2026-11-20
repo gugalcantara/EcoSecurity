@@ -1,22 +1,4 @@
-"""Custo de remediação por componente.
-
-    custo(p) = Σ fixos(rota) + q(p) · Σ variáveis(rota) + monitoramento_anual(rota) · anos(rota)
-
-A rota sai da substância ([custos.rota_por_substancia]: PCBs vão à incineração, inorgânicos à
-estabilização, fase livre ao bombeamento, NORM ao armazém de NORM); sem regra, vale a rota padrão da
-classe. Todo valor tem fonte: enquanto não há fonte primária, é "PARAMETRO" (parâmetro de simulação),
-e a tela mostra isso na memória de cálculo.
-
-CATEGORIA (padrão EEA): todo componente cai numa de quatro categorias, pela tabela
-[custos.categoria_componente]: diagnóstico = INVESTIGACAO; obra ou contenção no local = REMEDIACAO; transporte,
-tratamento e destino fora do local = DISPOSICAO; acompanhamento depois da intervenção = MONITORAMENTO. Um
-componente sem categoria é recusado na carga, como uma rota sem fonte.
-
-Regra de transição: as variáveis da rota PADRÃO de cada classe somam o custo unitário antigo (R$ 2.800/t,
-R$ 180.000/m³ e, para a área, que é medida em m³ de solo, R$ 1.200/t × densidade documentada em
-[custos] densidade_solo_t_por_m3). O que muda o total é o volume coerente, os fixos e o
-monitoramento, todos visíveis na memória de cálculo.
-"""
+"""Custo estimado de remediação de cada caso."""
 from dataclasses import dataclass, field
 
 from ecosec.acervo.sinteticos import METROS_CUBICOS

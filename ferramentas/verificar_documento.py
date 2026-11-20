@@ -1,12 +1,7 @@
-"""Confere um documento do acervo pelo QR code ou pelo hash da marca visível (S-07).
+r"""Confere um documento do acervo pelo QR code ou pelo código da marca visível.
 
-    python -m ferramentas.verificar_documento "ecosec://verificar/AUTO DE INFRACAO/1234/2024/3f9a0c2177b4e810"
-    python -m ferramentas.verificar_documento E77FAFCFA6C68E02
-
-  - QR (ecosec://verificar/{TIPO}/{NUMERO}/{hash16}): procura o documento no cadastro (os documentos são
-    derivados das pendências) e confere se o hash dos campos bate. Diz qual pendência e qual documento é;
-  - hash de 16 caracteres da marca visível (hash_consulta): procura na trilha a abertura com esse hash e
-    diz quem abriu e quando: uma foto da tela leva a quem a tirou.
+    .venv\Scripts\python.exe -m ferramentas.verificar_documento "ecosec://verificar/AUTO DE INFRACAO/1234/2024/3f9a0c2177b4e810"
+    .venv\Scripts\python.exe -m ferramentas.verificar_documento E77FAFCFA6C68E02
 """
 import sys
 

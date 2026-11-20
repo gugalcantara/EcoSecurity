@@ -1,4 +1,4 @@
-"""Correções de 12/10: câmera lenta não consome o prazo do rosto; backend DirectShow."""
+"""Testes do prazo do rosto com câmera lenta e do backend DirectShow."""
 import cv2
 import pytest
 

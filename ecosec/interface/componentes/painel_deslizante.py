@@ -1,9 +1,4 @@
-"""Painel lateral que entra deslizando sobre o mapa.
-
-Sobreposto ao mapa, não uma coluna fixa: o mapa mantém a largura inteira. Abre
-com o clique num ponto; fecha com Esc ou com o botão ✕. As abas usam
-SegmentedWidget com `lambda *_, c=chave` (o onClick passa checked).
-"""
+"""Painel lateral do mapa."""
 from PySide6.QtCore import QEasingCurve, QEvent, QPoint, QPropertyAnimation, Qt, Signal
 from PySide6.QtWidgets import QFrame, QHBoxLayout, QStackedWidget, QVBoxLayout
 

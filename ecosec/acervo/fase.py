@@ -1,33 +1,4 @@
-"""Fase do processo: derivada só da etapa, sem campo novo no acervo nem no banco.
-
-A situação genérica "EM PROCESSO" (de ciclo.situacao, para as etapas sem rótulo próprio) não diz em que
-ponto o caso está. A fase agrupa as etapas de todos os ciclos (geracao.ciclo.CICLOS) em quatro códigos, na
-ordem do processo:
-
-    IDENTIFICACAO  o passivo foi registrado e a autoridade começou a agir (sem investigação nem obra)
-    INVESTIGACAO   caracterização: investigação, avaliação de risco, inspeção, inventário
-    REMEDIACAO     intervenção física ou contenção: plano de intervenção, remediação, monitoramento,
-                   acondicionamento, transporte, armazenamento provisório
-    ENCERRADA      a etapa final do ciclo (a mesma data do encerramento da pendência)
-
-Regras (verificadas em `testes/test_fase_ciclo.py`):
-  - toda etapa de todo ciclo tem fase; a fase não decresce ao longo da ordem das etapas de cada ciclo;
-  - ENCERRADA é exatamente a etapa final de cada ciclo;
-  - etapa desconhecida levanta EtapaDesconhecida.
-
-Critérios da tabela:
-  - Área contaminada (CONAMA 420/2009, art. 23): avaliação preliminar e investigação confirmatória ficam na
-    IDENTIFICACAO, como no inciso I da norma (a norma vence a coerência com a situação "EM
-    INVESTIGACAO", que é outro atributo); investigação detalhada e avaliação de risco (diagnóstico, inciso II)
-    são INVESTIGACAO; monitoramento para encerramento ainda é REMEDIACAO.
-  - Plano de intervenção, acondicionamento e armazenamento são REMEDIACAO, como na categoria EEA dos
-    componentes de custo de mesmo nome.
-  - Notificação e declaração de fonte fora de uso são atos administrativos sem caracterização: IDENTIFICACAO.
-
-Uso compartilhado: o mapa temático e a ficha chamam `fase(p)` / `fase_da_etapa(etapa)`.
-Com data de corte (linha do tempo), `fase(p, em)` usa a etapa vigente naquela data (etapa_em), para o mapa de
-um ano passado não mostrar a fase de hoje.
-"""
+"""Fase do processo de cada caso, calculada a partir da etapa atual."""
 from __future__ import annotations
 
 from datetime import date

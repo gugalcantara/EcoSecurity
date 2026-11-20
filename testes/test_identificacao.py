@@ -1,13 +1,4 @@
-"""Identificação 1:N: o sistema diz quem é, sem conceder nada.
-
-Serviço próprio (app.identificacao), e não a sessão do N1: aquela decide ACESSO (nível, consentimento,
-contenção) e grava AUTENTICACAO na trilha. Aqui só se identifica, e cada identificação vai para a trilha como
-IDENTIFICACAO / REGISTRADO: só o ADMINISTRADOR identifica, numa seção do painel de Administração
-(já aberto pelo rosto e pelo celular); não há mais item no menu nem step-up do N3.
-
-Faces sintéticas de test_interface: todas têm a mesma estatística de textura e ficam a ~26 umas das outras no
-LBPH (medido), abaixo do limiar. O rosto de ninguém precisa de outro grão de textura (~135 de todas).
-"""
+"""Testes da identificação 1:N."""
 import dataclasses
 import re
 from datetime import datetime

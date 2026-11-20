@@ -1,18 +1,4 @@
-"""Padronização de texto dos registros: maiúsculas, sem acento nem cedilha.
-
-Duas regras, conforme o campo:
-  - nome(): nomes e descrições (substância, município, bairro, razão social,
-    título...). Só letras A-Z, dígitos e espaço; qualquer outro caractere vira
-    espaço, e espaços repetidos viram um só. "Césio-137 (fonte)" -> "CESIO 137 FONTE".
-  - referencia(): códigos e referências técnicas (base legal, CNAE, detalhe da
-    trilha, fonte). Mesmas maiúsculas sem acento, mas mantém a pontuação que dá
-    sentido ao texto: ". , ; : - / ( ) # %". "Lei 6.938/81, art. 14, §1º" ->
-    "LEI 6.938/81, ART. 14, PARAGRAFO 1".
-
-Ficam fora (o valor exato é o dado): hashes, senhas bcrypt, chaves e e-mails.
-E não se reescreve o que já é prova: a trilha encadeada e o nome no
-consentimento entram em hashes; registros antigos ficam como foram gravados.
-"""
+"""Padronização de texto dos registros: maiúsculas, sem acento nem cedilha."""
 import re
 import unicodedata
 

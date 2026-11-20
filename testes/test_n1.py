@@ -1,13 +1,4 @@
-"""O painel analítico do N1 por perguntas (interface/n1_painel.py).
-
-Estrutura (cinco seções com o nome da pergunta, faixa de indicadores com nome do vocabulário e variação anual,
-cartões sem fonte, nível nem corte, tabela equivalente em todo gráfico); política da camada (nenhum "R$", CNPJ,
-endereço, coordenada ou código de caso em texto visível ou dica); None do serviço = "Suprimido", nunca 0 (acervo
-pequeno que força supressão); Índice de pressão do N1 sem custo e o do N3 com; agregados
-novos protegidos (nenhuma célula escondida se recompõe por soma com as outras vistas do N1, prova algébrica);
-filtro de classe e ano propagado a todas as seções; mapa navegável (arrasto, clique na UF ao soltar,
-Ctrl + roda dá zoom e a roda sozinha rola a página, − + e Brasil).
-"""
+"""Testes do painel do nível 1."""
 import re
 
 import pytest

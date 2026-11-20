@@ -1,8 +1,4 @@
-"""Camada MySQL: leitor de scripts, falha segura e integração com o banco real.
-
-Os testes de integração só rodam depois de `python -m ferramentas.preparar_banco`;
-antes disso aparecem como pulados.
-"""
+"""Testes da camada MySQL."""
 import pytest
 
 from ecosec import segredos

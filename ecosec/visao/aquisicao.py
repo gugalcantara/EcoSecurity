@@ -1,19 +1,4 @@
-"""Fase 1: Sensor (aquisição). Lê os quadros da webcam em tempo real.
-
-A leitura roda numa thread própria e deposita cada quadro numa fila de tamanho 1:
-
-    câmera (30 quadros/s) -> [fila] -> reconhecimento
-
-Com uma fila comum, se o reconhecimento fosse mais lento que a câmera, os quadros se acumulariam e a
-decisão passaria a ser tomada sobre uma imagem de segundos atrás. Com tamanho 1, o quadro antigo é
-descartado quando chega um novo, e quem consome recebe sempre o mais recente.
-
-O módulo não usa o Qt (a visão não conhece a interface): é uma thread comum do Python.
-
-No Windows, o padrão do OpenCV é o Media Foundation (MSMF), que levou cerca de 22 s até o primeiro quadro
-(8 s para abrir a webcam e 14 s para trocar a resolução). O DirectShow faz o mesmo em cerca de 1,5 s. Se o
-backend escolhido não abrir a câmera, o padrão é tentado antes de desistir.
-"""
+"""Fase 1: Sensor (aquisição). Leitura da webcam numa thread própria."""
 import queue
 import threading
 import time
@@ -44,7 +29,7 @@ class Camera:
         self._thread: threading.Thread | None = None
         self._captura = None
         self.quadros_lidos = 0
-        self.quadros_descartados = 0             # evidência funcionando
+        self.quadros_descartados = 0             # quadros antigos trocados por um mais novo na fila
 
     @classmethod
     def de_configuracao(cls, cfg) -> "Camera":

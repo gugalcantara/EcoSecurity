@@ -1,20 +1,4 @@
-"""Gráficos e peças de painel do analítico N2 e N3, desenhados com QPainter.
-
-Regra de visualização: a forma vem da pergunta, a cor vem por último.
-  - BarrasH: magnitude por categoria (barras horizontais ordenadas, rótulo direto na ponta). Com dois segmentos,
-    é a forma de ênfase: a parte que importa (ex.: casos críticos) na cor de status, o resto em cinza;
-  - LinhasAno: evolução no tempo (linha de 2 px, ponto final com anel da superfície, cruz e dica no hover);
-  - Halteres: UF × país num mesmo eixo de 0 a 100% (dois pontos e o segmento que os liga);
-  - BarraPartes: parte do todo (uma barra 100% com vão de 2 px entre os segmentos e legenda com valor e %);
-  - CurvaAcumulada: custo acumulado × redução de risco acumulada (uma linha por critério) com a linha do orçamento.
-Especificações fixas: barra de no máximo 20 px com ponta arredondada de 4 px (reta na base), linhas de 2 px, grade
-e eixos em linha fina contínua, texto sempre nas cores de texto (nunca na cor da série), um eixo só, nenhum eixo
-duplo. A paleta categórica foi conferida quanto à separação para daltonismo e ao contraste, no tema claro e no
-escuro (contraste abaixo de 3:1 em dois tons do claro, por isso todo segmento tem rótulo visível).
-As cores de risco e de classe vêm de componentes.simbologia (fonte única do mapa).
-
-Toda peça tem nome e descrição acessíveis com os valores (a alternativa em texto do gráfico) e dica no hover.
-"""
+"""Gráficos dos painéis dos níveis 2 e 3."""
 from __future__ import annotations
 
 from dataclasses import dataclass, field

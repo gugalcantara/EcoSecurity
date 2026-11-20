@@ -1,18 +1,4 @@
-"""Tela de autenticação: conduz uma SessaoAutenticacao e mostra o andamento.
-
-Toda decisão é do serviço. A tela:
-  - coleta matrícula e senha (níveis 2 e 3) e entrega ao serviço;
-  - liga o vídeo, cujos quadros a thread de vídeo passa ao serviço;
-  - mostra o que o serviço devolve (Andamento): camadas, distância × limiar,
-    tempo restante, gesto pedido e, no fim, a decisão.
-
-Mostrar a distância ao lado do limiar é didático: vê-la cair enquanto o rosto
-se estabiliza deixa claro que o LBPH mede distância: menor é melhor.
-
-A mesma tela conduz o login de entrada, o step-up do N3 e a conferência do
-administrador: quem a usa entrega uma fábrica de sessões (para "Tentar de
-novo" criar outra igual) e os textos do cabeçalho.
-"""
+"""Tela de autenticação: credenciais, rosto e gestos."""
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QHBoxLayout, QStackedWidget, QVBoxLayout, QWidget

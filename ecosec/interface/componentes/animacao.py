@@ -1,14 +1,4 @@
-"""Zoom e deslocamento animados de uma QGraphicsView.
-
-Centro interpolado em linha reta e escala em progressão geométrica: o zoom parece
-contínuo (a interpolação linear do retângulo acelera no fim). 250 a 400 ms,
-InOutCubic. `[interface] animacoes = false` desliga (acessibilidade, máquina lenta).
-
-Uma animação por vista, criada uma vez e reaproveitada (sem DeleteWhenStopped): com
-a política de apagar ao parar, o Qt destruía o objeto C++ no fim da 1ª animação e a
-referência guardada na vista ficava pendurada; o 2º enquadramento levantava
-"Internal C++ object already deleted" e derrubava filtro e navegação.
-"""
+"""Zoom e deslocamento animados do mapa."""
 from functools import lru_cache
 from math import exp, log
 

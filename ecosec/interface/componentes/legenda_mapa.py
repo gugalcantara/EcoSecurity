@@ -1,12 +1,4 @@
-"""Legenda dinâmica do mapa, sobreposta à vista.
-
-Uma seção por camada visível, na ordem de desenho (a camada de cima primeiro), cada entrada com o mesmo
-símbolo do mapa (cor, tamanho e anel vêm de simbologia, que o ponto também usa). O texto é sempre na cor
-de texto (17:1 sobre o branco), nunca na cor da faixa (2,44:1).
-
-É um QWidget filho da QGraphicsView (não da viewport, que rola junto com a cena): transparente ao mouse,
-sem foco, com nome e descrição acessíveis (a descrição lista as entradas, para o leitor de tela).
-"""
+"""Legenda do mapa."""
 from __future__ import annotations
 
 from dataclasses import dataclass

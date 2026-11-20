@@ -1,14 +1,4 @@
-"""A ficha da pendência.
-
-Critérios: toda etapa de todo ciclo tem fase (não decresce); o acervo
-antigo sai idêntico, sem campo novo; a soma das categorias é o custo; a ficha tem "Fase:", "Contaminante:",
-"Restrição de uso:", "Uso anterior:" e "Uso pretendido:", com a memória de cálculo por categoria, no N2 e no N3;
-custo por responsável e pessoa física continuam só no N3; a exportação da ficha sai crua, com os campos novos.
-
-Os testes da ficha NA tela (campos novos e memória, responsáveis fora do N2, exportação pela tela) estão em
-test_n23.py; a recusa do custo por responsável no N2 está em test_regras_acervo.py. Aqui ficam o acervo
-(com o hash), os catálogos e a exportação pelo serviço.
-"""
+"""Testes da ficha do caso."""
 import csv
 import dataclasses
 import hashlib

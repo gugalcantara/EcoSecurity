@@ -1,19 +1,4 @@
-"""Fase 4: Extração de características e Fase 5: Classificação e interpretação.
-
-Extração (LBPH): o LBP compara cada pixel com os 8 vizinhos e forma um código que descreve a textura local.
-A face é dividida numa grade 8x8, e os histogramas desses códigos, juntos, formam a assinatura da face.
-Como compara vizinhos entre si, o LBP é pouco sensível a mudanças uniformes de iluminação.
-
-Classificação e interpretação: a distância qui-quadrado entre assinaturas (menor = mais parecido) é
-comparada ao limiar, que a camada S4 decide, e a identidade só é confirmada após vários quadros seguidos
-(ConfirmadorQuadros). Na identificação 1:N vale o vizinho mais próximo da galeria; na verificação 1:1, a
-menor distância às amostras da identidade alegada, para que um vizinho de outra pessoa não negue o dono
-legítimo.
-
-Um cadastro novo usa a atualização incremental (update()), sem retreinar as outras pessoas. O modelo é
-serializado em memória, comprimido e cifrado antes de ir para o disco, sem arquivo temporário em claro.
-Como o LBPH não remove uma pessoa, a revogação reescreve o modelo sem os histogramas daquele rótulo.
-"""
+"""Fase 4: Extração de características e Fase 5: Classificação e interpretação, com o LBPH."""
 import os
 import threading
 import zlib
@@ -181,12 +166,8 @@ class ReconhecedorLBPH:
 
 
 class ConfirmadorQuadros:
-    """Pós-processamento: decide só após N quadros seguidos coerentes.
-
-    Coerente = mesma identidade e distância dentro do limiar. Um quadro
-    divergente zera a contagem. Um acerto isolado pode ser sorte; cinco
-    seguidos, dificilmente.
-    """
+    """Decide só depois de N quadros seguidos com a mesma identidade dentro do limiar; um quadro divergente
+    zera a contagem."""
 
     def __init__(self, quadros: int, limiar: float):
         self.n = quadros

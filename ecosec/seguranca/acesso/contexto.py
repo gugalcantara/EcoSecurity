@@ -1,24 +1,4 @@
-"""Risco do CONTEXTO do login: a verificação se adapta ao ambiente (MFA adaptativo).
-
-A mesma matrícula, senha e rosto valem menos numa máquina que a pessoa nunca
-usou, logo depois de errar a senha. Dois sinais, os dois locais (o sistema não
-usa internet nem localização por ip):
-
-  ESTACAO_NOVA         computador + usuário do Windows nunca vistos para esta matrícula
-                       (o primeiro login de cada pessoa só registra a estação: não pune)
-  FALHAS_RECENTES      a matrícula vem de erros seguidos (ainda não bloqueada)
-
-  0 sinais  BAIXO   o login de sempre (matrícula, senha, rosto)
-  1 sinal   MEDIO   + prova de vida (S6) já no login
-  2 sinais  ALTO    + prova de vida, e a sessão fica só para consulta: sem N3 e sem
-                    exportação (a matriz de autorização nega), com alerta ao administrador
-
-O horário não é sinal de risco: o dia e a hora do acesso não pesam no risco
-nem restringem nenhum nível, porque não há expediente no sistema.
-
-Função pura: recebe o momento e os fatos, devolve o risco. Quem coleta os
-fatos (estação, falhas) é o serviço de autenticação.
-"""
+"""Risco do login pelo contexto (MFA adaptativo)."""
 import getpass
 import hashlib
 import platform
@@ -72,6 +52,6 @@ def avaliar(momento: datetime, p: ParametrosContexto, estacao_conhecida: bool | 
 
 
 def impressao_estacao() -> str:
-    """Identifica ESTE computador e a conta do Windows, sem guardar nenhum dos dois: só o SHA-256."""
+    """Identifica este computador e a conta do Windows, sem guardar nenhum dos dois: só o SHA-256."""
     bruto = f"{platform.node()}|{getpass.getuser()}".lower()
     return hashlib.sha256(bruto.encode("utf-8")).hexdigest()

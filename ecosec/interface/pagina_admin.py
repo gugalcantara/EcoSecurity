@@ -1,25 +1,4 @@
-"""Área administrativa: senha de instalação (1ª execução) -> bloqueada -> [rosto e gesto] -> [celular] -> painel.
-
-Três situações:
-- Configuração inicial (instalação nova, sem administrador): a senha de
-  INSTALAÇÃO abre o painel, para fazer o primeiro cadastro, que só pode ter o
-  perfil de administrador e vira o primeiro admin. Depois dele, o
-  sistema abre pelo login.
-- Administradores (login único, cada um com a sua matrícula): só um admin
-  logado vê esta página. Abri-la confere o rosto de novo, na hora, e pede o
-  código do celular (no primeiro acesso, cadastra o celular). O administrador
-  não tem camada: nenhum dado do acervo aparece para ele. Aqui ele gere pessoas
-  e perfis, exclui cadastros, lê a trilha (com o detalhe do acervo mascarado),
-  os relatórios do sistema e faz a identificação facial 1:N. Ações
-  críticas pedem o código do celular de outro admin.
-- Acesso de emergência: sem rosto nem celular (foi isso que falhou); abre
-  direto o painel restrito, que só conserta o acesso.
-
-Sair da página bloqueia o painel de novo e encerra qualquer cadastro em
-andamento (com descarte das faces). O painel também se tranca sozinho depois
-de alguns minutos sem uso ([administracao] no config), para que um painel
-esquecido não fique aberto para a próxima pessoa que sentar ao computador.
-"""
+"""Página de administração."""
 from pathlib import Path
 
 from PySide6.QtCore import Qt, Signal
@@ -44,6 +23,7 @@ from ecosec.interface.fluent import (FIF, BodyLabel, CaptionLabel, ComboBox, Ico
 from ecosec.interface.logo import pixmap_logo
 from ecosec.interface.pagina_identificacao import VistaIdentificacao
 from ecosec.interface.tela_autenticacao import TelaAutenticacao
+from ecosec.servicos.falhas import mensagem_para_tela
 
 COLUNAS_TRILHA = ("#", "Momento", "Evento", "Resultado", "Motivo", "Camadas", "Nível", "Usuário",
                   "Matrícula informada", "Detalhe")
@@ -487,7 +467,8 @@ class PaginaAdministracao(QWidget):
         try:
             registros = self.servico.trilha_visivel()           # o detalhe do acervo vem mascarado
         except Exception as erro:  # noqa: BLE001
-            InfoBar.error("Banco indisponível", str(erro), duration=6000, position=InfoBarPosition.TOP, parent=self)
+            InfoBar.error("Banco indisponível", mensagem_para_tela(erro), duration=6000,
+                          position=InfoBarPosition.TOP, parent=self)
             return
         self.tabela_trilha.setRowCount(len(registros))
         for i, r in enumerate(registros):
@@ -505,7 +486,8 @@ class PaginaAdministracao(QWidget):
         try:
             resultado = self.servico.verificar_trilha()
         except Exception as erro:  # noqa: BLE001
-            InfoBar.error("Banco indisponível", str(erro), duration=6000, position=InfoBarPosition.TOP, parent=self)
+            InfoBar.error("Banco indisponível", mensagem_para_tela(erro), duration=6000,
+                          position=InfoBarPosition.TOP, parent=self)
             return
         self.resultado_trilha.setText(str(resultado))
         self.resultado_trilha.setStyleSheet(f"color:{VERDE if resultado.integra else VERMELHO};")
@@ -603,7 +585,8 @@ class PaginaAdministracao(QWidget):
         try:
             tabela = self.app.relatorios_sistema.gerar(codigo)
         except Exception as erro:  # noqa: BLE001
-            InfoBar.error("Banco indisponível", str(erro), duration=6000, position=InfoBarPosition.TOP, parent=self)
+            InfoBar.error("Banco indisponível", mensagem_para_tela(erro), duration=6000,
+                          position=InfoBarPosition.TOP, parent=self)
             return
         self.explicacao_relatorio.setText(tabela.explicacao + (" Nenhum registro ainda." if not tabela.linhas else ""))
         self.tabela_relatorio.clear()
@@ -630,14 +613,14 @@ class PaginaAdministracao(QWidget):
             return
         imagem = cv2.imdecode(np.frombuffer(Path(caminho).read_bytes(), np.uint8), cv2.IMREAD_COLOR)
         marca = None if imagem is None else self.app.acervo.identificar_marca(imagem)
-        if marca is None:
+        # marca de um cadastro que não existe é leitura falsa (o CRC de 8 bits deixa passar algumas): nenhum palpite
+        usuario = None if marca is None else self.servico.usuario(marca.usuario_id)
+        if usuario is None:
             InfoBar.warning("Sem marca legível", "Nenhuma marca d'água do EcoSecurity foi encontrada.",
                             duration=7000,
                             position=InfoBarPosition.TOP, parent=self)
             return
-        usuario = self.servico.usuario(marca.usuario_id)
-        quem = f"{usuario.nome} ({usuario.matricula})" if usuario else f"usuário nº {marca.usuario_id}"
-        InfoBar.success("Origem identificada", f"Exportado por {quem} em "
+        InfoBar.success("Origem identificada", f"Exportado por {usuario.nome} ({usuario.matricula}) em "
                         f"{marca.momento.astimezone():%d/%m/%Y às %H:%M}.", duration=10000,
                         position=InfoBarPosition.TOP, parent=self)
 
@@ -645,7 +628,7 @@ class PaginaAdministracao(QWidget):
         try:
             linhas = self.servico.listar()
         except Exception as erro:  # noqa: BLE001
-            InfoBar.error("Banco indisponível", str(erro), duration=6000,
+            InfoBar.error("Banco indisponível", mensagem_para_tela(erro), duration=6000,
                           position=InfoBarPosition.TOP, parent=self)
             return
         self.tabela.setRowCount(len(linhas))
@@ -843,7 +826,8 @@ class PaginaAdministracao(QWidget):
                                                  f"titular_{usuario.matricula}.txt", "Texto (*.txt)")
         if not caminho:
             return
-        Path(caminho).write_text(self.servico.dados_do_titular(usuario.id), encoding="utf-8")
+        solicitante = self.sessao.usuario.id if self.sessao is not None else None
+        Path(caminho).write_text(self.servico.dados_do_titular(usuario.id, solicitante), encoding="utf-8")
         InfoBar.success("Relatório salvo", caminho, duration=4000, position=InfoBarPosition.TOP, parent=self)
 
     # cadastro

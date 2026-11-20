@@ -1,33 +1,4 @@
-"""Termo de consentimento para o tratamento da imagem facial (LGPD).
-
-Imagem de rosto é dado pessoal sensível (Lei 13.709/2018, art. 5º, II), e
-tratá-la exige consentimento específico e destacado (art. 11, I). O termo é
-apresentado antes de a câmera abrir.
-
-Quatro escolhas de projeto:
-
-1. Notificação em camadas. Primeiro um QUADRO-RESUMO (o que se coleta, para
-   quê, por quanto tempo, como desistir); depois as cláusulas completas.
-   Quem lê só o quadro já sabe o essencial.
-
-2. Uma autorização por finalidade (art. 8º, §4º: autorização genérica é nula).
-     (a) autenticação no EcoSecurity ........................ obrigatória
-     (b) estatísticas e experimentos do trabalho ........ OPCIONAL
-   Recusar (b) não impede o cadastro.
-
-3. O que se grava no aceite é o HASH SHA-256 do texto exato apresentado, com
-   o nome da pessoa e as escolhas feitas. Provar o consentimento é ônus do
-   controlador (art. 8º, §2º); o hash prova o que foi lido e o que foi escolhido.
-
-4. Redação de instrumento formal (preâmbulo, cláusulas, quadro de
-   autorizações, bloco de assinatura), porque é isso que o termo é: um
-   documento que o titular assina e do qual recebe uma via.
-
-Regra de manutenção: o termo descreve só o que o sistema de fato faz. Mudou o
-tratamento ou a redação, sobe a versão, e a versão anterior é arquivada sem
-nenhuma alteração (ver termo_v2.py, termo_v3_0.py, termo_v3_1.py,
-termo_v3_2.py e termo_v3_3.py): sem ela, os hashes já gravados não poderiam mais ser conferidos.
-"""
+"""Termo de consentimento para o uso da imagem facial (LGPD), versão em vigor."""
 import hashlib
 from datetime import datetime
 from html import escape
@@ -45,7 +16,7 @@ VERSAO = "3.4"
 # 3.0 -> 3.1: contato do controlador preenchido (endereço SIMULADO, sem caixa postal real) e rodapé de
 #             documento simulado (premissa formal do projeto acadêmico). A 3.0 foi
 #             arquivada em termo_v3_0.py, com o contato não preenchido com que sempre foi apresentada.
-# 3.1 -> 3.2: só descritiva: a Cláusula 2ª (IV) fala do PERFIL de acesso (um por cadastro;
+# 3.1 -> 3.2: só descritiva: a Cláusula 2ª (IV) fala do perfil de acesso (um por cadastro;
 #             o administrador não tem camada) e a 7ª, dos fatores de cada perfil (o código do celular do
 #             administrador). Finalidades, forma, prazo, controlador e compartilhamento iguais: os aceites 3.1
 #             continuam valendo. A 3.1 foi arquivada em termo_v3_1.py.
@@ -213,7 +184,7 @@ def _corpo_html(nome: str, contato: str, autoriza_pesquisa: bool | None) -> list
 
 
 def renderizar_html(nome: str, contato: str, autoriza_pesquisa: bool | None = None) -> str:
-    """O termo para LEITURA na tela, antes da assinatura (o mesmo conteúdo do texto do hash)."""
+    """O termo para leitura na tela, antes da assinatura (o mesmo conteúdo do texto do hash)."""
     return "".join(_corpo_html(nome, contato, autoriza_pesquisa)) + (
         "<p style='margin-top:18px'>A assinatura é feita a seguir, com a digitação do nome completo do "
         "TITULAR (Cláusula 11ª).</p>")

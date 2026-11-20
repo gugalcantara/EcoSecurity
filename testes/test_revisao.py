@@ -1,4 +1,4 @@
-"""Casos avulsos: falha interna no acervo, nome de banco inseguro, logotipo e retirada da digital."""
+"""Testes de casos avulsos."""
 import pytest
 
 
@@ -25,7 +25,7 @@ def test_preparar_banco_recusa_nome_de_banco_inseguro(nome):
 def test_logo_sai_em_todos_os_tamanhos_com_as_cores_escolhidas(qt, lado):
     """Cadeado com argola menta, corpo branco e símbolo de radiação escuro (identidade visual do sistema)."""
     from PySide6.QtGui import QColor
-    from ecosec.interface.logo import ARGOLA, CORPO, SIMBOLO, imagem_logo
+    from ecosec.interface.logo import ARGOLA, CORPO, imagem_logo
     imagem = imagem_logo(lado)
     corpo = [imagem.pixelColor(x, y) for x in range(int(lado * 0.27), int(lado * 0.73))
              for y in range(int(lado * 0.46), int(lado * 0.84))]
@@ -43,3 +43,28 @@ def test_a_digital_saiu_da_aplicacao():
     usos = [str(a) for pasta in ("ecosec", "ferramentas") for a in (raiz / pasta).rglob("*.py")
             if "FINGERPRINT" in a.read_text(encoding="utf-8")]
     assert not usos, usos
+
+
+def test_falha_inesperada_na_administracao_nao_mostra_o_texto_interno():
+    from ecosec.repositorios.contratos import BancoIndisponivel, ErroRepositorio
+    from ecosec.servicos.falhas import GENERICA, mensagem_para_tela
+    assert mensagem_para_tela(BancoIndisponivel("Confira o serviço MySQL84.")) == "Confira o serviço MySQL84."
+    assert mensagem_para_tela(ErroRepositorio("Erro do banco (1146): Table 'trilha' doesn't exist")) == GENERICA
+    assert mensagem_para_tela(RuntimeError("detalhe interno")) == GENERICA
+
+
+def test_negacao_sem_trilha_fica_no_registro_de_erros(caplog):
+    """A negação vale mesmo se a trilha não grava; o evento não pode sumir sem rastro."""
+    from types import SimpleNamespace
+
+    from ecosec.servicos.acervo import ServicoAcervo
+
+    class TrilhaFora:
+        def registrar(self, *args, **kwargs):
+            raise RuntimeError("banco fora do ar")
+
+    falso = SimpleNamespace(trilha=TrilhaFora())
+    with caplog.at_level("ERROR", logger="ecosec.servicos.acervo"):
+        ServicoAcervo._registrar_negacao(falso, "EXPORTACAO", "EXPORTACAO_BLOQUEADA", SimpleNamespace(id=7), 3, "A3-01")
+    assert "EXPORTACAO_BLOQUEADA" in caplog.text and "A3-01" in caplog.text
+

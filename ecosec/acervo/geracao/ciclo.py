@@ -1,10 +1,4 @@
-"""Ciclo de vida: etapas encaixadas entre a entrada e a saída da pendência.
-
-O instante de saída é decidido primeiro (saidas.py + fluxos.py); as etapas são
-encaixadas depois. Assim a data de encerramento é sempre a data da etapa final:
-  - encerrada: as durações são reescaladas para terminar exatamente na saída;
-  - ativa: durações naturais, cortadas na data-base, sem nunca chegar à etapa final.
-"""
+"""Etapas de cada caso entre a entrada e a saída do cadastro."""
 from math import log
 
 # classe do ciclo -> (etapas, medianas das transições em anos, situação final)

@@ -1,38 +1,9 @@
-"""S9 Rastreio: "Se vazar, de quem veio?"
-
-Todo material liberado nos níveis 2 e 3 recebe uma MARCA D'ÁGUA invisível com
-quem o recebeu e quando. Se uma cópia aparecer onde não devia, a marca
-extraída dela aponta a origem do vazamento.
-
-A marca (64 bits):  usuário (24) · minuto em que foi liberado (32) · CRC-8 (8)
-o CRC detecta extração corrompida: sem ele, uma marca danificada poderia
-apontar um inocente. Marca que não confere devolve None: nunca um palpite.
-
-Dois métodos, comparados:
-
-LSB (bit menos significativo): troca o último bit de pixels escolhidos.
-  Invisível (muda o tom em 1 de 255) e simples, mas frágil: qualquer
-  recompressão JPEG reescreve esses bits. É o contraponto que justifica o DCT.
-
-DCT (transformada discreta do cosseno, a mesma do JPEG): em cada bloco 8×8 da
-  luminância, compara dois coeficientes de média frequência e força a ordem
-  entre eles conforme o bit (1: c1 > c2; 0: c2 > c1). O JPEG quantiza sobretudo
-  as altas frequências; as médias sobrevivem: e a marca com elas.
-  Antes de marcar, a luminância é comprimida para [m, 255 - m]: num documento de
-  fundo branco (255), somar energia ao bloco estouraria o limite e apagaria a
-  marca exatamente onde há mais área livre. A folga m é a menor que a marca
-  precisa: proporcional à força (≈ 0,3 × força). Uma folga fixa maior custava
-  mais qualidade de imagem que a própria marca (medido: 26,9 dB só da compressão).
-
-Os 64 bits se repetem por toda a imagem, em posições embaralhadas por uma chave
-secreta; a extração vota bit a bit (maioria). Sem a chave, não se sabe onde a
-marca está: nem para lê-la, nem para apagá-la seletivamente.
-"""
+"""S9 Rastreio: se vazar, de quem veio?"""
 import hashlib
 import math
 import zlib
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import cv2
 import numpy as np
@@ -80,7 +51,10 @@ def codificar(marca: Marca) -> np.ndarray:
     return np.array([(valor >> (TOTAL_BITS - 1 - i)) & 1 for i in range(TOTAL_BITS)], dtype=np.uint8)
 
 
-def decodificar(bits: np.ndarray) -> Marca | None:
+def decodificar(bits: np.ndarray, agora: datetime | None = None) -> Marca | None:
+    """A marca lida, ou None. O CRC de 8 bits deixa passar 1 em 256 leituras de uma imagem sem marca; nessas, o
+    minuto sai aleatório. Por isso a data também precisa ser possível: entre a época da marca e agora (com um dia
+    de folga para o relógio). Uma leitura falsa quase nunca cai nessa janela, e ninguém é acusado por acaso."""
     valor = 0
     for b in bits[:TOTAL_BITS]:
         valor = (valor << 1) | int(b)
@@ -88,8 +62,10 @@ def decodificar(bits: np.ndarray) -> Marca | None:
     if _crc8(corpo) != crc:
         return None                                    # corrompida: nenhum palpite
     usuario, minuto = corpo >> BITS_MINUTO, corpo & (2 ** BITS_MINUTO - 1)
-    momento = _EPOCA.timestamp() + minuto * 60
-    return Marca(usuario, datetime.fromtimestamp(momento, timezone.utc))
+    limite = ((agora or datetime.now(timezone.utc)).astimezone(timezone.utc) + timedelta(days=1) - _EPOCA)
+    if minuto * 60 > limite.total_seconds():
+        return None                                    # data impossível: leitura falsa, nenhum palpite
+    return Marca(usuario, _EPOCA + timedelta(minutes=minuto))
 
 
 def _ordem(n_posicoes: int, chave: bytes) -> np.ndarray:

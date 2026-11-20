@@ -1,21 +1,4 @@
-"""Páginas depois do login de entrada: o início e uma aba por camada.
-
-Início (escopo exclusivo): só o cartão da camada do perfil. As outras
-camadas não aparecem nem são mencionadas. O administrador não tem camada: o
-Início dele mostra só a Administração.
-
-Aba de camada (PaginaNivel): só aparece no menu para quem tem o perfil daquela
-camada. Ao abrir:
-- N1 e N2: step-up sem fator novo. O login já provou matrícula, senha e rosto
-  1:1; a política reavalia essas evidências para o nível pedido e decide
-  (ServicoAutenticacao.abrir_nivel). Desativar alguém vale na próxima aba.
-- N3: step-up com fatores novos. Rosto de novo, gesto (vivacidade) e, com a S7
-  ligada, a segunda pessoa; matrícula e senha vêm do login.
-Sair da aba (trocar de página) encerra o acervo e qualquer tentativa aberta.
-
-Layout: a página inicial rola em vez de espremer, e o botão de cada cartão tem
-altura fixa. Em janela estreita, os cartões ficam um embaixo do outro.
-"""
+"""Página inicial e abas de cada nível depois do login."""
 from datetime import datetime
 
 from PySide6.QtCore import Qt, Signal

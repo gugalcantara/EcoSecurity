@@ -1,30 +1,8 @@
-"""Verifica a integridade da trilha de auditoria (S10) no banco real e confere as âncoras guardadas fora dele.
+r"""Verifica a integridade da trilha de auditoria e confere as âncoras guardadas fora do banco.
 
-    .venv\\Scripts\\python.exe -m ferramentas.verificar_trilha
-    .venv\\Scripts\\python.exe -m ferramentas.verificar_trilha --conferir "ECOSEC-TRILHA <id> <hash> <momento>"
-    .venv\\Scripts\\python.exe -m ferramentas.verificar_trilha --conferir-arquivo ancoras.txt
-
-Roteiro de demonstração:
-  1. use o sistema (alguns logins, um cadastro);
-  2. rode esta ferramenta: "Trilha íntegra";
-  3. no MySQL Workbench, como root, altere uma linha de log_acesso
-     (ex.: troque um NEGADO por CONCEDIDO);
-  4. rode de novo: a ferramenta aponta o id exato da adulteração.
-
-A conta da aplicação não conseguiria fazer o passo 3: ela não tem UPDATE na
-trilha. Só o root consegue: e mesmo ele não passa despercebido.
-
-Âncora: a corrente sozinha não percebe quando o root apaga as últimas linhas ou
-recalcula a cauda inteira. Por isso, periodicamente (por exemplo, ao fim de cada
-dia de uso ou na revisão de acessos), o administrador gera no painel, com o
-código do próprio celular, uma linha com o id e o hash do último registro, para
-guardar fora do banco (celular, e-mail ou impressa). A geração fica registrada
-na trilha, por isso não é feita por aqui. Esta ferramenta só lê: `--conferir`
-ou `--conferir-arquivo` prova que a trilha continua igual até cada registro
-ancorado.
-
-Códigos de saída: 0 íntegra; 1 adulterada ou âncora que não confere; 2 o
-sistema não abriu; 3 linha de âncora inválida.
+    .venv\Scripts\python.exe -m ferramentas.verificar_trilha
+    .venv\Scripts\python.exe -m ferramentas.verificar_trilha --conferir "ECOSEC-TRILHA <id> <hash> <momento>"
+    .venv\Scripts\python.exe -m ferramentas.verificar_trilha --conferir-arquivo ancoras.txt
 """
 import argparse
 import sys

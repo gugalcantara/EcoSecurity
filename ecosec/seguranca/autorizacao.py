@@ -1,25 +1,4 @@
-"""Autorização em três dimensões: PAPEL × CLASSIFICAÇÃO DO DADO × OPERAÇÃO.
-
-A matriz inteira fica num lugar só, como função pura: o serviço pergunta, a
-matriz responde, e o administrador vê a mesma matriz no relatório S-09.
-Inspirado no modelo "role-data-operation" e no princípio de confiança zero:
-nenhuma operação é permitida por omissão, e o que não está na matriz é negado.
-
-  Papel           quem é: servidor, diretor ou ministro (o perfil) ou administrador (o papel de um Externo)
-  Classificação   o grau do dado (da camada aberta): USO INTERNO, RESERVADO, SECRETO
-  Operação        visualizar, exportar relatório, exportar registros, exportar agregado, administrar
-
-Efeitos:
-  PERMITIDO                    pode, já
-  PERMITIDO_COM_VERIFICACAO    pode, se o ROSTO foi conferido há pouco (step-up); senão, confere antes
-  NEGADO                       não pode
-
-Escopo exclusivo: cada papel lê só a classificação da própria camada. O ministro não lê
-USO INTERNO nem RESERVADO; o ADMINISTRADOR não tem camada e não lê dado nenhum (só ADMINISTRAR).
-
-O contexto entra por cima: com risco ALTO (ver contexto.py), nenhuma
-exportação e nenhum dado SECRETO: a sessão vale só para consulta.
-"""
+"""Autorização por papel, classificação do dado e operação."""
 from dataclasses import dataclass
 from enum import Enum, IntEnum
 

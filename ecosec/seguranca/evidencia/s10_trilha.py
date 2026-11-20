@@ -1,32 +1,4 @@
-"""S10 Trilha: "O que aconteceu, e alguém alterou o registro?"
-
-Cada evento é encadeado ao anterior por SHA-256:
-
-    hash_n = SHA-256( hash_(n-1) + conteúdo_n )
-
-Adulterações detectadas:
-- alterar o conteúdo de uma linha muda o hash calculado, que deixa de bater
-  com o gravado -> REGISTRO_ALTERADO, na própria linha;
-- alterar o conteúdo e recalcular o hash daquela linha quebra a seguinte, cujo
-  hash_anterior aponta o valor antigo -> ENCADEAMENTO_ROMPIDO, na linha seguinte;
-- apagar uma linha do meio também quebra a seguinte.
-Em todos os casos o verificador diz onde a corrente rompeu.
-
-Limite: quem tiver acesso administrativo ao banco pode apagar as últimas
-linhas, ou recalcular toda a cauda, sem quebrar a corrente. A defesa é a
-âncora: o id e o hash do último registro, numa linha de texto guardada fora do
-banco (impressa em ata, ou enviada a outro computador). Conferir a âncora depois
-prova que tudo até aquele registro continua igual: se ele sumiu, a cauda foi
-apagada; se o hash mudou, a cauda foi recalculada. O que veio depois da âncora
-só fica protegido pela âncora seguinte, por isso ela é periódica.
-
-SHA-256 aqui e bcrypt nas senhas: aqui se quer integridade, e um hash rápido e
-determinístico serve. Para senha, a rapidez é o problema.
-
-O conteúdo é serializado em JSON (lista em ordem fixa), não concatenado com um
-separador: com "|" como separador, os campos ("a|b", "c") e ("a", "b|c")
-produziriam o mesmo texto: e o mesmo hash.
-"""
+"""S10 Trilha: o que aconteceu, e alguém alterou o registro?"""
 import hashlib
 import json
 from collections.abc import Iterable

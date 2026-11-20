@@ -1,42 +1,4 @@
-"""Vocabulário de exibição: a fonte única dos rótulos que a pessoa lê.
-
-Regra: o rótulo visível é o significado em linguagem simples. Os códigos (KPI-xx, AG-xx, MP-xx, "CLASSE I NBR 10004",
-nomes internos de campo) continuam nos DADOS, sem mudança nenhuma (o acervo gerado é idêntico; teste de hash em
-`testes/test_ficha.py`), e só aparecem na dica e no glossário. Termos técnicos consagrados ficam em inglês:
-"score", não "escore".
-
-Puro, sem Qt: `acervo/` não importa a interface, os serviços nem a segurança (`testes/test_arquitetura.py`).
-
-REGRA DO SUBSTANTIVO
-    O objeto do cadastro, nos textos visíveis, é o CASO: "caso" / "casos" ("1.055 casos ativos", "Casos além do
-    prazo legal"). "Pendência" continua só no código, nos nomes internos (Pendencia, pendencias, PENDENCIAS) e nos
-    títulos de coluna da exportação crua. Texto novo ou reescrito usa SUBSTANTIVO / `casos(n)`. O título das
-    colunas na tela sai de titulo_coluna, que já troca PENDENCIAS por "Casos".
-
-SITUAÇÃO
-    O filtro único tem três valores internos (ATIVAS, ENCERRADAS, TODAS, em `acervo/filtro.py`) com os rótulos
-    "Ativos", "Encerrados" e "Todos"; o padrão é TODAS. O campo se chama "Situação do caso". Os KPIs continuam
-    definidos sobre os casos ativos.
-
-API (o que as telas usam)
-    rotulo(codigo, tipo=None)        rótulo curto de exibição ("CLASSE I NBR 10004" -> "Resíduo perigoso")
-    codigo(rotulo, tipo)             o inverso, para os combos (mostram o rótulo, filtram pelo código)
-    rotulo_longo(codigo, tipo=None)  rótulo longo, quando há (senão o curto)
-    definicao(codigo, tipo=None)     a regra de negócio em linguagem simples
-    dica(codigo, tipo=None)          definição + fórmula e unidade (KPI) + código e norma: o texto do tooltip
-    termo(codigo, tipo=None)         o objeto Termo (ou None)
-    titulo_coluna(titulo)            título de exibição de uma coluna da planilha ou do resumo
-    casos(n, adjetivo="")            "1 caso", "1.055 casos ativos"
-    glossario()                      [Secao(titulo, descricao, termos)], na ordem da aba Glossário
-    buscar(texto)                    as seções do glossário só com os termos que contêm o texto (sem acento)
-    Dicionários prontos: ROTULO_CLASSE, ROTULO_SITUACAO, ROTULO_KPI, ROTULO_FAIXA, ROTULO_FASE, ROTULO_ETAPA,
-    ROTULO_ACAO, ROTULO_RESPONSABILIDADE, ROTULO_MOTIVO, ROTULO_ATIVIDADE, ROTULO_NIVEL.
-    tipo é um de TIPOS. Sem tipo, o código é procurado na ordem de TIPOS (o mesmo código pode existir em mais de
-    um tipo: REMEDIACAO é fase, etapa e categoria de custo). Código desconhecido: o rótulo é o próprio código
-    (nunca um erro na tela); o teste test_vocabulario.py garante que todo código do acervo tem rótulo.
-
-Nenhum travessão em texto visível.
-"""
+"""Rótulos e textos de tela dos dados do acervo."""
 from __future__ import annotations
 
 import unicodedata

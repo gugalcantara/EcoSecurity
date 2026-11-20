@@ -1,17 +1,6 @@
-"""Baixa uma vez a geografia do acervo e grava em ecosec/acervo/dados/geografia.json.
+r"""Baixa a geografia do acervo e grava em ecosec/acervo/dados/geografia.json.
 
-    .venv\\Scripts\\python.exe -m ferramentas.baixar_geografia
-
-O sistema não depende de internet: o gerador do acervo lê só o JSON, que fica no
-projeto. Esta ferramenta existe para o arquivo ser reprodutível e conferível.
-
-Fontes oficiais:
-  - IBGE, API de localidades (código de cada município) e API de malhas
-    (polígono do município, qualidade intermediária; contorno do país e das
-    UFs, mínima: as divisas do mapa interativo);
-  - ViaCEP: prefixos de CEP (5 dígitos) e bairros reais de cada município. O
-    logradouro do acervo continua genérico ("AVENIDA DAS INDUSTRIAS"): o CEP e o
-    bairro dão verossimilhança sem apontar um endereço que exista.
+    .venv\Scripts\python.exe -m ferramentas.baixar_geografia
 """
 import gzip
 import json
@@ -106,7 +95,7 @@ def _baixar(url: str):
 
 
 def _aneis(geometria: dict) -> list[list[list[float]]]:
-    """Anéis EXTERNOS do (Multi)Polygon, arredondados. Os buracos não interessam aqui."""
+    """Anéis externos do (Multi)Polygon, arredondados. Os buracos não interessam aqui."""
     poligonos = geometria["coordinates"] if geometria["type"] == "MultiPolygon" else [geometria["coordinates"]]
     return [[[round(lon, CASAS), round(lat, CASAS)] for lon, lat in poligono[0]] for poligono in poligonos]
 

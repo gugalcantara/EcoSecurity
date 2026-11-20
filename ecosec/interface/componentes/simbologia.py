@@ -1,25 +1,4 @@
-"""Simbologia do mapa: fonte única de cores, tamanhos e desenho dos símbolos.
-
-Os mesmos tons de identidade (verde, âmbar, laranja, vermelho),
-escurecidos até contraste ≥ 3:1 (WCAG 1.4.11, luminância relativa) contra o fundo do mapa, com codificação
-redundante: raio crescente por faixa (BAIXO e ALTO têm quase a mesma luminância; o tamanho os separa no
-daltonismo) e ANEL escuro só no crítico.
-
-Quem desenha usa as funções daqui: o ponto do mapa (_Ponto.paint), a legenda dinâmica e os ícones do painel
-de camadas chamam o mesmo desenhar_ponto. Assim a legenda nunca diverge do mapa e as constantes de
-cor deixam de estar duplicadas.
-
-Temáticas de simbologia dos pontos (faixa de risco, classe, fase) e o símbolo do
-AGREGADO por zoom. Classe: as cores de identidade das classes nos gráficos (COR_IDENTIDADE_CLASSE),
-escurecidas até 3:1, e uma FORMA por classe (quadrado, círculo, triângulo de mesma área), para não depender da
-cor. Fase: tons da paleta já usada nos painéis, escurecidos até 3:1, e preenchimento progressivo (um terço,
-dois terços, cheio; a ENCERRADA só com o contorno, como toda encerrada no mapa). Agregado: disco BRANCO com a
-contagem em #1A1A1A (17:1) e um anel em setores proporcionais à composição pelo atributo ativo (cada categoria
-presente com pelo menos 20°), mais o anel escuro quando há crítico na temática de faixa. Não se confunde com o
-ponto de risco, que é um disco cheio de cor sem número.
-
-Sem dependência de segurança nem de repositórios; só QtGui (e o acervo.fase, puro, para os códigos de fase).
-"""
+"""Cores, tamanhos e desenho dos símbolos do mapa."""
 from __future__ import annotations
 
 import colorsys
@@ -155,13 +134,9 @@ def tabela_densidade():
 # símbolos
 @dataclass(frozen=True)
 class Simbolo:
-    """Descrição de um símbolo, desenhado igual no mapa, na legenda e no painel de camadas.
-
-    forma: "ponto" (pendência), "agregado" (pendências agregadas por zoom), "custodia" (◇ □ △ ○), "rampa" (cores
-    em sequência), "linha" (contorno), "caixas" (amostras de cor lado a lado) ou "nenhum" (só texto).
-    marca: desenho do ponto ("circulo", "quadrado" ou "triangulo", de mesma área para o mesmo raio).
-    preenchimento: fração do disco pintada (fase: 1/3, 2/3 ou 1), a partir do meio-dia, no sentido horário.
-    Agregado: cores e pesos dos setores do anel, texto com a contagem."""
+    """Símbolo do mapa, desenhado igual no mapa, na legenda e no painel de camadas.
+    forma: ponto, agregado, custodia, rampa, linha, caixas ou nenhum; marca: circulo, quadrado ou
+    triangulo; preenchimento: fração do disco pintada, conforme a fase."""
     forma: str
     cor: str = "#000000"
     raio: float = 5.0

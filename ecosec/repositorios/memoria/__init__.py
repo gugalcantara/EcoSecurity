@@ -1,4 +1,4 @@
-"""Implementação em memória dos repositórios: para desenvolvimento e testes."""
+"""Repositórios em memória."""
 from ecosec.repositorios.memoria.repositorios import (RepositorioAcervoMemoria, RepositorioAdministradoresMemoria,
                                                       RepositorioAmostrasMemoria,
                                                       RepositorioConsentimentosMemoria,

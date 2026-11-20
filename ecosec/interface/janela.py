@@ -1,28 +1,4 @@
-"""Janela principal (FluentWindow). O menu lateral depende do estado:
-
-    Configuração inicial  instalação nova (sem senha de instalação ou sem
-                          administrador): só "Administração", pela senha, para
-                          fazer o primeiro cadastro, que nasce administrador
-    LOGIN                 só o login de entrada; nada do sistema fica visível.
-                          É o mesmo login para todos: o sistema reconhece o
-                          perfil pelo cadastro
-    LOGADO                Início · a aba da camada do perfil (só ela: escopo
-                          exclusivo) · Encerrar sessão. O administrador não
-                          tem camada: Início e Administração, e nenhuma aba
-                          do acervo, nunca. "Camadas de segurança" só entra
-                          no menu com [interface] modo_demonstracao = true
-    EMERGÊNCIA            pelo acesso de emergência (quórum de admins): só a
-                          Administração restrita e Encerrar; termina sozinha
-                          no fim do prazo ou na primeira inatividade
-
-Cada página existe uma vez; o estado só mostra ou oculta os itens do menu.
-
-INATIVIDADE: nada fecha no meio de uma atividade. Depois de [sessao]
-inatividade_minutos sem uso (mouse, rolagem, teclado; câmera ligada também
-conta), a sessão é BLOQUEADA: o menu some, a tela pede a senha e devolve a
-pessoa para onde estava. Sair (pelo botão) encerra câmeras e acervos, tranca o
-painel e volta ao login.
-"""
+"""Janela principal e menu lateral."""
 import sys
 from enum import Enum
 from pathlib import Path
@@ -42,6 +18,7 @@ from ecosec.interface.pagina_admin import PaginaAdministracao
 from ecosec.interface.pagina_bloqueio import PaginaBloqueio
 from ecosec.interface.pagina_camadas import PaginaCamadas
 from ecosec.interface.pagina_entrada import PaginaEntrada
+from ecosec.interface.pagina_teste_camera import PaginaTesteCamera
 
 
 ICONE = Path(__file__).parent / "recursos" / "ecosecurity.ico"   # o mesmo desenho de logo.py, em arquivo
@@ -96,6 +73,8 @@ class JanelaPrincipal(FluentWindow):
         self.modo_demonstracao = self.pagina_entrada.autenticacao.modo_demonstracao
         self.pagina_admin = PaginaAdministracao(app, self)
         self.pagina_bloqueio = PaginaBloqueio(self)
+        self.pagina_teste_camera = PaginaTesteCamera(app, self)
+        self.pagina_teste_camera.continuar.connect(lambda: self.switchTo(self.pagina_admin))
         self.pagina_bloqueio.desbloquear.connect(self._tentar_desbloqueio)
         self.pagina_bloqueio.sair.connect(lambda: self.encerrar_sessao("SAIDA"))
         self.pagina_entrada.entrou.connect(self._entrou)
@@ -111,6 +90,7 @@ class JanelaPrincipal(FluentWindow):
         # login e bloqueio nunca aparecem no menu (ocultos em _aplicar_estado); o ícone é o do app
         self.addSubInterface(self.pagina_entrada, icone_aplicativo(), "Login")
         self.addSubInterface(self.pagina_bloqueio, icone_aplicativo(), "Bloqueio")
+        self.addSubInterface(self.pagina_teste_camera, FIF.CAMERA, "Testar a câmera")
         self.addSubInterface(self.pagina_inicio, FIF.HOME, "Início")
         for nivel, pagina in self.paginas_nivel.items():
             self.addSubInterface(pagina, getattr(FIF, ICONE_NIVEL[nivel]), f"Nível {nivel.value}")
@@ -158,6 +138,7 @@ class JanelaPrincipal(FluentWindow):
         logado = estado is Estado.LOGADO and not self.bloqueada    # bloqueada: nada do sistema no menu
         self._mostrar_no_menu(self.pagina_entrada, False)          # o login nunca é item de menu
         self._mostrar_no_menu(self.pagina_bloqueio, False)
+        self._mostrar_no_menu(self.pagina_teste_camera, estado is Estado.CONFIGURACAO)
         self._menu_do_acervo(logado)
         self._mostrar_no_menu(self.pagina_admin, estado is Estado.CONFIGURACAO
                               or (logado and self.sessao.administrador))
@@ -165,7 +146,7 @@ class JanelaPrincipal(FluentWindow):
         if self.bloqueada:
             destino = self.pagina_bloqueio
         elif destino is None:
-            destino = {Estado.CONFIGURACAO: self.pagina_admin, Estado.LOGIN: self.pagina_entrada,
+            destino = {Estado.CONFIGURACAO: self.pagina_teste_camera, Estado.LOGIN: self.pagina_entrada,
                        Estado.LOGADO: self.pagina_inicio}[estado]
             if estado is Estado.LOGADO and self.sessao.em_emergencia:
                 destino = self.pagina_admin
@@ -267,6 +248,7 @@ class JanelaPrincipal(FluentWindow):
         # nenhuma câmera ligada e nenhuma face na memória depois de fechar
         self.encerrar_sessao("SAIDA")
         self.pagina_entrada.encerrar()
+        self.pagina_teste_camera.encerrar()
         self.pagina_admin.bloquear()
         self._inatividade.parar()
         super().closeEvent(evento)

@@ -1,14 +1,4 @@
-"""Vocabulário, glossário, situação, remoções no N3 e N1 sem dado financeiro.
-
-  - todo código que aparece no acervo tem rótulo de exibição; nenhum "escore" no código-fonte; nenhum "KPI-0"
-    como título visível (só na dica);
-  - situação Ativos / Encerrados / Todos, padrão Todos, com rótulo de campo e dica, no mapa e na planilha; as
-    contagens "dentro · fora" continuam coerentes; os KPIs e o resumo continuam sobre os ativos;
-  - o N3 sem "Painéis temáticos" e sem "Evolução";
-  - aba Glossário nos três níveis, só com definições (nenhum dado do acervo);
-  - nenhum "R$" no N1 (tela, dicas, resumo, exportação e relatórios A1); o serviço recusa o painel de custo e
-    omite o KPI-05 no N1, com a recusa na trilha.
-"""
+"""Testes do vocabulário e do glossário."""
 import csv
 import re
 from datetime import datetime

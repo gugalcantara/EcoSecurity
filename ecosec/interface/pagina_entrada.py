@@ -1,22 +1,4 @@
-"""Login de entrada: a primeira (e, antes dele, a única) tela da aplicação.
-
-Matrícula, senha e rosto 1:1, os fatores do nível 2. Antes do login nada do
-sistema fica visível: nem os níveis, nem o acervo, nem o menu. Quem não deveria
-estar ali não aprende a estrutura do que está protegido.
-
-Layout de tela de login: à esquerda, a marca e como funciona o acesso; à
-direita, um cartão com matrícula e senha. A câmera só aparece dentro do cartão
-quando chega a vez do rosto. A lógica é a mesma da TelaAutenticacao (sessão,
-vídeo, falha segura); TelaLogin só rearruma o layout.
-
-O nome não substitui a matrícula (não é único e é público; ver a ajuda
-"Esqueci minha matrícula" na própria tela).
-
-Acesso de emergência: aparece no resultado só quando um administrador acertou
-matrícula e senha e o rosto ou a câmera falhou, e só se o quórum for possível.
-A tela, sem instruções, pede os códigos dos administradores. A segurança depende
-dos códigos, mesmo que a opção seja conhecida (princípio de Kerckhoffs).
-"""
+"""Página de login."""
 from pathlib import Path
 
 from PySide6.QtCore import QSize, Qt, QTimer, Signal

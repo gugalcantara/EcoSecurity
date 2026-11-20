@@ -1,9 +1,4 @@
-"""(relatórios): os nove relatórios redesenhados como relatório executivo.
-
-O desenho é imagem: os testes escutam a Tela (cada texto desenhado, com a caixa que ocupa) e conferem a política
-de cada camada, a grade comum (sumário executivo, rodapé com fonte e data de corte), o vocabulário e a segurança
-(supressão, tarja, marca d'água), além de nada sair da página nem se sobrepor.
-"""
+"""Testes dos relatórios do acervo."""
 import re
 from datetime import datetime
 

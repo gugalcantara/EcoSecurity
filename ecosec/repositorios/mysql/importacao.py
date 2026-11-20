@@ -1,11 +1,4 @@
-"""Importa o acervo gerado para o banco do acervo (ecosec_acervo).
-
-Roda com uma conta que pode escrever (root, na ferramenta de preparação; a
-conta de testes, nos testes): nunca com a da aplicação, que só lê o cofre.
-
-Só importa se o acervo estiver VAZIO: rodar de novo não duplica nada. O
-catálogo de relatórios entra com INSERT IGNORE (acrescenta os que faltarem).
-"""
+"""Importação do acervo para o banco ecosec_acervo."""
 from datetime import datetime
 
 from ecosec.acervo import sinteticos

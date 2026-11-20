@@ -1,10 +1,4 @@
-"""O filtro único ligado em todas as telas.
-
-N2 e N3: um só EstadoFiltro (PainelAnalitico.estado) para mapa, planilha, gráfico de risco, árvore de custódia,
-resumo e cabeçalho; os combos são vistas do estado e a BarraFiltros acima das abas mostra os chips e a contagem.
-N1: só classe e ano (as dimensões que o cubo protege), ligados ao EstadoN1 nos dois sentidos; o resumo do N1
-não aceita filtro no serviço.
-"""
+"""Testes do filtro do painel ligado às telas."""
 import random
 from datetime import date
 

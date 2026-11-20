@@ -1,30 +1,4 @@
-"""Atributos da ficha da pendência, todos DERIVADOS.
-
-Nenhum campo novo no acervo nem no banco: sinteticos.gerar() continua produzindo exatamente as mesmas
-pendências (o teste guarda o hash de antes). Cada atributo vem de uma fonte só:
-
-    Fase              acervo/fase.py (etapa atual; CONAMA 420/2009, art. 23)
-    Componente        COMPONENTE: catálogo por substância (as 33 do gerador), com o componente químico
-    químico
-    Contaminante      CONTAMINANTE: catálogo por substância (as 33 do gerador), com o grupo do contaminante e o
-    e meio            meio afetado, coerente com a classe. Sem concentração nem excedência: exigiriam transcrever
-                      os valores orientadores da CONAMA 420, o que está fora do escopo
-    Restrição de uso  regra determinística fase × meio × classe (RESTRICAO_BASE + COMPLEMENTO_MEIO): PARAMETRO
-    Uso anterior      USO_ANTERIOR: catálogo por código de ATIVIDADE (AG-01 a AG-13). A atividade pode vir do banco;
-                      a coluna nova é derivada aqui pelo código, sem mudar o esquema do MySQL
-    Uso pretendido    só na classe área contaminada, sorteado num gerador separado (semente própria, derivada do
-                      código da pendência): não consome nenhum número da sequência do acervo. PARAMETRO. Nas outras
-                      classes, "não se aplica"
-    Memória de        custos.decompor agrupado nas quatro categorias EEA ([custos.categoria_componente]); a soma das
-    cálculo           categorias é o custo da pendência (tolerância de centavo)
-
-Regra do ciclo: "ciclo" aqui é a CLASSE da pendência. A linha de geração do garimpo (AG-13) faz o resíduo Classe I
-percorrer as etapas do ciclo da área, mas um rejeito de amalgamação não é terreno: não tem uso pretendido e a
-restrição é a de resíduo (padrão mais conservador, anotado para).
-
-Sem Qt: `acervo/` não importa a interface. Textos na convenção do acervo (maiúsculas, sem acento); a fase usa o
-rótulo de fase.rotulo.
-"""
+"""Dados da ficha do caso, calculados a partir do cadastro e dos catálogos."""
 from __future__ import annotations
 
 import hashlib

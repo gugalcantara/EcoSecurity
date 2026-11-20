@@ -1,18 +1,4 @@
-"""Distribuição geográfica do acervo.
-
-Critérios: 90 cidades (5 por UF no Sudeste, 4 no Sul, 3 no Norte, no
-Nordeste e no Centro-Oeste; o DF tem um município só), as 27 UFs com caso, a capital de SP com casos de risco baixo,
-nenhuma cidade com mais de 8% do total, a capital com 30% a 60% da UF e a origem do passivo coerente com a economia
-da região. O score não muda aqui.
-
-A regra da capital vale para a participação esperada (a dos pesos do gerador, participacao_esperada): nas UFs com
-cerca de 32 casos a contagem sorteada varia uns 17 pontos para cada lado, e uma regra sobre ela passaria ou falharia
-pela semente. A contagem sorteada confere a conta onde há casos bastantes (SP).
-
-295 cidades, proporcionais aos casos da UF (casos / 8, de 6 a 30, sem as que o
-sorteio deixaria sem caso; o DF tem uma), a capital calibrada para 40% esperado da UF, toda cidade da
-lista com caso (1 basta). Mudar as cidades não muda nada fora da geografia: o gerador dela é próprio.
-"""
+"""Testes da distribuição geográfica do acervo."""
 import dataclasses
 import hashlib
 from collections import Counter

@@ -1,23 +1,4 @@
-"""Regras de negócio do acervo: o que transforma o cadastro em instrumento de decisão.
-
-Funções puras (sem banco, sem tela), com os parâmetros em config/ecosec.toml
-[regras_negocio]. Relatórios e painel usam todas daqui: uma régua só.
-
-1. CRITICIDADE: peso da classe de risco (radioativo 3, Classe I 2, área contaminada 1)
-   × peso do grupo do motivo × (1 + anos de atraso), em quatro faixas (BAIXO, MEDIO,
-   ALTO, CRITICO). Sem coleta, sobe sozinha.
-2. PRAZO-LIMITE (SLA) por classe: quanto tempo, desde a identificação, a norma
-   tolera até a coleta. Estourado = descumprimento, independentemente do prazo
-   que o órgão negociou com o responsável.
-3. CUSTO ESTIMADO da remediação: por componente e rota de tratamento (acervo/custos.py, [custos]).
-4. RESPONSABILIDADE FINANCEIRA: quem paga, o responsável (cobrável), o
-   orçamento público (órfãs), investimento em infraestrutura (falta destino) ou
-   fiscalização (carga desaparecida, até achar o responsável).
-5. AÇÃO RECOMENDADA (escalonamento): do "acompanhar prazo" ao "levar ao
-   Ministério Público", conforme faixa, atraso e tipo de ação.
-6. Fila do orçamento público: com um orçamento, quais pendências públicas
-   resolver primeiro para reduzir mais risco.
-"""
+"""Regras de negócio do acervo: criticidade, prazos, custo e responsabilidade."""
 from dataclasses import dataclass
 from datetime import date, timedelta
 from functools import lru_cache

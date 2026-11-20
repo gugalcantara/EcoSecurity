@@ -1,9 +1,4 @@
-"""Configuração comum dos testes.
-
-A interface é testada sem janela visível (plataforma offscreen do Qt) e com
-uma única QApplication para a sessão inteira: criar e destruir várias deixa o
-Qt num estado inconsistente, e testes de tela passam a ser pulados em silêncio.
-"""
+"""Configuração comum dos testes."""
 import os
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")

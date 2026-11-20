@@ -1,11 +1,4 @@
-"""A tela dos painéis temáticos (padrão SINIR+) no N1, no N3 e na UF do N2.
-
-Testes de estrutura com a tela offscreen: quatro painéis no N1 e no N3 (três no N2), ligados ao mesmo EstadoN1;
-navegar não perde o filtro nem as escolhas locais; nenhuma dica com fonte, nível ou corte (foi revogada
-); um eixo vertical por gráfico, com unidade, sem misturar unidades; None do serviço aparece SUPRIMIDO
-(acervo pequeno montado à mão, com supressão de fato), inclusive no estoque por classe e ano; custo
-que fecha com o total; encerramento em degraus de 0 a 100% e o ano corrente parcial.
-"""
+"""Testes da tela dos painéis temáticos."""
 import math
 from dataclasses import replace
 from datetime import date, timedelta

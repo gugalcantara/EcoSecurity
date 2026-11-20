@@ -1,15 +1,4 @@
-"""Mapa interativo do acervo, desenhado no próprio Qt (QGraphicsView), sem serviço de mapas nem internet.
-
-Usa as malhas do IBGE (país, UFs e municípios) e organiza o conteúdo em camadas com visibilidade, opacidade e
-ordem próprias: divisas, coroplético por UF ou por município, densidade, pendências e custódias. Cada pendência
-é um ponto com a simbologia do sistema, que não depende só da cor; em zoom baixo, os pontos próximos viram um
-agregado com a contagem. No nível 1 só aparece o coroplético por UF, sem nenhum ponto.
-
-O mapa aceita zoom pela roda e pelo teclado, arrasto, duplo clique e navegação por Tab entre os pontos, e
-mostra a legenda e a barra de escala da vista atual. O recorte do filtro e o ano do corte decidem quais pontos
-contam; os casos encerrados aparecem vazados. Como as coordenadas são dado reservado, a cena leva a marca
-visível com a matrícula e o horário de quem consulta.
-"""
+"""Mapa interativo do acervo, desenhado no Qt."""
 from collections import Counter
 from math import cos, floor, log10, pi, radians, sin
 
@@ -634,7 +623,7 @@ class MapaVetorial(QGraphicsView):
 
     @property
     def ordem_camadas(self) -> list[str]:
-        """Chaves das camadas, de CIMA para baixo (z decrescente)."""
+        """Chaves das camadas, de cima para baixo (z decrescente)."""
         return sorted(self.camadas, key=lambda c: -self.camadas[c].zValue())
 
     def definir_ordem(self, ordem) -> list[str]:
@@ -953,12 +942,8 @@ class MapaVetorial(QGraphicsView):
 
     # filtros
     def aplicar_recorte(self, dentro: frozenset[str] | None, modo: str = "esconder") -> int:
-        """Recorte do filtro: dentro = códigos das pendências que passam (None = todas).
-
-        Um ponto conta (legenda, dicas, coroplético, densidade, clique) se e somente se estiver ativo no ano do
-        mapa (definir_ano) E no recorte. Modo "esconder" (padrão): os de fora somem. Modo "atenuar":
-        os de fora ativos no ano ficam visíveis a 15% de opacidade, por baixo, sem clique e sem contar.
-        Devolve quantos pontos contam; emite `recorte_mudou(dentro, fora)`."""
+        """Aplica o recorte do filtro (dentro = códigos que passam; None = todos) e devolve quantos pontos contam.
+        No modo "esconder" os de fora somem; no "atenuar" ficam a 15% de opacidade, sem clique e sem contar."""
         if modo not in MODOS_RECORTE:
             raise ValueError(f"modo de recorte desconhecido: {modo!r}")
         self._dentro = None if dentro is None else frozenset(dentro)
@@ -1100,11 +1085,8 @@ class MapaVetorial(QGraphicsView):
             self.soltar_foco()
 
     def _ancoras(self, agregados, soltos, escala: float) -> list[QPointF]:
-        """Onde desenhar cada agregado: na SEMENTE (o membro mais denso). Duas sementes ficam a mais de
-        RAIO_AGREGACAO_PX uma da outra e o agregado tem raio externo de no máximo metade disso, então nada se
-        sobrepõe. Exceção: se uma custódia (desenhada por cima, na ordem padrão) cobrir a contagem, o agregado vai
-        para o membro mais perto da semente que fique livre da custódia sem encostar em outro agregado ou ponto
-        solto; se nenhum servir, fica na semente. Sempre na posição de um membro."""
+        """Posição de cada agregado: no membro mais denso ou, se uma custódia cobrir a contagem, no membro mais
+        próximo que fique livre dela. Como as sementes ficam afastadas, nenhum agregado se sobrepõe a outro."""
         def px(item):
             return item.pos().x() * escala, item.pos().y() * escala
 

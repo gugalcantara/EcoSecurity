@@ -1,23 +1,4 @@
-"""Gráficos do painel do N1, desenhados à mão com QPainter.
-
-Sem QtCharts: o tema do QtCharts põe fundo cinza, borda e legenda em caixa, e a faixa de rótulos e
-marcas que este desenho usa (marcas finas, fim de barra arredondado, vão de 2 px entre segmentos,
-grade em linha fina, rótulo direto e seletivo, texto sempre na cor de texto e nunca na cor da série) dá mais
-trabalho para desligar do que para desenhar. Cada gráfico aqui:
-
-  - responde a uma pergunta (o título e o subtítulo ficam no CartaoGrafico, fora do desenho);
-  - tem um só eixo de valor, com passo 1, 2 ou 5 × 10^k e a unidade escrita;
-  - mostra None (número suprimido pelo k=3 do N1) como "Suprimido", com hachura a 45°, nunca como 0;
-  - tem dica em toda marca (o alvo de mouse é maior que a marca) e emite `clicado(valor)` quando a marca filtra
-    (classe ou ano, os dois filtros do N1);
-  - tem a tabela equivalente (tabela()), que o cartão mostra no lugar do gráfico (acessibilidade);
-  - guarda os textos que desenhou (textos()) para os testes conferirem o que está visível.
-
-Cores: as três classes com os mesmos matizes de identidade do sistema (azul, laranja, vermelho), em passos
-conferidos quanto à separação para daltonismo e ao contraste, no tema claro e no escuro. As duas
-medidas de prazo em violeta e água (validadas juntas). Escalas sequenciais de um matiz só. Status (bom e ruim)
-só nas setas da variação, sempre com o sinal e o texto.
-"""
+"""Gráficos do painel do nível 1."""
 from __future__ import annotations
 
 from math import ceil, floor, log10

@@ -1,8 +1,4 @@
-"""Estado compartilhado do painel do N1 (EstadoN1).
-
-As seções do painel não se chamam diretamente: todas observam o mesmo EstadoN1 (UF em foco, seleção, classe e
-ano), que só emite um sinal quando o valor muda, o que evita eco entre seções que se atualizam umas às outras.
-"""
+"""Estado do painel do nível 1."""
 from PySide6.QtCore import QObject, Signal
 
 

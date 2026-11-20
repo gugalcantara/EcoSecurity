@@ -1,23 +1,4 @@
-"""S4 Inerência: "É quem diz ser?"
-
-O fator inerente ao corpo da pessoa: não se empresta nem se esquece.
-
-O LBPH devolve uma distância (menor = mais parecido), e a regra de aceite é
-`distancia <= limiar`. Com o sinal invertido, o sistema aceitaria justamente os
-rostos mais diferentes.
-
-Modos:
-- 1:1, no login e na abertura dos níveis: a senha já indicou quem a pessoa alega
-  ser, e a comparação é só com esse cadastro. Por isso a senha vem antes do rosto.
-- 1:N, comparação com todos os cadastros, ficando com o mais próximo. A chance de
-  falsa aceitação cresce com o número de cadastros. Na aplicação, só a
-  Identificação do administrador (servicos/identificacao.py) compara 1:N, sem
-  conceder acesso.
-
-A comparação é escrita como `not (distancia <= limiar)`: com NaN, qualquer
-comparação é falsa, e uma distância corrompida nega o acesso. A forma
-`distancia > limiar` também daria falso com NaN e aprovaria.
-"""
+"""S4 Inerência: é quem diz ser?"""
 from collections.abc import Mapping
 
 from ecosec.dominio.camadas import CamadaSeguranca
